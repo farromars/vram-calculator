@@ -1,70 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { LanguageProvider } from "@/contexts/language-context";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import "tdesign-react/es/style/index.css";
 
 export const metadata: Metadata = {
-  title: "Wuhr AI VRAM Insight - Professional GPU Memory Calculator",
-  description: "Professional AI model VRAM calculator supporting training, inference & fine-tuning modes with precise formulas based on latest engineering practices",
-  keywords: ["AI", "GPU", "VRAM", "Memory Calculator", "Deep Learning", "Machine Learning", "Training", "Inference", "Fine-tuning"],
-  authors: [{ name: "Wuhr AI Team", url: "https://wuhrai.com" }],
-  creator: "Wuhr AI",
-  publisher: "Wuhr AI",
+  title: "LLM 显存计算器 - 专业GPU显存需求分析工具",
+  description: "专业的AI大模型显存（VRAM）计算工具，支持推理、训练、微调等多种场景，精确估算GPU显存需求，智能推荐NVIDIA GPU方案",
+  keywords: ["显存计算器", "VRAM", "GPU", "大模型", "LLM", "推理", "训练", "微调", "显存估算"],
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
   openGraph: {
-    title: "Wuhr AI VRAM Insight",
-    description: "Professional GPU memory calculator for AI models",
-    url: "https://vram.wuhrai.com",
-    siteName: "Wuhr AI VRAM Insight",
-    images: [
-      {
-        url: "https://vram.wuhrai.com/icon-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "Wuhr AI VRAM Insight Preview",
-      },
-    ],
+    title: "LLM 显存计算器",
+    description: "专业的AI大模型GPU显存需求分析工具",
     locale: "zh_CN",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Wuhr AI VRAM Insight",
-    description: "Professional GPU memory calculator for AI models",
-    images: ["https://vram.wuhrai.com/icon-512x512.png"],
-    creator: "@wuhr_ai",
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
-  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -74,9 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="font-sans antialiased">
         <ThemeProvider>
           <LanguageProvider>
             {children}

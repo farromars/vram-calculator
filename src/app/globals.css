@@ -3,231 +3,353 @@
 @tailwind utilities;
 
 :root {
-  /* 浅色主题 */
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 248, 250, 252;
-  --background-mid-rgb: 239, 246, 255;
-  --background-end-rgb: 224, 231, 255;
-  
-  /* Shadcn/ui Variables */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-  --radius: 0.75rem;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-}
+  /* 腾讯云品牌色体系 */
+  --tc-brand-primary: #0052D9;
+  --tc-brand-primary-hover: #0034B5;
+  --tc-brand-primary-light: #366EF4;
+  --tc-brand-primary-bg: #BDD2FF;
+  --tc-brand-primary-bg-light: #F2F3FF;
 
-.dark {
-  /* 深色主题 */
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 15, 23, 42;
-  --background-mid-rgb: 30, 41, 59;
-  --background-end-rgb: 51, 65, 85;
-  
-  /* Shadcn/ui Variables for Dark */
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  /* 功能色 */
+  --tc-success: #2BA471;
+  --tc-error: #D54941;
+  --tc-warning: #E37318;
+  --tc-info: #0052D9;
+
+  /* 文本色 */
+  --tc-text-primary: #181818;
+  --tc-text-secondary: #4B4B4B;
+  --tc-text-placeholder: #8C8C8C;
+  --tc-text-disabled: #C0C0C0;
+
+  /* 背景色 */
+  --tc-bg-page: #F7F8FA;
+  --tc-bg-container: #FFFFFF;
+  --tc-bg-secondary: #F3F3F3;
+
+  /* 边框色 */
+  --tc-border: #DCDCDC;
+  --tc-border-light: #E7E7E7;
+
+  /* 阴影 */
+  --tc-shadow-1: 0 1px 4px rgba(0, 0, 0, 0.05);
+  --tc-shadow-2: 0 3px 14px rgba(0, 0, 0, 0.08);
+  --tc-shadow-3: 0 6px 30px rgba(0, 0, 0, 0.12);
+
+  /* Shadcn/ui Variables */
+  --background: 0 0% 97%;
+  --foreground: 0 0% 9%;
+  --border: 0 0% 86%;
+  --input: 0 0% 86%;
+  --ring: 215 100% 43%;
+  --radius: 0.5rem;
+  --primary: 215 100% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 45%;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom right,
-    rgb(var(--background-start-rgb)),
-    rgb(var(--background-mid-rgb)),
-    rgb(var(--background-end-rgb))
-  );
+  color: var(--tc-text-primary);
+  background: var(--tc-bg-page);
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 玻璃拟态效果样式 */
+/* 腾讯云风格卡片 */
 @layer components {
-  .glass-card {
-    backdrop-filter: blur(24px);
-    background-color: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-    border-radius: 1rem;
+  .tc-card {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border-light);
+    border-radius: 8px;
+    box-shadow: var(--tc-shadow-1);
+    transition: box-shadow 0.3s ease;
   }
-  
-  .dark .glass-card {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+
+  .tc-card:hover {
+    box-shadow: var(--tc-shadow-2);
   }
-  
-  .glass-card-hover {
-    backdrop-filter: blur(24px);
-    background-color: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-    border-radius: 1rem;
+
+  .tc-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--tc-border-light);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--tc-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tc-card-header::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 16px;
+    background: var(--tc-brand-primary);
+    border-radius: 2px;
+  }
+
+  .tc-card-body {
+    padding: 20px 24px;
+  }
+
+  /* 导航栏 */
+  .tc-navbar {
+    background: var(--tc-bg-container);
+    border-bottom: 1px solid var(--tc-border-light);
+    box-shadow: var(--tc-shadow-1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+  }
+
+  /* 按钮 */
+  .tc-btn-primary {
+    background: var(--tc-brand-primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tc-btn-primary:hover {
+    background: var(--tc-brand-primary-hover);
+  }
+
+  .tc-btn-outline {
+    background: transparent;
+    color: var(--tc-brand-primary);
+    border: 1px solid var(--tc-brand-primary);
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tc-btn-outline:hover {
+    background: var(--tc-brand-primary-bg-light);
+  }
+
+  /* 标签页 */
+  .tc-tab {
+    padding: 8px 20px;
+    font-size: 14px;
+    color: var(--tc-text-secondary);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tc-tab:hover {
+    color: var(--tc-brand-primary);
+  }
+
+  .tc-tab-active {
+    color: var(--tc-brand-primary);
+    border-bottom-color: var(--tc-brand-primary);
+    font-weight: 500;
+  }
+
+  /* 输入框 */
+  .tc-input {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: var(--tc-text-primary);
+    transition: all 0.2s ease;
+    outline: none;
+    width: 100%;
+  }
+
+  .tc-input:focus {
+    border-color: var(--tc-brand-primary);
+    box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.1);
+  }
+
+  /* 标签 */
+  .tc-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    line-height: 20px;
+  }
+
+  .tc-tag-success {
+    background: #E8F8F0;
+    color: var(--tc-success);
+  }
+
+  .tc-tag-error {
+    background: #FDECEE;
+    color: var(--tc-error);
+  }
+
+  .tc-tag-warning {
+    background: #FEF0E5;
+    color: var(--tc-warning);
+  }
+
+  .tc-tag-info {
+    background: var(--tc-brand-primary-bg-light);
+    color: var(--tc-brand-primary);
+  }
+
+  /* 进度条 */
+  .tc-progress-bar {
+    background: var(--tc-bg-secondary);
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .tc-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  /* 指标卡片 */
+  .tc-metric-card {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border-light);
+    border-radius: 8px;
+    padding: 16px 20px;
+    text-align: center;
     transition: all 0.3s ease;
   }
-  
-  .glass-card-hover:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-    transform: scale(1.02);
-  }
-  
-  .dark .glass-card-hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .dark .glass-card-hover:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-  }
-  
-  .glass-input {
-    backdrop-filter: blur(4px);
-    background-color: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 1rem;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease;
-  }
-  
-  .glass-input:focus {
-    background-color: rgba(255, 255, 255, 0.6);
-    border-color: rgba(255, 255, 255, 0.7);
-  }
-  
-  .dark .glass-input {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  
-  .dark .glass-input:focus {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .glass-button {
-    backdrop-filter: blur(4px);
-    background-color: rgba(255, 255, 255, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.2s ease;
-  }
-  
-  .glass-button:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
-  }
-  
-  .dark .glass-button {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-  
-  .dark .glass-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-  }
-  
-  .glass-tab {
-    backdrop-filter: blur(4px);
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    transition: all 0.2s ease;
-  }
-  
-  .glass-tab:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-  }
-  
-  .dark .glass-tab {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-  
-  .dark .glass-tab:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-  
-  .glass-tab-active {
-    backdrop-filter: blur(4px);
-    background-color: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dark .glass-tab-active {
-    background-color: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25);
-  }
-}
 
-/* 背景装饰球动画 */
-@layer utilities {
-  .floating-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(64px);
-    opacity: 0.2;
-    animation: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+  .tc-metric-card:hover {
+    box-shadow: var(--tc-shadow-2);
+    transform: translateY(-2px);
   }
-  
-  .floating-orb-1 {
-    @apply floating-orb bg-gradient-to-r from-blue-400 to-purple-500;
-    width: 200px;
-    height: 200px;
-    top: 10%;
-    left: 15%;
-    animation-delay: 0s;
+
+  .tc-metric-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--tc-brand-primary);
+    line-height: 1.2;
   }
-  
-  .floating-orb-2 {
-    @apply floating-orb bg-gradient-to-r from-purple-400 to-pink-500;
-    width: 150px;
-    height: 150px;
-    top: 60%;
-    right: 20%;
-    animation-delay: 2s;
+
+  .tc-metric-label {
+    font-size: 13px;
+    color: var(--tc-text-placeholder);
+    margin-top: 4px;
   }
-  
-  .floating-orb-3 {
-    @apply floating-orb bg-gradient-to-r from-indigo-400 to-blue-500;
-    width: 180px;
-    height: 180px;
-    bottom: 20%;
-    left: 25%;
-    animation-delay: 4s;
+
+  /* 面板侧边抽屉 */
+  .tc-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 200;
   }
-  
-  .floating-orb-4 {
-    @apply floating-orb bg-gradient-to-r from-cyan-400 to-teal-500;
-    width: 120px;
-    height: 120px;
-    top: 30%;
-    right: 35%;
-    animation-delay: 1s;
+
+  .tc-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 480px;
+    background: var(--tc-bg-container);
+    box-shadow: var(--tc-shadow-3);
+    z-index: 201;
+    overflow-y: auto;
+  }
+
+  /* 兼容原有glass系列class，重定向到tc风格 */
+  .glass-card {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border-light);
+    border-radius: 8px;
+    box-shadow: var(--tc-shadow-1);
+  }
+
+  .glass-card-hover {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border-light);
+    border-radius: 8px;
+    box-shadow: var(--tc-shadow-1);
+    transition: all 0.3s ease;
+  }
+
+  .glass-card-hover:hover {
+    box-shadow: var(--tc-shadow-2);
+    transform: translateY(-2px);
+  }
+
+  .glass-input {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    transition: all 0.2s ease;
+  }
+
+  .glass-input:focus {
+    border-color: var(--tc-brand-primary);
+    box-shadow: 0 0 0 2px rgba(0, 82, 217, 0.1);
+  }
+
+  .glass-button {
+    background: var(--tc-bg-container);
+    border: 1px solid var(--tc-border);
+    border-radius: 6px;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: var(--tc-text-secondary);
+  }
+
+  .glass-button:hover {
+    border-color: var(--tc-brand-primary);
+    color: var(--tc-brand-primary);
+    background: var(--tc-brand-primary-bg-light);
+  }
+
+  .glass-tab {
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    color: var(--tc-text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+  }
+
+  .glass-tab:hover {
+    background: var(--tc-bg-secondary);
+    color: var(--tc-brand-primary);
+  }
+
+  .glass-tab-active {
+    background: var(--tc-brand-primary-bg-light);
+    color: var(--tc-brand-primary);
+    font-weight: 500;
+    border: 1px solid var(--tc-brand-primary-bg);
   }
 }
 
@@ -237,92 +359,82 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hidden::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-glass {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    scrollbar-color: var(--tc-border) transparent;
   }
-  
+
   .scrollbar-glass::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   .scrollbar-glass::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .scrollbar-glass::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--tc-border);
     border-radius: 3px;
   }
-  
+
   .scrollbar-glass::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: var(--tc-text-placeholder);
   }
 }
 
-/* 数字动画效果 */
+/* 动画 */
 @layer utilities {
   .number-animate {
     @apply transition-all duration-500 ease-out;
   }
-  
-  /* 滑块增强样式 */
+
   .slider-track {
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
   }
-  
+
   .slider-range {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 82, 217, 0.2);
   }
 }
 
-/* 加载动画 */
 @keyframes slideInFromTop {
-  from {
-    transform: translateY(-100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes slideInFromBottom {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @layer utilities {
   .animate-slide-in-top {
-    animation: slideInFromTop 0.6s ease-out;
+    animation: slideInFromTop 0.4s ease-out;
   }
-  
+
   .animate-slide-in-bottom {
-    animation: slideInFromBottom 0.6s ease-out;
+    animation: slideInFromBottom 0.4s ease-out;
   }
-  
+
   .animate-fade-in {
-    animation: fadeIn 0.8s ease-out;
+    animation: fadeIn 0.5s ease-out;
   }
+}
+
+/* TDesign 全局覆盖，对齐腾讯云配色 */
+.t-button--theme-primary {
+  background-color: var(--tc-brand-primary) !important;
+}
+.t-button--theme-primary:hover {
+  background-color: var(--tc-brand-primary-hover) !important;
 }

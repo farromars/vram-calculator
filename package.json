@@ -1,9 +1,20 @@
 {
-  "name": "ai-memory-calculator",
-  "version": "0.1.0",
+  "name": "llm-vram-calculator",
+  "version": "1.0.0",
   "private": true,
-  "description": "Professional VRAM requirement calculation tool for Large Language Models and Multimodal Models with MCP protocol support",
-  "keywords": ["vram", "gpu", "llm", "ai", "calculator", "mcp", "model-context-protocol", "memory", "training", "inference"],
+  "description": "LLM显存计算器 - 专业的AI大模型GPU显存需求分析工具，支持推理、训练、微调等多场景精确估算",
+  "keywords": [
+    "vram",
+    "gpu",
+    "llm",
+    "ai",
+    "calculator",
+    "mcp",
+    "model-context-protocol",
+    "memory",
+    "training",
+    "inference"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -34,6 +45,8 @@
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "tdesign-icons-react": "0.6.2",
+    "tdesign-react": "1.16.7",
     "zod": "^3.25.67",
     "zustand": "^5.0.5"
   },

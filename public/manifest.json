@@ -1,11 +1,11 @@
 {
-  "name": "Wuhr AI VRAM Insight",
-  "short_name": "VRAM Insight",
-  "description": "专业的AI模型显存计算器，支持训练、推理、微调三种模式",
+  "name": "LLM 显存计算器",
+  "short_name": "显存计算器",
+  "description": "专业的AI大模型GPU显存需求分析工具，支持推理、训练、微调等多场景精确估算",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#0052D9",
   "orientation": "portrait",
   "icons": [
     {

@@ -2,595 +2,292 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Brain, Calculator, Cpu, Zap, History, Settings, Keyboard, Star, Users, MessageSquare, Image, Github } from 'lucide-react';
-import { SimpleThemeToggle } from '@/components/ui/theme-toggle';
-import { LanguageToggle } from '@/components/ui/language-toggle';
-import { useTheme } from '@/contexts/theme-context';
-import { useLanguage } from '@/contexts/language-context';
-import { useKeyboardShortcuts, getDefaultShortcuts } from '@/hooks/use-keyboard-shortcuts';
-import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
-import { ConfigPresetsPanel } from '@/components/config-presets-panel';
-import { ErrorNotification } from '@/components/error-notification';
-import { useErrorHandler } from '@/hooks/use-error-handler';
-import { usePerformanceMonitor } from '@/hooks/use-performance-monitor';
+import Link from 'next/link';
+import { Brain, Calculator, Cpu, Zap, History, Star, Users, MessageSquare, Image, HelpCircle } from 'lucide-react';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ZH } from '@/lib/i18n';
 import dynamic from 'next/dynamic';
 import { GPURecommendations } from '@/components/gpu-recommendations';
 
-// 懒加载计算器组件
 const TrainingCalculator = dynamic(
   () => import('@/components/calculators/training-calculator').then(mod => ({ default: mod.TrainingCalculator })),
-  { 
-    loading: () => <div className="glass-card p-8 text-center">Loading...</div>,
-    ssr: false 
-  }
+  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-
 const InferenceCalculator = dynamic(
   () => import('@/components/calculators/inference-calculator').then(mod => ({ default: mod.InferenceCalculator })),
-  { 
-    loading: () => <div className="glass-card p-8 text-center">Loading...</div>,
-    ssr: false 
-  }
+  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-
 const FineTuningCalculator = dynamic(
   () => import('@/components/calculators/fine-tuning-calculator').then(mod => ({ default: mod.FineTuningCalculator })),
-  { 
-    loading: () => <div className="glass-card p-8 text-center">Loading...</div>,
-    ssr: false 
-  }
+  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-
 const GRPOCalculator = dynamic(
   () => import('@/components/calculators/grpo-calculator').then(mod => ({ default: mod.GRPOCalculator })),
-  {
-    loading: () => <div className="glass-card p-8 text-center">Loading...</div>,
-    ssr: false
-  }
+  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-
 const AdvancedFineTuningCalculator = dynamic(
   () => import('@/components/calculators/advanced-fine-tuning-calculator').then(mod => ({ default: mod.AdvancedFineTuningCalculator })),
-  {
-    loading: () => <div className="glass-card p-8 text-center">Loading...</div>,
-    ssr: false
-  }
+  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-
 const MultimodalCalculator = dynamic(
   () => import('@/components/calculators/multimodal-calculator').then(mod => ({ default: mod.MultimodalCalculator })),
-  { 
-    loading: () => <div className="glass-card p-8 text-center">Loading...</div>,
-    ssr: false 
-  }
+  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-
-// 懒加载面板组件
 const HistoryPanel = dynamic(() => import('@/components/history-panel'), {
-  loading: () => <div className="glass-card p-8 text-center">Loading history...</div>,
+  loading: () => null,
 });
-
-const SettingsPanel = dynamic(() => import('@/components/settings-panel'), {
-  loading: () => <div className="glass-card p-8 text-center">Loading settings...</div>,
+const ConfigPresetsPanel = dynamic(() => import('@/components/config-presets-panel').then(mod => ({ default: mod.ConfigPresetsPanel })), {
+  loading: () => null,
 });
 
 export default function Home() {
-  const { 
-    primaryTab,
-    setPrimaryTab,
-    activeTab, 
-    setActiveTab, 
-    getCurrentResult, 
-    history,
-    compareList,
-    multimodalConfig,
-    setMultimodalConfig
+  const {
+    primaryTab, setPrimaryTab,
+    activeTab, setActiveTab,
+    getCurrentResult,
+    history, compareList,
+    multimodalConfig, setMultimodalConfig
   } = useCalculatorStore();
-  
+
   const [showHistory, setShowHistory] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
-  const { toggleTheme } = useTheme();
-  const { t } = useLanguage();
-  // const { isMobile, isTablet } = useResponsive();
-  
-  // 错误处理和性能监控
-  const errorHandler = useErrorHandler();
-  const performanceMonitor = usePerformanceMonitor();
-  
-  // 配置键盘快捷键
-  const shortcuts = getDefaultShortcuts({
-    showHistory: () => {
-      setShowHistory(true);
-      performanceMonitor.recordInteraction();
-    },
-    showSettings: () => {
-      setShowSettings(true);
-      performanceMonitor.recordInteraction();
-    },
-    toggleTheme: () => {
-      toggleTheme();
-      performanceMonitor.recordInteraction();
-    },
-    switchToInference: () => {
-      setActiveTab('inference');
-      performanceMonitor.recordInteraction();
-    },
-    switchToTraining: () => {
-      setActiveTab('training');
-      performanceMonitor.recordInteraction();
-    },
-    switchToFineTuning: () => {
-      setActiveTab('finetuning');
-      performanceMonitor.recordInteraction();
-    },
-    switchToGRPO: () => {
-      setActiveTab('grpo');
-      performanceMonitor.recordInteraction();
-    },
-    switchToMultimodal: () => {
-      setPrimaryTab('multimodal');
-      setActiveTab('inference'); // 切换到多模态的推理页
-      performanceMonitor.recordInteraction();
-    },
-    switchToNLP: () => {
-      setPrimaryTab('nlp');
-      setActiveTab('inference'); // 切换到NLP的推理页
-      performanceMonitor.recordInteraction();
-    },
-    showHelp: () => {
-      setShowKeyboardHelp(true);
-      performanceMonitor.recordInteraction();
+
+  // 初始化语言为中文
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', 'zh');
     }
-  });
-  
-  useKeyboardShortcuts(shortcuts);
-  
-  // 监听语言切换事件，重新计算以更新Memory Breakdown标签
+  }, []);
+
+  // 监听语言切换，重新计算
   useEffect(() => {
     const handleLanguageChange = () => {
-      // 延迟一点确保localStorage已更新
       setTimeout(() => {
-        // 重新计算当前活跃的计算器
         if (primaryTab === 'multimodal') {
           useCalculatorStore.getState().calculateMultimodalMemory();
         } else {
+          const state = useCalculatorStore.getState();
           switch (activeTab) {
-            case 'training':
-              useCalculatorStore.getState().calculateTrainingMemory();
-              break;
-            case 'inference':
-              useCalculatorStore.getState().calculateInferenceMemory();
-              break;
-            case 'finetuning':
-              useCalculatorStore.getState().calculateFineTuningMemory();
-              break;
-            case 'grpo':
-              useCalculatorStore.getState().calculateGRPOMemory();
-              break;
+            case 'training': state.calculateTrainingMemory(); break;
+            case 'inference': state.calculateInferenceMemory(); break;
+            case 'finetuning': state.calculateFineTuningMemory(); break;
+            case 'grpo': state.calculateGRPOMemory(); break;
           }
         }
       }, 100);
     };
-    
     window.addEventListener('languageChanged', handleLanguageChange);
     return () => window.removeEventListener('languageChanged', handleLanguageChange);
   }, [primaryTab, activeTab]);
-  
+
   const currentResult = getCurrentResult();
   const requiredMemoryGB = currentResult ? currentResult.total : 25;
 
+  const getTabLabel = () => {
+    if (primaryTab === 'multimodal') {
+      const modeLabels: Record<string, string> = { training: '训练', inference: '推理', finetuning: '微调' };
+      return `多模态模型 - ${modeLabels[multimodalConfig.mode] || '推理'}`;
+    }
+    const tabLabels: Record<string, string> = { training: '训练', inference: '推理', finetuning: '微调', grpo: 'GRPO' };
+    return `NLP模型 - ${tabLabels[activeTab] || '推理'}`;
+  };
+
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* 背景装饰球 */}
-      <div className="floating-orb floating-orb-1"></div>
-      <div className="floating-orb floating-orb-2"></div>
-      <div className="floating-orb floating-orb-3"></div>
-      <div className="floating-orb floating-orb-4"></div>
-      
-      {/* 主要内容 */}
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* Header */}
-        <motion.header 
-          className="text-center mb-12"
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-3 rounded-2xl glass-card">
-              <Brain className="w-8 h-8 text-blue-600" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {t('header.title')}
-            </h1>
+    <div className="min-h-screen bg-tc-bg-page">
+      {/* 顶部导航栏 */}
+      <nav className="tc-navbar">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
+            <Brain className="w-5 h-5 text-white" />
           </div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            {t('header.description')}
-          </p>
-          
-          {/* 工具栏 */}
-          <div className="flex items-center justify-center gap-2 md:gap-4 mt-8">
-            <button
-              onClick={() => setShowHistory(true)}
-              className="glass-button flex items-center gap-1 md:gap-2 relative"
-            >
-              <History className="w-4 h-4" />
-              <span>{t('nav.history')}</span>
-              {history.length > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {history.length}
-                </span>
-              )}
-            </button>
-            
-            <button
-              onClick={() => {
-                setShowPresets(true);
-                performanceMonitor.recordInteraction();
-              }}
-              className="glass-button flex items-center gap-1 md:gap-2"
-            >
-              <Star className="w-4 h-4" />
-              <span className="hidden md:inline">{t('nav.presets')}</span>
-            </button>
-            
-            <button
-              onClick={() => setShowSettings(true)}
-              className="glass-button flex items-center gap-1 md:gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              <span>{t('nav.settings')}</span>
-            </button>
-            
-            <button
-              onClick={() => setShowKeyboardHelp(true)}
-              className="glass-button flex items-center gap-1 md:gap-2"
-              title={t('nav.shortcuts')}
-            >
-              <Keyboard className="w-4 h-4" />
-              <span className="hidden md:inline">{t('nav.shortcuts')}</span>
-            </button>
-            
-            <LanguageToggle />
-            
-            <SimpleThemeToggle />
-            
-            <a
-              href="https://github.com/st-lzh/vram-wuhrai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass-button p-3 rounded-xl"
-              title="GitHub Repository"
-            >
-              <Github className="w-5 h-5" />
-            </a>
-            
-            {compareList.length > 0 && (
-              <button
-                onClick={() => setShowHistory(true)}
-                className="glass-button flex items-center gap-1 md:gap-2 bg-purple-500/20 relative"
-              >
-                <span>{t('nav.compare')}</span>
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {compareList.length}
-                </span>
-              </button>
+          <h1 className="text-lg font-semibold text-tc-text-primary">{ZH.site.title}</h1>
+          <span className="text-xs text-tc-text-placeholder hidden md:inline">{ZH.site.subtitle}</span>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <Link href="/help" className="glass-button flex items-center gap-1.5 text-sm">
+            <HelpCircle className="w-4 h-4" />
+            <span>{ZH.nav.help}</span>
+          </Link>
+          <button onClick={() => setShowPresets(true)} className="glass-button flex items-center gap-1.5 text-sm">
+            <Star className="w-4 h-4" />
+            <span>{ZH.nav.presets}</span>
+          </button>
+          <button onClick={() => setShowHistory(true)} className="glass-button flex items-center gap-1.5 text-sm relative">
+            <History className="w-4 h-4" />
+            <span>{ZH.nav.history}</span>
+            {history.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-brand text-white text-[10px] rounded-full flex items-center justify-center">
+                {history.length > 9 ? '9+' : history.length}
+              </span>
             )}
-          </div>
-        </motion.header>
+          </button>
+          {compareList.length > 0 && (
+            <button onClick={() => setShowHistory(true)} className="glass-button flex items-center gap-1.5 text-sm border-brand text-brand">
+              <span>对比 ({compareList.length})</span>
+            </button>
+          )}
+        </div>
+      </nav>
 
-        {/* 功能标签页 - 二级分组结构 */}
-        <motion.div
-          className="max-w-7xl mx-auto"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
+      {/* 主要内容 */}
+      <main className="pt-[72px] pb-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          {/* 页面描述 */}
+          <motion.div
+            className="text-center mb-8"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <p className="text-tc-text-secondary text-sm max-w-2xl mx-auto">
+              {ZH.site.description}
+            </p>
+          </motion.div>
+
           {/* 主分组标签页 */}
-          <Tabs value={primaryTab} onValueChange={(value) => setPrimaryTab(value as typeof primaryTab)} className="w-full">
-            <div className="flex justify-center mb-6">
-              <TabsList className="grid w-full max-w-2xl grid-cols-3">
-                <TabsTrigger value="nlp" className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  <span>{t('tabs.nlp')}</span>
-                </TabsTrigger>
-                <TabsTrigger value="multimodal" className="flex items-center gap-2">
-                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                  <Image className="w-4 h-4" />
-                  <span>{t('tabs.multimodal')}</span>
-                </TabsTrigger>
-                <TabsTrigger value="advanced" className="flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
-                  <span>{t('tabs.advanced')}</span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <Tabs value={primaryTab} onValueChange={(v) => setPrimaryTab(v as typeof primaryTab)} className="w-full">
+              <div className="flex justify-center mb-5">
+                <TabsList className="grid w-full max-w-xl grid-cols-3 bg-tc-bg-secondary rounded-lg p-1">
+                  <TabsTrigger value="nlp" className="flex items-center gap-2 text-sm">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>{ZH.tabs.nlp}</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="multimodal" className="flex items-center gap-2 text-sm">
+                    <Image className="w-4 h-4" />
+                    <span>{ZH.tabs.multimodal}</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="advanced" className="flex items-center gap-2 text-sm">
+                    <Brain className="w-4 h-4" />
+                    <span>{ZH.tabs.advanced}</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-            {/* NLP模型组 */}
-            <TabsContent value="nlp" className="space-y-6">
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full">
-                <div className="flex justify-center mb-8">
-                  <TabsList className="grid w-full max-w-4xl grid-cols-4">
-                    <TabsTrigger value="inference" className="flex items-center gap-2">
-                      <Cpu className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.inference')}</span>
-                      <span className="sm:hidden">{t('tabs.inference').split(' ')[0]}</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="finetuning" className="flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.finetuning')}</span>
-                      <span className="sm:hidden">{t('tabs.finetuning').split(' ')[0]}</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="training" className="flex items-center gap-2">
-                      <Calculator className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.training')}</span>
-                      <span className="sm:hidden">{t('tabs.training').split(' ')[0]}</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="grpo" className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.grpo')}</span>
-                      <span className="sm:hidden">{t('tabs.grpo')}</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
+              {/* NLP模型组 */}
+              <TabsContent value="nlp" className="space-y-5">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
+                  <div className="flex justify-center mb-6">
+                    <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-tc-bg-secondary rounded-lg p-1">
+                      <TabsTrigger value="inference" className="flex items-center gap-1.5 text-sm">
+                        <Cpu className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.inference}</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="finetuning" className="flex items-center gap-1.5 text-sm">
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.finetuning}</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="training" className="flex items-center gap-1.5 text-sm">
+                        <Calculator className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.training}</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="grpo" className="flex items-center gap-1.5 text-sm">
+                        <Users className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.grpo}</span>
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <TabsContent value="inference"><InferenceCalculator /></TabsContent>
+                  <TabsContent value="finetuning"><FineTuningCalculator /></TabsContent>
+                  <TabsContent value="training"><TrainingCalculator /></TabsContent>
+                  <TabsContent value="grpo"><GRPOCalculator /></TabsContent>
+                </Tabs>
+              </TabsContent>
 
-                <TabsContent value="inference" className="space-y-8">
-                  <motion.div
-                    key="nlp-inference-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <InferenceCalculator />
-                  </motion.div>
-                </TabsContent>
+              {/* 多模态模型组 */}
+              <TabsContent value="multimodal" className="space-y-5">
+                <Tabs value={multimodalConfig.mode} onValueChange={(v) => setMultimodalConfig({ mode: v as 'training' | 'inference' | 'finetuning' })} className="w-full">
+                  <div className="flex justify-center mb-6">
+                    <TabsList className="grid w-full max-w-lg grid-cols-3 bg-tc-bg-secondary rounded-lg p-1">
+                      <TabsTrigger value="inference" className="flex items-center gap-1.5 text-sm">
+                        <Cpu className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.inference}</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="finetuning" className="flex items-center gap-1.5 text-sm">
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.finetuning}</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="training" className="flex items-center gap-1.5 text-sm">
+                        <Calculator className="w-3.5 h-3.5" />
+                        <span>{ZH.tabs.training}</span>
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <TabsContent value="inference"><MultimodalCalculator mode="inference" /></TabsContent>
+                  <TabsContent value="finetuning"><MultimodalCalculator mode="finetuning" /></TabsContent>
+                  <TabsContent value="training"><MultimodalCalculator mode="training" /></TabsContent>
+                </Tabs>
+              </TabsContent>
 
-                <TabsContent value="finetuning" className="space-y-8">
-                  <motion.div
-                    key="nlp-finetuning-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <FineTuningCalculator />
-                  </motion.div>
-                </TabsContent>
-
-                <TabsContent value="training" className="space-y-8">
-                  <motion.div
-                    key="nlp-training-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <TrainingCalculator />
-                  </motion.div>
-                </TabsContent>
-
-                <TabsContent value="grpo" className="space-y-8">
-                  <motion.div
-                    key="nlp-grpo-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <GRPOCalculator />
-                  </motion.div>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            {/* 多模态模型组 */}
-            <TabsContent value="multimodal" className="space-y-6">
-              <Tabs value={multimodalConfig.mode} onValueChange={(value) => setMultimodalConfig({ mode: value as 'training' | 'inference' | 'finetuning' })} className="w-full">
-                <div className="flex justify-center mb-8">
-                  <TabsList className="grid w-full max-w-3xl grid-cols-3">
-                    <TabsTrigger value="inference" className="flex items-center gap-2">
-                      <Cpu className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.inference')}</span>
-                      <span className="sm:hidden">{t('tabs.inference').split(' ')[0]}</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="finetuning" className="flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.finetuning')}</span>
-                      <span className="sm:hidden">{t('tabs.finetuning').split(' ')[0]}</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="training" className="flex items-center gap-2">
-                      <Calculator className="w-4 h-4" />
-                      <span className="hidden sm:inline">{t('tabs.training')}</span>
-                      <span className="sm:hidden">{t('tabs.training').split(' ')[0]}</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                <TabsContent value="inference" className="space-y-8">
-                  <motion.div
-                    key="multimodal-inference-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <MultimodalCalculator mode="inference" />
-                  </motion.div>
-                </TabsContent>
-
-                <TabsContent value="finetuning" className="space-y-8">
-                  <motion.div
-                    key="multimodal-finetuning-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <MultimodalCalculator mode="finetuning" />
-                  </motion.div>
-                </TabsContent>
-
-                <TabsContent value="training" className="space-y-8">
-                  <motion.div
-                    key="multimodal-training-content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <MultimodalCalculator mode="training" />
-                  </motion.div>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            {/* 高级微调组 */}
-            <TabsContent value="advanced" className="space-y-6">
-              <motion.div
-                key="advanced-finetuning-content"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
+              {/* 高级微调组 */}
+              <TabsContent value="advanced" className="space-y-5">
                 <AdvancedFineTuningCalculator />
-              </motion.div>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
+              </TabsContent>
+            </Tabs>
+          </motion.div>
 
-        {/* GPU推荐区域 - 可以根据当前计算结果显示 */}
-        <motion.div
-          className="max-w-7xl mx-auto mt-12"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <GPURecommendations 
-            requiredMemoryGB={requiredMemoryGB}
-            title={`${
-              primaryTab === 'nlp' ? t('tabs.nlp') : t('tabs.multimodal')
-            } - ${
-              primaryTab === 'multimodal' 
-                ? (multimodalConfig.mode === 'training' ? t('tabs.training') : 
-                   multimodalConfig.mode === 'inference' ? t('tabs.inference') : t('tabs.finetuning'))
-                : (activeTab === 'training' ? t('tabs.training') : 
-                   activeTab === 'inference' ? t('tabs.inference') : 
-                   activeTab === 'finetuning' ? t('tabs.finetuning') :
-                   activeTab === 'grpo' ? t('tabs.grpo') : 'Unknown')
-            } ${t('gpu.scenario')} ${t('gpu.recommendations')}`}
-          />
-        </motion.div>
+          {/* GPU推荐区域 */}
+          <motion.div
+            className="mt-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <GPURecommendations
+              requiredMemoryGB={requiredMemoryGB}
+              title={`${getTabLabel()} 场景 GPU 推荐`}
+            />
+          </motion.div>
 
-        {/* 功能特色展示 */}
-        <motion.div
-          className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto mt-16"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1 }}
-        >
-          <div className="glass-card-hover p-6 text-center">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-xl glass-card flex items-center justify-center">
-              <Calculator className="w-6 h-6 text-blue-500" />
+          {/* 功能特色展示 */}
+          <motion.div
+            className="grid md:grid-cols-3 gap-5 mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+          >
+            <div className="tc-card p-6 text-center">
+              <div className="w-11 h-11 mx-auto mb-3 bg-brand/10 rounded-lg flex items-center justify-center">
+                <Calculator className="w-5 h-5 text-brand" />
+              </div>
+              <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{ZH.features.preciseCalc}</h3>
+              <p className="text-tc-text-placeholder text-sm leading-relaxed">{ZH.features.preciseCalcDesc}</p>
             </div>
-            <h3 className="text-lg font-semibold mb-3">{t('feature.precise')}</h3>
-            <p className="text-gray-600 text-sm">
-              {t('feature.precise.desc')}
-            </p>
-          </div>
-
-          <div className="glass-card-hover p-6 text-center">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-xl glass-card flex items-center justify-center">
-              <Brain className="w-6 h-6 text-purple-500" />
+            <div className="tc-card p-6 text-center">
+              <div className="w-11 h-11 mx-auto mb-3 bg-brand/10 rounded-lg flex items-center justify-center">
+                <Brain className="w-5 h-5 text-brand" />
+              </div>
+              <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{ZH.features.richModels}</h3>
+              <p className="text-tc-text-placeholder text-sm leading-relaxed">{ZH.features.richModelsDesc}</p>
             </div>
-            <h3 className="text-lg font-semibold mb-3">{t('feature.models')}</h3>
-            <p className="text-gray-600 text-sm">
-              {t('feature.models.desc')}
-            </p>
-          </div>
-
-          <div className="glass-card-hover p-6 text-center">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-xl glass-card flex items-center justify-center">
-              <Cpu className="w-6 h-6 text-green-500" />
+            <div className="tc-card p-6 text-center">
+              <div className="w-11 h-11 mx-auto mb-3 bg-brand/10 rounded-lg flex items-center justify-center">
+                <Cpu className="w-5 h-5 text-brand" />
+              </div>
+              <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{ZH.features.smartGPU}</h3>
+              <p className="text-tc-text-placeholder text-sm leading-relaxed">{ZH.features.smartGPUDesc}</p>
             </div>
-            <h3 className="text-lg font-semibold mb-3">{t('feature.gpu')}</h3>
-            <p className="text-gray-600 text-sm">
-              {t('feature.gpu.desc')}
-            </p>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Footer */}
-        <motion.footer
-          className="text-center mt-16 py-8 border-t border-white/20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
-        >
-          <div className="glass-card inline-block p-4">
-            <p className="text-sm text-gray-600">
-              {t('footer.description')}
-            </p>
-            <p className="text-xs text-gray-500 mt-2">
-              {t('footer.features')}
-            </p>
-            <div className="mt-4 flex justify-center items-center gap-4 text-xs">
-              <a href="https://wuhrai.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors">
-                {t('footer.blog')}
-              </a>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <a href="https://ai.wuhrai.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors">
-                {t('footer.api')}
-              </a>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <a href="https://gpt.wuhrai.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors">
-                {t('footer.chat')}
-              </a>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <a href="https://github.com/st-lzh/vram-wuhrai.git" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors">
-                {t('footer.github')}
-              </a>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <a href="mailto:1139804291@qq.com" className="text-blue-500 hover:text-blue-600 transition-colors">
-                {t('footer.contact')}
-              </a>
-            </div>
-            <p className="text-xs text-gray-400 mt-3">
-              {t('footer.made')} <a href="https://wuhrai.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Wuhr AI Team</a>
-            </p>
-          </div>
-        </motion.footer>
-      </div>
-      
+          {/* 页脚 */}
+          <footer className="text-center mt-14 pt-8 border-t border-tc-border-light">
+            <p className="text-sm text-tc-text-placeholder">{ZH.footer.description}</p>
+            <p className="text-xs text-tc-text-disabled mt-1">{ZH.footer.features}</p>
+            <p className="text-xs text-tc-text-disabled mt-3">{ZH.footer.copyright}</p>
+          </footer>
+        </div>
+      </main>
+
       {/* 历史记录面板 */}
-      <HistoryPanel 
-        isOpen={showHistory} 
-        onClose={() => setShowHistory(false)} 
-      />
-      
-      {/* 设置面板 */}
-      <SettingsPanel 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
-      
-      {/* 键盘快捷键帮助面板 */}
-      <KeyboardShortcutsHelp 
-        isOpen={showKeyboardHelp}
-        onClose={() => setShowKeyboardHelp(false)}
-        shortcuts={shortcuts}
-      />
-      
+      <HistoryPanel isOpen={showHistory} onClose={() => setShowHistory(false)} />
+
       {/* 配置预设面板 */}
-      <ConfigPresetsPanel 
-        isOpen={showPresets}
-        onClose={() => setShowPresets(false)}
-        currentType={activeTab}
-      />
-      
-      {/* 错误通知 */}
-      <ErrorNotification 
-        errors={errorHandler.errors}
-        onRemoveError={errorHandler.removeError}
-        onClearAll={errorHandler.clearAllErrors}
-      />
+      <ConfigPresetsPanel isOpen={showPresets} onClose={() => setShowPresets(false)} currentType={activeTab} />
     </div>
   );
 }

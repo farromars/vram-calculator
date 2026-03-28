@@ -16,7 +16,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations = {
   zh: {
     // Header
-    'header.title': 'Wuhr AI VRAM Insight',
+    'header.title': 'LLM 显存计算器',
     'header.description': '专业的AI模型显存需求计算工具，支持训练、推理、微调三种模式，基于最新工程实践的精确计算公式，为您的GPU选型和部署规划提供专业指导',
     
     // Navigation
