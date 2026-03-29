@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Brain, Calculator, Cpu, Zap, History, Star, Users, MessageSquare, Image, HelpCircle } from 'lucide-react';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ZH } from '@/lib/i18n';
 import dynamic from 'next/dynamic';
 import { GPURecommendations } from '@/components/gpu-recommendations';
+import { getModelById } from '@/lib/models-data';
 
 const TrainingCalculator = dynamic(
   () => import('@/components/calculators/training-calculator').then(mod => ({ default: mod.TrainingCalculator })),
@@ -47,7 +48,12 @@ export default function Home() {
     activeTab, setActiveTab,
     getCurrentResult,
     history, compareList,
-    multimodalConfig, setMultimodalConfig
+    multimodalConfig, setMultimodalConfig,
+    inferenceConfig,
+    trainingConfig,
+    fineTuningConfig,
+    grpoConfig,
+    advancedFineTuningConfig,
   } = useCalculatorStore();
 
   const [showHistory, setShowHistory] = useState(false);
@@ -83,6 +89,109 @@ export default function Home() {
 
   const currentResult = getCurrentResult();
   const requiredMemoryGB = currentResult ? currentResult.total : 25;
+
+  // 获取当前模型信息和统一的性能估算配置（适配所有场景）
+  const { currentModelInfo, currentPerfConfig } = useMemo(() => {
+    let modelInfo = null;
+    let perfConfig = null;
+
+    if (primaryTab === 'nlp') {
+      switch (activeTab) {
+        case 'inference':
+          modelInfo = getModelById(inferenceConfig.modelId) || null;
+          perfConfig = {
+            precision: inferenceConfig.precision,
+            quantization: inferenceConfig.quantization,
+            batchSize: inferenceConfig.batchSize,
+            sequenceLength: inferenceConfig.sequenceLength,
+            mode: '推理' as const,
+          };
+          break;
+        case 'training':
+          // training 没有 modelId，构造虚拟 ModelInfo
+          modelInfo = {
+            id: 'custom-training',
+            name: `${trainingConfig.modelParams}B 训练模型`,
+            params: trainingConfig.modelParams,
+            architecture: 'transformer',
+            hiddenSize: trainingConfig.modelParams >= 65 ? 8192 : trainingConfig.modelParams >= 30 ? 5120 : 4096,
+            numLayers: Math.round(trainingConfig.modelParams * 4.5),
+            numHeads: trainingConfig.modelParams >= 65 ? 64 : 32,
+            vocabSize: 50000,
+          };
+          perfConfig = {
+            precision: trainingConfig.precision,
+            quantization: 'None' as const,
+            batchSize: trainingConfig.batchSize,
+            sequenceLength: trainingConfig.sequenceLength,
+            mode: '训练' as const,
+          };
+          break;
+        case 'finetuning':
+          modelInfo = getModelById(fineTuningConfig.baseModel) || null;
+          perfConfig = {
+            precision: fineTuningConfig.precision,
+            quantization: fineTuningConfig.quantization,
+            batchSize: 2, // FineTuningConfig 没有 batchSize，用默认值
+            sequenceLength: 2048,
+            mode: `微调 (${fineTuningConfig.method})` as string,
+          };
+          break;
+        case 'grpo':
+          modelInfo = getModelById(grpoConfig.modelId) || null;
+          perfConfig = {
+            precision: grpoConfig.precision,
+            quantization: 'None' as const,
+            batchSize: grpoConfig.batchSize,
+            sequenceLength: grpoConfig.sequenceLength,
+            mode: 'GRPO 训练' as const,
+          };
+          break;
+      }
+    } else if (primaryTab === 'multimodal') {
+      modelInfo = getModelById(multimodalConfig.modelId) || null;
+      const modeLabels: Record<string, string> = { training: '训练', inference: '推理', finetuning: '微调' };
+      perfConfig = {
+        precision: multimodalConfig.textPrecision,
+        quantization: 'None' as const,
+        batchSize: multimodalConfig.batchSize,
+        sequenceLength: multimodalConfig.sequenceLength,
+        mode: `多模态 ${modeLabels[multimodalConfig.mode] || '推理'}` as string,
+      };
+    } else if (primaryTab === 'advanced') {
+      const cfg = advancedFineTuningConfig;
+      const nlp = cfg.nlpConfig;
+      if (nlp) {
+        modelInfo = {
+          id: 'advanced-ft',
+          name: `${nlp.modelSize}B ${cfg.modelType} 模型`,
+          params: nlp.modelSize,
+          architecture: 'transformer',
+          hiddenSize: nlp.hiddenSize,
+          numLayers: nlp.numLayers,
+          numHeads: nlp.numAttentionHeads,
+          vocabSize: nlp.vocabSize,
+        };
+        perfConfig = {
+          precision: nlp.precision,
+          quantization: nlp.quantizationTech,
+          batchSize: nlp.batchSize,
+          sequenceLength: nlp.sequenceLength,
+          mode: `高级微调 (${cfg.modelType})` as string,
+        };
+      }
+    }
+
+    return { currentModelInfo: modelInfo, currentPerfConfig: perfConfig };
+  }, [
+    primaryTab, activeTab,
+    inferenceConfig.modelId, inferenceConfig.precision, inferenceConfig.quantization, inferenceConfig.batchSize, inferenceConfig.sequenceLength,
+    trainingConfig.modelParams, trainingConfig.precision, trainingConfig.batchSize, trainingConfig.sequenceLength,
+    fineTuningConfig.baseModel, fineTuningConfig.precision, fineTuningConfig.quantization, fineTuningConfig.method,
+    grpoConfig.modelId, grpoConfig.precision, grpoConfig.batchSize, grpoConfig.sequenceLength,
+    multimodalConfig.modelId, multimodalConfig.textPrecision, multimodalConfig.batchSize, multimodalConfig.sequenceLength, multimodalConfig.mode,
+    advancedFineTuningConfig,
+  ]);
 
   const getTabLabel = () => {
     if (primaryTab === 'multimodal') {
@@ -241,6 +350,8 @@ export default function Home() {
             <GPURecommendations
               requiredMemoryGB={requiredMemoryGB}
               title={`${getTabLabel()} 场景 GPU 推荐`}
+              modelInfo={currentModelInfo}
+              perfConfig={currentPerfConfig}
             />
           </motion.div>
 

@@ -83,6 +83,8 @@ export interface GPU {
   price: number; // USD
   cloudPrice?: number; // USD/hour
   features?: string[]; // GPU特性列表
+  bandwidth?: number; // 内存带宽 GB/s
+  fp16Tflops?: number; // FP16算力 TFLOPS
 }
 
 // 模型信息

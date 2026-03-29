@@ -951,408 +951,194 @@ export const MODELS_DATABASE: ModelInfo[] = [
 ];
 
 /**
- * GPU数据库
+ * GPU数据库 - 腾讯云 TI-ONE 平台支持的 GPU 资源规格
+ * 数据来源: https://cloud.tencent.com/document/product/851/74108
+ *           https://cloud.tencent.com/document/product/560/19700
+ *           https://cloud.tencent.com/document/product/1646/81562
  */
 export const GPU_DATABASE: GPU[] = [
-  // RTX 50系列 - 基于最新2025年1月价格信息
+  // 数据中心级 GPU - Blackwell 架构
   {
-    id: 'rtx-5090',
-    name: 'RTX 5090',
-    memory: 32,
+    id: 'pnv6s',
+    name: 'PNV6s (B200 141GB)',
+    memory: 141,
     architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 1999,  // MSRP更新
-    cloudPrice: 3.5,  // 云服务价格更新
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '575W TDP']
+    computeCapability: '10.0',
+    price: 0,
+    bandwidth: 8000,
+    fp16Tflops: 2250,
+    features: ['HBM3e', 'NVLink 5.0', '邀测', '腾讯云 TI-ONE']
   },
   {
-    id: 'rtx-5080',
-    name: 'RTX 5080',
-    memory: 16,
+    id: 'pnv6',
+    name: 'PNV6 (B200 96GB)',
+    memory: 96,
     architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 999,   // MSRP确认
-    cloudPrice: 1.8,
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '360W TDP']
-  },
-  {
-    id: 'rtx-5070-ti',
-    name: 'RTX 5070 Ti',
-    memory: 16,
-    architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 749,   // MSRP确认
-    cloudPrice: 1.4,
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '300W TDP']
-  },
-  {
-    id: 'rtx-5070',
-    name: 'RTX 5070',
-    memory: 12,
-    architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 549,   // MSRP确认
-    cloudPrice: 1.0,
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '250W TDP']
-  },
-  {
-    id: 'rtx-5060-ti-16gb',
-    name: 'RTX 5060 Ti 16GB',
-    memory: 16,
-    architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 429,   // 修正价格
-    cloudPrice: 0.8,
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '180W TDP']
-  },
-  {
-    id: 'rtx-5060-ti',
-    name: 'RTX 5060 Ti 8GB',
-    memory: 8,
-    architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 379,   // 修正价格
-    cloudPrice: 0.6,
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '180W TDP']
-  },
-  {
-    id: 'rtx-5060',
-    name: 'RTX 5060',
-    memory: 8,
-    architecture: 'Blackwell',
-    computeCapability: '9.0',
-    price: 299,   // 修正价格
-    cloudPrice: 0.5,
-    features: ['DLSS 4', 'RT Cores Gen 4', 'Tensor Cores Gen 5', 'PCIe 5.0', 'GDDR7', '145W TDP']
+    computeCapability: '10.0',
+    price: 0,
+    bandwidth: 8000,
+    fp16Tflops: 2250,
+    features: ['HBM3e', 'NVLink 5.0', '邀测', '腾讯云 TI-ONE']
   },
 
-  // RTX 40系列 - 更新当前市场价格
+  // 数据中心级 GPU - Hopper 架构
+  {
+    id: 'h800',
+    name: 'NVIDIA H800',
+    memory: 80,
+    architecture: 'Hopper',
+    computeCapability: '9.0',
+    price: 0,
+    bandwidth: 3350,
+    fp16Tflops: 989,
+    features: ['HBM3', 'NVLink 4.0', '主售/白名单', '腾讯云 TI-ONE / HCC']
+  },
+
+  // 数据中心级 GPU - Ampere 架构
+  {
+    id: 'a800',
+    name: 'NVIDIA A800',
+    memory: 80,
+    architecture: 'Ampere',
+    computeCapability: '8.0',
+    price: 0,
+    bandwidth: 2039,
+    fp16Tflops: 312,
+    features: ['HBM2e', 'NVLink 3.0', '主售/白名单', '腾讯云 TI-ONE / HCC']
+  },
+  {
+    id: 'a100-80gb',
+    name: 'NVIDIA A100 80GB',
+    memory: 80,
+    architecture: 'Ampere',
+    computeCapability: '8.0',
+    price: 0,
+    bandwidth: 2039,
+    fp16Tflops: 312,
+    features: ['HBM2e', 'NVLink 3.0', '腾讯云 TI-ONE']
+  },
+  {
+    id: 'a100-40gb',
+    name: 'NVIDIA A100 40GB',
+    memory: 40,
+    architecture: 'Ampere',
+    computeCapability: '8.0',
+    price: 0,
+    bandwidth: 1555,
+    fp16Tflops: 312,
+    features: ['HBM2e', 'NVLink 3.0', '腾讯云 TI-ONE / HCC']
+  },
+
+  // 专业推理/训练 GPU - Ada Lovelace 架构
+  {
+    id: 'pnv5b',
+    name: 'PNV5b (L40S 48GB)',
+    memory: 48,
+    architecture: 'Ada Lovelace',
+    computeCapability: '8.9',
+    price: 0,
+    bandwidth: 864,
+    fp16Tflops: 182,
+    features: ['GDDR6', '邀测', '腾讯云 TI-ONE / HCC']
+  },
+  {
+    id: 'l40',
+    name: 'NVIDIA L40',
+    memory: 48,
+    architecture: 'Ada Lovelace',
+    computeCapability: '8.9',
+    price: 0,
+    bandwidth: 864,
+    fp16Tflops: 182,
+    features: ['GDDR6', '腾讯云 TI-ONE']
+  },
+
+  // 数据中心级 GPU - Volta 架构
+  {
+    id: 'v100',
+    name: 'NVIDIA V100 32GB',
+    memory: 32,
+    architecture: 'Volta',
+    computeCapability: '7.0',
+    price: 0,
+    bandwidth: 900,
+    fp16Tflops: 125,
+    features: ['HBM2', 'NVLink 2.0', '腾讯云 TI-ONE / HCC / CVM']
+  },
+
+  // 消费级 GPU - Blackwell 架构
+  {
+    id: 'rtx-5090d',
+    name: 'RTX 5090D',
+    memory: 24,
+    architecture: 'Blackwell',
+    computeCapability: '9.0',
+    price: 0,
+    bandwidth: 1792,
+    fp16Tflops: 190,
+    features: ['GDDR7', '腾讯云 TI-ONE / CVM']
+  },
+
+  // 消费级 GPU - Ada Lovelace 架构
   {
     id: 'rtx-4090',
     name: 'RTX 4090',
     memory: 24,
     architecture: 'Ada Lovelace',
     computeCapability: '8.9',
-    price: 2819,  // 当前市场价格（缺货涨价）
-    cloudPrice: 2.5,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '450W TDP']
+    price: 0,
+    bandwidth: 1008,
+    fp16Tflops: 165,
+    features: ['GDDR6X', '腾讯云 TI-ONE / CVM']
   },
   {
-    id: 'rtx-4080-super',
-    name: 'RTX 4080 Super',
-    memory: 16,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 1200,  // 估算缺货价格
-    cloudPrice: 1.8,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '320W TDP']
-  },
-  {
-    id: 'rtx-4080',
-    name: 'RTX 4080',
-    memory: 16,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 1100,  // 估算缺货价格
-    cloudPrice: 1.6,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '320W TDP']
-  },
-  {
-    id: 'rtx-4070-ti-super',
-    name: 'RTX 4070 Ti Super',
-    memory: 16,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 1198,  // 当前Amazon价格
-    cloudPrice: 1.3,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '285W TDP']
-  },
-  {
-    id: 'rtx-4070-ti',
-    name: 'RTX 4070 Ti',
-    memory: 12,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 900,   // 估算缺货价格
-    cloudPrice: 1.1,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '285W TDP']
-  },
-  {
-    id: 'rtx-4070-super',
-    name: 'RTX 4070 Super',
-    memory: 12,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 849,   // 当前市场价格
-    cloudPrice: 1.0,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '220W TDP']
-  },
-  {
-    id: 'rtx-4070',
-    name: 'RTX 4070',
-    memory: 12,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 849,   // 当前市场价格
-    cloudPrice: 0.9,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '200W TDP']
-  },
-  {
-    id: 'rtx-4060-ti-16gb',
-    name: 'RTX 4060 Ti 16GB',
-    memory: 16,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 679,   // 当前市场价格
-    cloudPrice: 0.8,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '165W TDP']
-  },
-  {
-    id: 'rtx-4060-ti',
-    name: 'RTX 4060 Ti',
-    memory: 8,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 543,   // 当前市场价格
-    cloudPrice: 0.7,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '165W TDP']
-  },
-  {
-    id: 'rtx-4060',
-    name: 'RTX 4060',
-    memory: 8,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 329,   // 当前市场价格
-    cloudPrice: 0.6,
-    features: ['DLSS 3', 'RT Cores Gen 3', 'AV1 Encode', 'PCIe 4.0', '115W TDP']
-  },
-
-  // 专业级GPU
-  {
-    id: 'h200',
-    name: 'H200 SXM',
-    memory: 141,
-    architecture: 'Hopper',
-    computeCapability: '9.0',
-    price: 41322,
-    cloudPrice: 6.0,
-    features: ['HBM3e', 'NVLink 4.0', 'Transformer Engine', 'Multi-Instance GPU', '700W TDP']
-  },
-  {
-    id: 'h100-80gb',
-    name: 'H100 SXM',
-    memory: 80,
-    architecture: 'Hopper',
-    computeCapability: '9.0',
-    price: 30971,
-    cloudPrice: 4.5,
-    features: ['HBM3', 'NVLink 4.0', 'Transformer Engine', 'Multi-Instance GPU', '700W TDP']
-  },
-  {
-    id: 'h800',
-    name: 'H800',
-    memory: 80,
-    architecture: 'Hopper',
-    computeCapability: '9.0',
-    price: 31379,
-    cloudPrice: 3.8,
-    features: ['HBM3', 'NVLink 4.0', 'Transformer Engine', 'Multi-Instance GPU', '700W TDP']
-  },
-  {
-    id: 'a100-80gb',
-    name: 'A100 SXM',
-    memory: 80,
-    architecture: 'Ampere',
-    computeCapability: '8.0',
-    price: 17200,
-    cloudPrice: 3.67,
-    features: ['HBM2e', 'NVLink 3.0', 'Tensor Cores Gen 3', 'Multi-Instance GPU', '400W TDP']
-  },
-  {
-    id: 'a100-40gb',
-    name: 'A100 40GB',
-    memory: 40,
-    architecture: 'Ampere',
-    computeCapability: '8.0',
-    price: 11000,
-    cloudPrice: 3.06,
-    features: ['HBM2e', 'NVLink 3.0', 'Tensor Cores Gen 3', 'Multi-Instance GPU', '400W TDP']
-  },
-  {
-    id: 'a800',
-    name: 'A800',
-    memory: 40,
-    architecture: 'Ampere',
-    computeCapability: '8.0',
-    price: 19999,
-    cloudPrice: 2.2,
-    features: ['HBM2e', 'NVLink 3.0', 'Tensor Cores Gen 3', 'Multi-Instance GPU', '400W TDP']
-  },
-  {
-    id: 'rtx6000-ada',
-    name: 'RTX 6000 Ada',
-    memory: 48,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 6800,
-    cloudPrice: 1.8,
-    features: ['Professional Drivers', 'ECC Memory', 'RTX Technology', 'PCIe 4.0', '300W TDP']
-  },
-  {
-    id: 'rtx-a6000',
-    name: 'RTX A6000',
-    memory: 48,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 4650,
-    cloudPrice: 1.89,
-    features: ['Professional Drivers', 'ECC Memory', 'RTX Technology', 'PCIe 4.0', '300W TDP']
-  },
-  {
-    id: 'rtx-a5000',
-    name: 'RTX A5000',
-    memory: 24,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 2310,
-    cloudPrice: 1.28,
-    features: ['Professional Drivers', 'ECC Memory', 'RTX Technology', 'PCIe 4.0', '230W TDP']
-  },
-  {
-    id: 'l40s',
-    name: 'L40S',
-    memory: 48,
-    architecture: 'Ada Lovelace',
-    computeCapability: '8.9',
-    price: 8000,
-    cloudPrice: 1.89,
-    features: ['Professional Drivers', 'Optimized for AI/HPC', 'PCIe 4.0', '350W TDP']
-  },
-  {
-    id: 'l4',
-    name: 'L4',
+    id: 'rtx-4090d',
+    name: 'RTX 4090D',
     memory: 24,
     architecture: 'Ada Lovelace',
     computeCapability: '8.9',
-    price: 2500,
-    cloudPrice: 0.6,
-    features: ['Professional Drivers', 'Optimized for Inference', 'PCIe 4.0', '72W TDP']
+    price: 0,
+    bandwidth: 1008,
+    fp16Tflops: 148,
+    features: ['GDDR6X', '腾讯云 TI-ONE / CVM']
   },
   {
-    id: 'v100-32gb',
-    name: 'V100 32GB',
-    memory: 32,
-    architecture: 'Volta',
-    computeCapability: '7.0',
-    price: 12000,
-    cloudPrice: 2.24,
-    features: ['HBM2', 'NVLink 2.0', 'Tensor Cores Gen 1', 'ECC Memory', '300W TDP']
-  },
-  {
-    id: 'v100-16gb',
-    name: 'V100 16GB',
-    memory: 16,
-    architecture: 'Volta',
-    computeCapability: '7.0',
-    price: 8000,
-    cloudPrice: 1.5,
-    features: ['HBM2', 'NVLink 2.0', 'Tensor Cores Gen 1', 'ECC Memory', '300W TDP']
+    id: 'a10',
+    name: 'NVIDIA A10',
+    memory: 24,
+    architecture: 'Ampere',
+    computeCapability: '8.6',
+    price: 0,
+    bandwidth: 600,
+    fp16Tflops: 125,
+    features: ['GDDR6', '腾讯云 TI-ONE / CVM (PNV4)']
   },
 
-  // RTX 30系列
+  // 消费级 GPU - Ampere 架构
   {
     id: 'rtx-3090',
     name: 'RTX 3090',
     memory: 24,
     architecture: 'Ampere',
     computeCapability: '8.6',
-    price: 1599,
-    cloudPrice: 0.8,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '350W TDP']
-  },
-  {
-    id: 'rtx-3080-ti',
-    name: 'RTX 3080 Ti',
-    memory: 12,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 1199,
-    cloudPrice: 0.65,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '350W TDP']
-  },
-  {
-    id: 'rtx-3080',
-    name: 'RTX 3080',
-    memory: 10,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 699,
-    cloudPrice: 0.5,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '320W TDP']
-  },
-  {
-    id: 'rtx-3070-ti',
-    name: 'RTX 3070 Ti',
-    memory: 8,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 599,
-    cloudPrice: 0.45,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '290W TDP']
-  },
-  {
-    id: 'rtx-3070',
-    name: 'RTX 3070',
-    memory: 8,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 499,
-    cloudPrice: 0.4,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '220W TDP']
-  },
-  {
-    id: 'rtx-3060-ti',
-    name: 'RTX 3060 Ti',
-    memory: 8,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 399,
-    cloudPrice: 0.35,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '200W TDP']
-  },
-  {
-    id: 'rtx-3060',
-    name: 'RTX 3060',
-    memory: 12,
-    architecture: 'Ampere',
-    computeCapability: '8.6',
-    price: 329,
-    cloudPrice: 0.25,
-    features: ['DLSS 2', 'RT Cores Gen 2', 'PCIe 4.0', '170W TDP']
+    price: 0,
+    bandwidth: 936,
+    fp16Tflops: 71,
+    features: ['GDDR6X', '腾讯云 TI-ONE / CVM']
   },
 
-  // 云端特殊实例
+  // 推理级 GPU - Turing 架构
   {
     id: 't4',
-    name: 'Tesla T4',
+    name: 'NVIDIA T4',
     memory: 16,
     architecture: 'Turing',
     computeCapability: '7.5',
-    price: 2500,
-    cloudPrice: 0.35,
-    features: ['Tensor Cores Gen 2', 'INT8/INT4 Inference', 'PCIe 3.0', '70W TDP']
+    price: 0,
+    bandwidth: 320,
+    fp16Tflops: 65,
+    features: ['GDDR6', 'INT8 130 TOPS', '腾讯云 TI-ONE / CVM (GN7)']
   },
-  {
-    id: 'p4',
-    name: 'Tesla P4',
-    memory: 8,
-    architecture: 'Pascal',
-    computeCapability: '6.1',
-    price: 1500,
-    cloudPrice: 0.25,
-    features: ['GDDR5', 'Optimized for Inference', 'PCIe 3.0', '50W TDP']
-  }
 ];
 
 /**
