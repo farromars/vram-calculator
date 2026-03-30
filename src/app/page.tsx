@@ -203,14 +203,21 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-tc-bg-page">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 背景装饰光晕 */}
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-gradient-to-br from-blue-400/10 to-purple-400/10 blur-3xl animate-float" />
+        <div className="absolute top-1/3 -left-32 w-80 h-80 rounded-full bg-gradient-to-tr from-indigo-400/8 to-cyan-400/8 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-20 right-1/4 w-64 h-64 rounded-full bg-gradient-to-bl from-purple-400/6 to-pink-400/6 blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+      </div>
+
       {/* 顶部导航栏 */}
       <nav className="tc-navbar">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-brand to-purple-600 shadow-lg shadow-brand/20 animate-pulse-glow">
             <Brain className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-lg font-semibold text-tc-text-primary">{ZH.site.title}</h1>
+          <h1 className="text-lg font-bold text-gradient">{ZH.site.title}</h1>
           <span className="text-xs text-tc-text-placeholder hidden md:inline">{ZH.site.subtitle}</span>
         </div>
         <div className="ml-auto flex items-center gap-2">
@@ -226,7 +233,7 @@ export default function Home() {
             <History className="w-4 h-4" />
             <span>{ZH.nav.history}</span>
             {history.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-brand text-white text-[10px] rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-r from-brand to-purple-500 text-white text-[10px] rounded-full flex items-center justify-center shadow-sm">
                 {history.length > 9 ? '9+' : history.length}
               </span>
             )}
@@ -247,9 +254,9 @@ export default function Home() {
             className="text-center mb-8"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.5 }}
           >
-            <p className="text-tc-text-secondary text-sm max-w-2xl mx-auto">
+            <p className="text-tc-text-secondary text-sm max-w-2xl mx-auto leading-relaxed">
               {ZH.site.description}
             </p>
           </motion.div>
@@ -362,31 +369,28 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5 }}
           >
-            <div className="tc-card p-6 text-center">
-              <div className="w-11 h-11 mx-auto mb-3 bg-brand/10 rounded-lg flex items-center justify-center">
-                <Calculator className="w-5 h-5 text-brand" />
-              </div>
-              <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{ZH.features.preciseCalc}</h3>
-              <p className="text-tc-text-placeholder text-sm leading-relaxed">{ZH.features.preciseCalcDesc}</p>
-            </div>
-            <div className="tc-card p-6 text-center">
-              <div className="w-11 h-11 mx-auto mb-3 bg-brand/10 rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-brand" />
-              </div>
-              <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{ZH.features.richModels}</h3>
-              <p className="text-tc-text-placeholder text-sm leading-relaxed">{ZH.features.richModelsDesc}</p>
-            </div>
-            <div className="tc-card p-6 text-center">
-              <div className="w-11 h-11 mx-auto mb-3 bg-brand/10 rounded-lg flex items-center justify-center">
-                <Cpu className="w-5 h-5 text-brand" />
-              </div>
-              <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{ZH.features.smartGPU}</h3>
-              <p className="text-tc-text-placeholder text-sm leading-relaxed">{ZH.features.smartGPUDesc}</p>
-            </div>
+            {[
+              { icon: Calculator, title: ZH.features.preciseCalc, desc: ZH.features.preciseCalcDesc, color: 'from-blue-500 to-indigo-600' },
+              { icon: Brain, title: ZH.features.richModels, desc: ZH.features.richModelsDesc, color: 'from-indigo-500 to-purple-600' },
+              { icon: Cpu, title: ZH.features.smartGPU, desc: ZH.features.smartGPUDesc, color: 'from-purple-500 to-pink-600' },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                className="tc-card p-6 text-center group"
+                whileHover={{ y: -4 }}
+              >
+                <div className={`w-12 h-12 mx-auto mb-4 rounded-xl flex items-center justify-center bg-gradient-to-br ${item.color} shadow-lg group-hover:shadow-xl transition-shadow`}>
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-base font-semibold mb-2 text-tc-text-primary">{item.title}</h3>
+                <p className="text-tc-text-placeholder text-sm leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
           </motion.div>
 
           {/* 页脚 */}
-          <footer className="text-center mt-14 pt-8 border-t border-tc-border-light">
+          <footer className="text-center mt-16 pt-8 border-t border-tc-border-light/50 relative">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-1 rounded-full bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
             <p className="text-sm text-tc-text-placeholder">{ZH.footer.description}</p>
             <p className="text-xs text-tc-text-disabled mt-1">{ZH.footer.features}</p>
             <p className="text-xs text-tc-text-disabled mt-3">{ZH.footer.copyright}</p>

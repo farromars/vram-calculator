@@ -151,8 +151,8 @@ Total VRAM = Model Weights + Optimizer States + Gradients + Activations + Overhe
 
 ```bash
 # Clone and setup
-git clone https://github.com/st-lzh/vram-wuhrai.git
-cd vram-wuhrai/mcp-server
+git clone https://github.com/farromars/vram-calculator.git
+cd vram-calculator/mcp-server
 
 # Install dependencies
 npm install
@@ -177,7 +177,6 @@ Contributions welcome! Please see the main repository for contribution guideline
 
 ## Links
 
-- **Main Project**: https://github.com/st-lzh/vram-wuhrai
-- **Live Demo**: https://vram.wuhrai.com
-- **Issues**: https://github.com/st-lzh/vram-wuhrai/issues
+- **Main Project**: https://github.com/farromars/vram-calculator
+- **Issues**: https://github.com/farromars/vram-calculator/issues
 - **MCP Protocol**: https://modelcontextprotocol.io/

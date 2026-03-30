@@ -41,7 +41,7 @@ git push -u origin main
 
 ### 添加仓库描述
 在仓库主页右侧，点击齿轮图标编辑：
-- Website: `https://vram.wuhr.ai`
+- Website: 部署后的网站地址
 - Topics: 添加相关标签
 
 ### 配置 GitHub Pages（可选）

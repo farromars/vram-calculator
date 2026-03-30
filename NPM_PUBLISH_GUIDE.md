@@ -152,16 +152,13 @@ Compare VRAM usage between Llama 2 7B, Qwen2.5 7B, and Yi 34B for inference mode
 
 ## 🔗 相关链接
 
-- **GitHub仓库**: https://github.com/st-lzh/vram-wuhrai
-- **主项目演示**: https://vram.wuhrai.com
+- **GitHub仓库**: https://github.com/farromars/vram-calculator
 - **MCP协议**: https://modelcontextprotocol.io/
 - **npm包页面**: https://www.npmjs.com/package/vram-calculator-mcp-server (发布后)
 
 ## 📞 支持和反馈
 
-- **Issues**: https://github.com/st-lzh/vram-wuhrai/issues
-- **邮箱**: 1139804291@qq.com
-- **博客**: https://wuhrai.com
+- **Issues**: https://github.com/farromars/vram-calculator/issues
 
 ## 🎉 发布后的推广
 

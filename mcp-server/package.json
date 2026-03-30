@@ -27,16 +27,16 @@
     "inference",
     "recommendation"
   ],
-  "author": "st-lzh",
+  "author": "farromars",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/st-lzh/vram-wuhrai.git",
+    "url": "https://github.com/farromars/vram-calculator.git",
     "directory": "mcp-server"
   },
-  "homepage": "https://github.com/st-lzh/vram-wuhrai#readme",
+  "homepage": "https://github.com/farromars/vram-calculator#readme",
   "bugs": {
-    "url": "https://github.com/st-lzh/vram-wuhrai/issues"
+    "url": "https://github.com/farromars/vram-calculator/issues"
   },
   "engines": {
     "node": ">=18.0.0"

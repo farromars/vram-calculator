@@ -1,5 +1,4 @@
-# Wuhr AI VRAM Insight Robots.txt
-# https://vram.wuhrai.com
+# LLM VRAM Calculator Robots.txt
 
 User-agent: *
 Allow: /
@@ -7,8 +6,5 @@ Disallow: /api/
 Disallow: /_next/
 Disallow: /static/
 
-# Sitemap
-Sitemap: https://vram.wuhrai.com/sitemap.xml
-
 # Crawl-delay
-Crawl-delay: 1 
+Crawl-delay: 1

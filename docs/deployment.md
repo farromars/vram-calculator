@@ -1,6 +1,6 @@
 # 部署指南
 
-本文档提供了多种部署 Wuhr AI VRAM Insight 的方法。
+本文档提供了多种部署 LLM 显存计算器的方法。
 
 ## 目录
 
@@ -19,11 +19,11 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/st-lzh/vram-wuhrai.git
-cd vram-wuhrai
+git clone https://github.com/farromars/vram-calculator.git
+cd vram-calculator
 
 # 构建 Docker 镜像
-docker build -t wuhr-ai-vram-insight:latest .
+docker build -t llm-vram-calculator:latest .
 ```
 
 ### 2. 运行容器
@@ -31,25 +31,25 @@ docker build -t wuhr-ai-vram-insight:latest .
 ```bash
 # 基础运行
 docker run -d \
-  --name wuhr-vram-calculator \
+  --name llm-vram-calculator \
   -p 3000:3000 \
   --restart unless-stopped \
-  wuhr-ai-vram-insight:latest
+  llm-vram-calculator:latest
 
 # 带资源限制的运行
 docker run -d \
-  --name wuhr-vram-calculator \
+  --name llm-vram-calculator \
   -p 3000:3000 \
   --restart unless-stopped \
   --memory="512m" \
   --cpus="1.0" \
-  wuhr-ai-vram-insight:latest
+  llm-vram-calculator:latest
 ```
 
 ### 3. 查看日志
 
 ```bash
-docker logs -f wuhr-vram-calculator
+docker logs -f llm-vram-calculator
 ```
 
 ## Docker Compose 部署
@@ -92,7 +92,7 @@ version: '3.8'
 
 services:
   app:
-    image: wuhr-ai-vram-insight:latest
+    image: llm-vram-calculator:latest
     deploy:
       replicas: 2
       update_config:
@@ -151,8 +151,8 @@ sudo apt install -y nodejs
 sudo npm install -g pm2
 
 # 克隆项目
-git clone https://github.com/st-lzh/vram-wuhrai.git
-cd vram-wuhrai
+git clone https://github.com/farromars/vram-calculator.git
+cd vram-calculator
 
 # 安装依赖
 npm install
@@ -161,7 +161,7 @@ npm install
 npm run build
 
 # 使用 PM2 启动
-pm2 start npm --name "wuhr-vram" -- start
+pm2 start npm --name "vram-calculator" -- start
 
 # 保存 PM2 配置
 pm2 save
@@ -175,10 +175,10 @@ pm2 startup
 ```javascript
 module.exports = {
   apps: [{
-    name: 'wuhr-vram-insight',
+    name: 'vram-calculator',
     script: 'npm',
     args: 'start',
-    cwd: '/path/to/vram-wuhrai',
+    cwd: '/path/to/vram-calculator',
     instances: 2,
     exec_mode: 'cluster',
     env: {
@@ -195,12 +195,12 @@ module.exports = {
 
 ## Nginx 配置
 
-创建 `/etc/nginx/sites-available/wuhr-vram`：
+创建 `/etc/nginx/sites-available/vram-calculator`：
 
 ```nginx
 server {
     listen 80;
-    server_name vram.wuhrai.com;
+    server_name your-domain.com;
 
     # 强制 HTTPS
     return 301 https://$server_name$request_uri;
@@ -208,7 +208,7 @@ server {
 
 server {
     listen 443 ssl http2;
-    server_name vram.wuhrai.com;
+    server_name your-domain.com;
 
     # SSL 证书
     ssl_certificate /etc/nginx/ssl/cert.pem;
@@ -249,7 +249,7 @@ server {
 启用配置：
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/wuhr-vram /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/vram-calculator /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -263,7 +263,7 @@ sudo systemctl reload nginx
 sudo apt install certbot python3-certbot-nginx
 
 # 获取证书
-sudo certbot --nginx -d vram.wuhrai.com
+sudo certbot --nginx -d your-domain.com
 
 # 自动续期
 sudo certbot renew --dry-run
@@ -288,10 +288,6 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
 
-# API 配置（如需要）
-API_URL=https://api.wuhrai.com
-API_KEY=your-api-key
-
 # 分析工具（可选）
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
@@ -303,8 +299,6 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```yaml
 environment:
   - NODE_ENV=production
-  - API_URL=${API_URL}
-  - API_KEY=${API_KEY}
 ```
 
 ## 故障排查
@@ -336,13 +330,13 @@ sudo swapon /swapfile
 
 ```bash
 # 查看容器日志
-docker logs wuhr-vram-calculator
+docker logs llm-vram-calculator
 
 # 进入容器调试
-docker exec -it wuhr-vram-calculator sh
+docker exec -it llm-vram-calculator sh
 
 # 重启容器
-docker restart wuhr-vram-calculator
+docker restart llm-vram-calculator
 ```
 
 ### 4. 构建失败
@@ -373,17 +367,17 @@ npm run build -- --experimental-app-only
 
 ```bash
 pm2 monit
-pm2 logs wuhr-vram
+pm2 logs vram-calculator
 ```
 
 ### 2. 使用 Docker 日志
 
 ```bash
 # 实时日志
-docker logs -f wuhr-vram-calculator
+docker logs -f llm-vram-calculator
 
 # 导出日志
-docker logs wuhr-vram-calculator > app.log 2>&1
+docker logs llm-vram-calculator > app.log 2>&1
 ```
 
 ### 3. 健康检查
@@ -405,15 +399,15 @@ export async function GET() {
 
 ```bash
 # 备份用户数据（如果有）
-docker exec wuhr-vram-calculator tar czf /tmp/backup.tar.gz /app/data
-docker cp wuhr-vram-calculator:/tmp/backup.tar.gz ./backup.tar.gz
+docker exec llm-vram-calculator tar czf /tmp/backup.tar.gz /app/data
+docker cp llm-vram-calculator:/tmp/backup.tar.gz ./backup.tar.gz
 ```
 
 ### 2. 恢复数据
 
 ```bash
-docker cp ./backup.tar.gz wuhr-vram-calculator:/tmp/
-docker exec wuhr-vram-calculator tar xzf /tmp/backup.tar.gz -C /
+docker cp ./backup.tar.gz llm-vram-calculator:/tmp/
+docker exec llm-vram-calculator tar xzf /tmp/backup.tar.gz -C /
 ```
 
 ## 更新部署
@@ -456,4 +450,4 @@ jobs:
             git pull
             docker-compose build
             docker-compose up -d
-``` 
+```

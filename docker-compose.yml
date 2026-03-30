@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: wuhr-ai-vram-insight:latest
-    container_name: wuhr-vram-calculator
+    image: llm-vram-calculator:latest
+    container_name: llm-vram-calculator
     ports:
       - "3000:3000"
     environment:
@@ -29,7 +29,7 @@ services:
   # 可选：Nginx 反向代理
   nginx:
     image: nginx:alpine
-    container_name: wuhr-nginx
+    container_name: vram-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -42,4 +42,4 @@ services:
 
 networks:
   default:
-    name: wuhr-network 
+    name: vram-network

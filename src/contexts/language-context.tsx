@@ -560,7 +560,7 @@ const translations = {
   },
   en: {
     // Header
-    'header.title': 'Wuhr AI VRAM Insight',
+    'header.title': 'LLM VRAM Calculator',
     'header.description': 'Professional GPU memory requirement calculator for AI models, supporting training, inference, and fine-tuning modes with precise formulas based on latest engineering practices',
     
     // Navigation

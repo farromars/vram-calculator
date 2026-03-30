@@ -282,4 +282,4 @@ MFU(实际算力利用率):
 
 ### 问题B：llm-inference-advisor 是否为数据来源？
 
-**不是。** plan.md 中的 Agent Extensions 仅为计划阶段的建议工具，实际未调用。所有计算公式来自开源项目 st-lzh/vram-wuhrai，GPU数据来自腾讯云官方文档。
+**不是。** plan.md 中的 Agent Extensions 仅为计划阶段的建议工具，实际未调用。所有计算公式来自原始开源项目的计算引擎，GPU数据来自腾讯云官方文档。

@@ -4,7 +4,7 @@
 
 本项目包含两个独立的部署组件：
 
-1. **演示网站** - Next.js应用 (https://vram.wuhrai.com)
+1. **演示网站** - Next.js应用
 2. **MCP服务器** - npm包 (vram-calculator-mcp-server)
 
 ## 🌐 演示网站部署
@@ -109,7 +109,7 @@ npm publish
 ## 🔍 部署验证
 
 ### 演示网站验证
-1. 访问 https://vram.wuhrai.com
+1. 访问部署后的网站地址
 2. 检查新功能是否正常工作
 3. 测试各个计算模式
 

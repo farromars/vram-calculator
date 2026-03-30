@@ -77,6 +77,9 @@ module.exports = {
         'slide-in-top': 'slideInFromTop 0.4s ease-out',
         'slide-in-bottom': 'slideInFromBottom 0.4s ease-out',
         'fade-in': 'fadeIn 0.5s ease-out',
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+        'shimmer': 'shimmer 3s linear infinite',
       },
       keyframes: {
         slideInFromTop: {
@@ -90,6 +93,18 @@ module.exports = {
         fadeIn: {
           from: { opacity: '0' },
           to: { opacity: '1' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        pulseGlow: {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(0, 82, 217, 0)' },
+          '50%': { boxShadow: '0 0 20px 4px rgba(0, 82, 217, 0.12)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         },
       },
     },
