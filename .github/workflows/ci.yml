@@ -58,7 +58,7 @@ jobs:
         context: .
         push: true
         tags: |
-          wuhrai/vram-calculator:latest
-          wuhrai/vram-calculator:${{ github.sha }}
-        cache-from: type=registry,ref=wuhrai/vram-calculator:buildcache
-        cache-to: type=registry,ref=wuhrai/vram-calculator:buildcache,mode=max 
+          farrovin/vram-calculator:latest
+          farrovin/vram-calculator:${{ github.sha }}
+        cache-from: type=registry,ref=farrovin/vram-calculator:buildcache
+        cache-to: type=registry,ref=farrovin/vram-calculator:buildcache,mode=max 
