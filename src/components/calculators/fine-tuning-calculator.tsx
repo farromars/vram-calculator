@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Layers, TrendingUp, Lightbulb } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AnimatedNumber } from '@/components/animated-number';
 import { LoadingOverlay } from '@/components/ui/loading-spinner';
 import { formatMemorySize } from '@/utils/memory-formulas';
-import { getModelById, getModelsByCategoryAndArchitecture } from '@/lib/models-data';
-import { FineTuningConfig, FineTuningMethod, PrecisionType, QuantizationType } from '@/types';
+import { getModelById, getModelsByArchitectureAndVendor, getVendorsForArchitecture } from '@/lib/models-data';
+import { FineTuningConfig, FineTuningMethod, PrecisionType, QuantizationType, ModelVendor } from '@/types';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -22,6 +22,7 @@ export function FineTuningCalculator() {
   } = useCalculatorStore();
 
   const { t } = useLanguage();
+  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>('DeepSeek');
 
   // 获取基础模型信息
   const baseModel = useMemo(() => 
@@ -32,18 +33,20 @@ export function FineTuningCalculator() {
     setConfig({ [key]: value });
   };
 
-  // 按参数量分组NLP模型
+  // 获取该架构下有模型的供应商列表
+  const vendors = useMemo(() => getVendorsForArchitecture('nlp'), []);
+
+  // 按供应商和参数量分组NLP模型
   const modelsBySize = useMemo(() => {
-    const nlpModels = getModelsByCategoryAndArchitecture('nlp');
-    const allNlpModels = Object.values(nlpModels).flat();
+    const nlpModels = getModelsByArchitectureAndVendor('nlp', selectedVendor);
     
     return {
-      small: allNlpModels.filter(m => m.params <= 3),
-      medium: allNlpModels.filter(m => m.params > 3 && m.params <= 15),
-      large: allNlpModels.filter(m => m.params > 15 && m.params <= 50),
-      xlarge: allNlpModels.filter(m => m.params > 50)
+      small: nlpModels.filter(m => m.params <= 3),
+      medium: nlpModels.filter(m => m.params > 3 && m.params <= 15),
+      large: nlpModels.filter(m => m.params > 15 && m.params <= 50),
+      xlarge: nlpModels.filter(m => m.params > 50)
     };
-  }, []);
+  }, [selectedVendor]);
 
   const methodDescriptions = {
     'Full': t('finetuning.full.description'),
@@ -71,6 +74,24 @@ export function FineTuningCalculator() {
         {/* 基础模型选择 */}
         <div className="space-y-3">
           <label className="text-sm font-medium">{t('base.model')}</label>
+          
+          {/* 供应商选项卡 */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {vendors.map((vendor) => (
+              <button
+                key={vendor}
+                onClick={() => setSelectedVendor(vendor)}
+                className={`px-3 py-1 text-xs rounded-full transition-all ${
+                  selectedVendor === vendor
+                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/40'
+                    : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                }`}
+              >
+                {vendor}
+              </button>
+            ))}
+          </div>
+
           <Select 
             value={config.baseModel} 
             onValueChange={(value) => handleConfigChange('baseModel', value)}

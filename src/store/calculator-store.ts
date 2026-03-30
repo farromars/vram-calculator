@@ -144,7 +144,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
 
       // 推理配置默认值
       inferenceConfig: {
-        modelId: 'qwen2.5-7b',
+        modelId: 'qwen3-8b',
         precision: 'FP16',
         quantization: 'None',
         batchSize: 1,
@@ -155,7 +155,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
 
       // 微调配置默认值
       fineTuningConfig: {
-        baseModel: 'qwen2.5-7b',
+        baseModel: 'qwen3-8b',
         method: 'LoRA',
         loraRank: 4,
         loraAlpha: 32,
@@ -166,7 +166,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
 
       // GRPO配置默认值
       grpoConfig: {
-        modelId: 'qwen2.5-7b',
+        modelId: 'qwen3-8b',
         precision: 'FP16',
         batchSize: 4,
         sequenceLength: 2048,
@@ -181,7 +181,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
 
       // 多模态配置默认值
       multimodalConfig: {
-        modelId: 'qwen2.5-vl-7b',
+        modelId: 'qwen3-vl-8b-instruct',
         mode: 'inference',
         modalityType: 'text-image',
         textPrecision: 'FP16',

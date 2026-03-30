@@ -227,7 +227,7 @@ export function AdvancedFineTuningCalculator() {
               className={`p-4 rounded-lg border-2 transition-all ${
                 config.modelType === type
                   ? actualTheme === 'dark'
-                    ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                    ? 'border-blue-500 bg-blue-500/20 text-blue-700 dark:text-blue-400'
                     : 'border-blue-600 bg-blue-50 text-blue-700'
                   : actualTheme === 'dark'
                     ? 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
@@ -348,9 +348,9 @@ export function AdvancedFineTuningCalculator() {
               {validationResult.errors.length > 0 && (
                 <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-medium text-red-300">{t('advanced.finetuning.config.errors.title')}</span>
+                    <span className="text-sm font-medium text-red-700 dark:text-red-400">{t('advanced.finetuning.config.errors.title')}</span>
                   </div>
-                  <ul className="text-xs text-red-200 space-y-1">
+                  <ul className="text-xs text-red-600 dark:text-red-300/90 space-y-1">
                     {validationResult.errors.map((error, index) => (
                       <li key={index}>• {error}</li>
                     ))}
@@ -362,9 +362,9 @@ export function AdvancedFineTuningCalculator() {
               {validationResult.warnings.length > 0 && (
                 <div className="p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-medium text-orange-300">{t('advanced.finetuning.config.warnings.title')}</span>
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-400">{t('advanced.finetuning.config.warnings.title')}</span>
                   </div>
-                  <ul className="text-xs text-orange-200 space-y-1">
+                  <ul className="text-xs text-orange-600 dark:text-orange-300/90 space-y-1">
                     {validationResult.warnings.map((warning, index) => (
                       <li key={index}>• {warning}</li>
                     ))}
@@ -378,25 +378,25 @@ export function AdvancedFineTuningCalculator() {
           {optimizationSuggestions.length > 0 && (
             <div className="mt-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
               <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-blue-300">{t('advanced.finetuning.intelligent.optimization.suggestions')}</span>
+                <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-400">{t('advanced.finetuning.intelligent.optimization.suggestions')}</span>
               </div>
               <div className="space-y-3">
                 {optimizationSuggestions.slice(0, 3).map((suggestion, index) => (
-                  <div key={index} className="border-l-2 border-blue-400 pl-3">
+                  <div key={index} className="border-l-2 border-blue-500 dark:border-blue-400 pl-3">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs px-2 py-1 rounded ${
-                        suggestion.priority === 'high' ? 'bg-red-500/20 text-red-300' :
-                        suggestion.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-300' :
-                        'bg-green-500/20 text-green-300'
+                        suggestion.priority === 'high' ? 'bg-red-500/20 text-red-700 dark:text-red-400' :
+                        suggestion.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400' :
+                        'bg-green-500/20 text-green-700 dark:text-green-400'
                       }`}>
                         {suggestion.priority === 'high' ? t('advanced.finetuning.priority.high') :
                          suggestion.priority === 'medium' ? t('advanced.finetuning.priority.medium') : t('advanced.finetuning.priority.low')}
                       </span>
-                      <span className="text-xs text-blue-300 font-medium">{suggestion.title}</span>
+                      <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">{suggestion.title}</span>
                     </div>
-                    <p className="text-xs text-blue-200 mb-1">{suggestion.description}</p>
-                    <p className="text-xs text-blue-300">{t('advanced.finetuning.impact')}: {suggestion.impact}</p>
+                    <p className="text-xs text-blue-600/80 dark:text-blue-300/90 mb-1">{suggestion.description}</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-400">{t('advanced.finetuning.impact')}: {suggestion.impact}</p>
                   </div>
                 ))}
               </div>
@@ -407,10 +407,10 @@ export function AdvancedFineTuningCalculator() {
           {memoryResult.advancedMetadata?.optimizationSuggestions && (
             <div className="mt-6 p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-medium text-yellow-300">{t('advanced.finetuning.system.suggestions')}</span>
+                <Lightbulb className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                <span className="text-sm font-medium text-yellow-700 dark:text-yellow-400">{t('advanced.finetuning.system.suggestions')}</span>
               </div>
-              <ul className="text-xs text-yellow-200 space-y-1">
+              <ul className="text-xs text-yellow-700 dark:text-yellow-300/90 space-y-1">
                 {memoryResult.advancedMetadata.optimizationSuggestions.map((suggestion, index) => (
                   <li key={index}>• {suggestion}</li>
                 ))}

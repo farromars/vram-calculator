@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Image, Database, BarChart3, Eye } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AnimatedNumber } from '@/components/animated-number';
 
 import { formatMemorySize } from '@/utils/memory-formulas';
-import { getModelById, getModelsByCategoryAndArchitecture } from '@/lib/models-data';
-import { MultimodalConfig, PrecisionType, ModalityType } from '@/types';
+import { getModelById, getModelsByCategoryArchitectureAndVendor, getVendorsForArchitecture } from '@/lib/models-data';
+import { MultimodalConfig, PrecisionType, ModalityType, ModelVendor } from '@/types';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -26,6 +26,7 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
   } = useCalculatorStore();
   
   const { t } = useLanguage();
+  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>('Qwen');
 
   // 使用配置中的mode，如果没有则使用props中的mode
   const currentMode = config.mode || mode;
@@ -39,10 +40,13 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
     setConfig({ [key]: value });
   };
 
-  // 按系列分组多模态模型
+  // 获取该架构下有模型的供应商列表
+  const vendors = useMemo(() => getVendorsForArchitecture('multimodal'), []);
+
+  // 按供应商和系列分组多模态模型
   const modelsByCategory = useMemo(() => {
-    return getModelsByCategoryAndArchitecture('multimodal');
-  }, []);
+    return getModelsByCategoryArchitectureAndVendor('multimodal', selectedVendor);
+  }, [selectedVendor]);
 
   // 计算图像Token数量
   const numPatches = useMemo(() => {
@@ -96,6 +100,24 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
         {/* 模型选择 */}
         <div className="space-y-3">
           <label className="text-sm font-medium">{t('multimodal.base.model')}</label>
+          
+          {/* 供应商选项卡 */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {vendors.map((vendor) => (
+              <button
+                key={vendor}
+                onClick={() => setSelectedVendor(vendor)}
+                className={`px-3 py-1 text-xs rounded-full transition-all ${
+                  selectedVendor === vendor
+                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                    : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                }`}
+              >
+                {vendor}
+              </button>
+            ))}
+          </div>
+
           <Select 
             value={config.modelId} 
             onValueChange={(value) => handleConfigChange('modelId', value)}
@@ -557,7 +579,7 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
 
             {/* 多模态特性说明 */}
             <div className="glass-card p-4 space-y-2">
-              <h4 className="text-sm font-medium text-cyan-300 flex items-center gap-2">
+              <h4 className="text-sm font-medium text-cyan-700 dark:text-cyan-400 flex items-center gap-2">
                 <Eye className="w-4 h-4" />
                 {config.modalityType?.replace(/-/g, '+').toUpperCase() || t('mode.multimodal')} {t('multimodal.features')}
               </h4>

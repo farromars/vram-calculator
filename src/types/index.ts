@@ -87,6 +87,9 @@ export interface GPU {
   fp16Tflops?: number; // FP16算力 TFLOPS
 }
 
+// 模型供应商类型
+export type ModelVendor = 'DeepSeek' | 'Kimi' | 'GLM' | 'Qwen' | '腾讯' | '其他';
+
 // 模型信息
 export interface ModelInfo {
   id: string;
@@ -98,6 +101,8 @@ export interface ModelInfo {
   numHeads: number;
   vocabSize: number;
   activeParams?: number; // billions, for MoE models
+  vendor?: ModelVendor; // 模型供应商
+  huggingfaceUrl?: string; // HuggingFace链接
 }
 
 // 训练配置

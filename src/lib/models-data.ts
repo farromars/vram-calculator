@@ -1,144 +1,153 @@
-import { ModelInfo, GPU } from '@/types';
+import { ModelInfo, GPU, ModelVendor } from '@/types';
 
 /**
- * 主流AI模型数据库 (50+ 模型)
+ * TI-ONE 平台模型数据库 (120 模型)
+ * 数据来源: 腾讯云 TI-ONE 平台支持的模型清单
  */
 export const MODELS_DATABASE: ModelInfo[] = [
-  // Qwen系列
+  // ==================== DeepSeek 系列 ====================
   {
-    id: 'qwen2.5-0.5b',
-    name: 'Qwen2.5-0.5B',
-    params: 0.5,
-    architecture: 'transformer',
-    hiddenSize: 1024,
-    numLayers: 24,
-    numHeads: 16,
-    vocabSize: 151643
-  },
-  {
-    id: 'qwen2.5-1.5b',
-    name: 'Qwen2.5-1.5B',
-    params: 1.5,
-    architecture: 'transformer',
-    hiddenSize: 1536,
-    numLayers: 28,
-    numHeads: 12,
-    vocabSize: 151643
-  },
-  {
-    id: 'qwen2.5-3b',
-    name: 'Qwen2.5-3B',
-    params: 3.0,
-    architecture: 'transformer',
-    hiddenSize: 2048,
-    numLayers: 36,
-    numHeads: 16,
-    vocabSize: 151643
-  },
-  {
-    id: 'qwen2.5-7b',
-    name: 'Qwen2.5-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 28,
-    numHeads: 28,
-    vocabSize: 151643
-  },
-  {
-    id: 'qwen2.5-14b',
-    name: 'Qwen2.5-14B',
-    params: 14.0,
-    architecture: 'transformer',
-    hiddenSize: 5120,
-    numLayers: 48,
-    numHeads: 40,
-    vocabSize: 151643
-  },
-  {
-    id: 'qwen2.5-32b',
-    name: 'Qwen2.5-32B',
-    params: 32.0,
-    architecture: 'transformer',
-    hiddenSize: 5120,
-    numLayers: 64,
-    numHeads: 40,
-    vocabSize: 151643
-  },
-  {
-    id: 'qwen2.5-72b',
-    name: 'Qwen2.5-72B',
-    params: 72.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 151643
-  },
-
-  // Qwen3系列 (最新)
-  {
-    id: 'qwen3-1.8b',
-    name: 'Qwen3-1.8B',
-    params: 1.8,
-    architecture: 'transformer',
-    hiddenSize: 1536,
-    numLayers: 30,
-    numHeads: 16,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-7b',
-    name: 'Qwen3-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-14b',
-    name: 'Qwen3-14B',
-    params: 14.0,
-    architecture: 'transformer',
-    hiddenSize: 5120,
-    numLayers: 48,
-    numHeads: 40,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-32b',
-    name: 'Qwen3-32B',
-    params: 32.0,
-    architecture: 'transformer',
-    hiddenSize: 6400,
-    numLayers: 64,
-    numHeads: 50,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-72b',
-    name: 'Qwen3-72B',
-    params: 72.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 151936
-  },
-
-  // DeepSeek系列
-  {
-    id: 'deepseek-v3-671b',
-    name: 'DeepSeek-V3-671B (满血版)',
-    params: 671.0,
+    id: 'deepseek-v4',
+    name: 'DeepSeek-V4',
+    params: 800.0,
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
     numHeads: 56,
     vocabSize: 129000,
-    activeParams: 37.0
+    activeParams: 40.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V4'
+  },
+  {
+    id: 'deepseek-v4-pd',
+    name: 'DeepSeek-V4-PD',
+    params: 800.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 40.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V4'
+  },
+  {
+    id: 'deepseek-v3.2',
+    name: 'DeepSeek-V3.2',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.2'
+  },
+  {
+    id: 'deepseek-v3.2-angelacc-pd',
+    name: 'DeepSeek-V3.2-AngelACC-PD',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.2'
+  },
+  {
+    id: 'deepseek-v3.2-int8-xpu',
+    name: 'DeepSeek-V3.2-int8-xpu',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.2'
+  },
+  {
+    id: 'deepseek-v3.2-exp',
+    name: 'DeepSeek-V3.2-Exp',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Exp'
+  },
+  {
+    id: 'deepseek-v3.2-special',
+    name: 'DeepSeek-V3.2-Special',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Special'
+  },
+  {
+    id: 'deepseek-r1-0528',
+    name: 'DeepSeek-R1-0528',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-0528'
+  },
+  {
+    id: 'deepseek-r1-0528-angelacc',
+    name: 'DeepSeek-R1-0528-AngelACC',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-0528'
+  },
+  {
+    id: 'deepseek-r1-0528-angelacc-pd',
+    name: 'DeepSeek-R1-0528-AngelACC-PD',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-0528'
+  },
+  {
+    id: 'deepseek-r1-0528-int8-xpu',
+    name: 'DeepSeek-R1-0528-int8-xpu',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-0528'
   },
   {
     id: 'deepseek-v3-0324',
@@ -149,805 +158,542 @@ export const MODELS_DATABASE: ModelInfo[] = [
     numLayers: 61,
     numHeads: 56,
     vocabSize: 129000,
-    activeParams: 37.0
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3-0324'
   },
   {
-    id: 'deepseek-r1-671b',
-    name: 'DeepSeek-R1-671B (满血版)',
+    id: 'deepseek-v3-0324-angelacc',
+    name: 'DeepSeek-V3-0324-AngelACC',
     params: 671.0,
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
     numHeads: 56,
     vocabSize: 129000,
-    activeParams: 37.0
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3-0324'
   },
   {
-    id: 'deepseek-r1-0528',
-    name: 'DeepSeek-R1-0528 (最新版)',
+    id: 'deepseek-v3-0324-angelacc-pd',
+    name: 'DeepSeek-V3-0324-AngelACC-PD',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3-0324'
+  },
+  {
+    id: 'deepseek-v3-0324-int8-xpu',
+    name: 'DeepSeek-V3-0324-int8-xpu',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3-0324'
+  },
+  {
+    id: 'deepseek-v3.1',
+    name: 'DeepSeek-V3.1',
     params: 685.0,
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
     numHeads: 56,
     vocabSize: 129000,
-    activeParams: 37.0
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.1'
   },
   {
-    id: 'deepseek-ai-deepseek-r1-0528',
-    name: 'deepseek-ai/DeepSeek-R1-0528',
+    id: 'deepseek-v3.1-angelacc',
+    name: 'DeepSeek-V3.1-AngelACC',
     params: 685.0,
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
     numHeads: 56,
     vocabSize: 129000,
-    activeParams: 37.0
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.1'
   },
   {
-    id: 'deepseek-ai-deepseek-r1-0528-qwen3-8b',
-    name: 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B',
+    id: 'deepseek-v3.1-terminus',
+    name: 'DeepSeek-V3.1-Terminus',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.1-Terminus'
+  },
+  {
+    id: 'deepseek-v3.1-terminus-angelacc',
+    name: 'DeepSeek-V3.1-Terminus-AngelACC',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.1-Terminus'
+  },
+  {
+    id: 'deepseek-v3.1-terminus-int8-xpu',
+    name: 'DeepSeek-V3.1-Terminus-int8-xpu',
+    params: 685.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3.1-Terminus'
+  },
+  {
+    id: 'deepseek-ocr',
+    name: 'DeepSeek-OCR',
     params: 8.0,
-    architecture: 'transformer',
+    architecture: 'multimodal',
     hiddenSize: 4096,
     numLayers: 32,
     numHeads: 32,
-    vocabSize: 151936
+    vocabSize: 129000,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-OCR'
   },
   {
-    id: 'deepseek-r1-70b',
-    name: 'DeepSeek-R1-70B',
-    params: 70.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 128000
-  },
-  {
-    id: 'deepseek-r1-32b',
-    name: 'DeepSeek-R1-32B',
-    params: 32.0,
-    architecture: 'transformer',
-    hiddenSize: 6400,
-    numLayers: 64,
-    numHeads: 50,
-    vocabSize: 128000
-  },
-  {
-    id: 'deepseek-r1-14b',
-    name: 'DeepSeek-R1-14B',
-    params: 14.0,
-    architecture: 'transformer',
-    hiddenSize: 5120,
-    numLayers: 48,
-    numHeads: 40,
-    vocabSize: 128000
-  },
-  {
-    id: 'deepseek-r1-8b',
-    name: 'DeepSeek-R1-8B',
-    params: 8.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 128000
-  },
-  {
-    id: 'deepseek-r1-7b',
-    name: 'DeepSeek-R1-7B',
+    id: 'deepseek-prover-v2-7b',
+    name: 'DeepSeek-Prover-V2-7B',
     params: 7.0,
     architecture: 'transformer',
     hiddenSize: 4096,
     numLayers: 32,
     numHeads: 32,
-    vocabSize: 128000
+    vocabSize: 129000,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-Prover-V2-7B'
   },
   {
-    id: 'deepseek-r1-1.5b',
-    name: 'DeepSeek-R1-1.5B',
+    id: 'deepseek-prover-v2-671b',
+    name: 'DeepSeek-Prover-V2-671B',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-Prover-V2-671B'
+  },
+  {
+    id: 'deepseek-r1',
+    name: 'DeepSeek-R1',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1'
+  },
+  {
+    id: 'deepseek-r1-angelacc',
+    name: 'DeepSeek-R1-AngelACC',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1'
+  },
+  {
+    id: 'deepseek-r1-angelacc-pd',
+    name: 'DeepSeek-R1-AngelACC-PD',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1'
+  },
+  {
+    id: 'deepseek-r1-distill-qwen-1.5b',
+    name: 'DeepSeek-R1-Distill-Qwen-1.5B',
     params: 1.5,
     architecture: 'transformer',
     hiddenSize: 1536,
     numLayers: 28,
     numHeads: 12,
-    vocabSize: 128000
+    vocabSize: 151643,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B'
   },
   {
-    id: 'deepseek-coder-1.3b',
-    name: 'DeepSeek-Coder-1.3B',
-    params: 1.3,
-    architecture: 'transformer',
-    hiddenSize: 2048,
-    numLayers: 24,
-    numHeads: 16,
-    vocabSize: 32000
-  },
-  {
-    id: 'deepseek-coder-6.7b',
-    name: 'DeepSeek-Coder-6.7B',
-    params: 6.7,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
-  },
-  {
-    id: 'deepseek-coder-33b',
-    name: 'DeepSeek-Coder-33B',
-    params: 33.0,
-    architecture: 'transformer',
-    hiddenSize: 7168,
-    numLayers: 62,
-    numHeads: 56,
-    vocabSize: 32000
-  },
-  {
-    id: 'deepseek-moe-16b',
-    name: 'DeepSeek-MoE-16B',
-    params: 16.0,
-    architecture: 'moe',
-    hiddenSize: 2048,
-    numLayers: 28,
-    numHeads: 16,
-    vocabSize: 100000
-  },
-
-  // Llama系列
-  {
-    id: 'llama-3.1-8b',
-    name: 'Llama-3.1-8B',
-    params: 8.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 128256
-  },
-  {
-    id: 'llama-3.1-70b',
-    name: 'Llama-3.1-70B',
-    params: 70.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 128256
-  },
-  {
-    id: 'llama-3.1-405b',
-    name: 'Llama-3.1-405B',
-    params: 405.0,
-    architecture: 'transformer',
-    hiddenSize: 16384,
-    numLayers: 126,
-    numHeads: 128,
-    vocabSize: 128256
-  },
-  {
-    id: 'llama-2-7b',
-    name: 'Llama-2-7B',
+    id: 'deepseek-r1-distill-qwen-7b',
+    name: 'DeepSeek-R1-Distill-Qwen-7B',
     params: 7.0,
     architecture: 'transformer',
     hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
+    numLayers: 28,
+    numHeads: 28,
+    vocabSize: 151643,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
   },
   {
-    id: 'llama-2-13b',
-    name: 'Llama-2-13B',
-    params: 13.0,
+    id: 'deepseek-r1-distill-qwen-14b',
+    name: 'DeepSeek-R1-Distill-Qwen-14B',
+    params: 14.0,
     architecture: 'transformer',
     hiddenSize: 5120,
-    numLayers: 40,
+    numLayers: 48,
     numHeads: 40,
-    vocabSize: 32000
+    vocabSize: 151643,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B'
   },
   {
-    id: 'llama-2-70b',
-    name: 'Llama-2-70B',
-    params: 70.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 32000
-  },
-
-  // ChatGLM系列
-  {
-    id: 'glm-4-9b',
-    name: 'GLM-4-9B',
-    params: 9.0,
-    architecture: 'glm',
-    hiddenSize: 4096,
-    numLayers: 40,
-    numHeads: 32,
-    vocabSize: 151329
-  },
-  {
-    id: 'glm-4-plus',
-    name: 'GLM-4-Plus',
-    params: 100.0,
-    architecture: 'glm',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 151329
-  },
-  {
-    id: 'glm-z1-32b',
-    name: 'GLM-Z1-32B (推理模型)',
+    id: 'deepseek-r1-distill-qwen-32b',
+    name: 'DeepSeek-R1-Distill-Qwen-32B',
     params: 32.0,
-    architecture: 'glm',
-    hiddenSize: 6400,
-    numLayers: 64,
-    numHeads: 50,
-    vocabSize: 151329
-  },
-  {
-    id: 'chatglm3-6b',
-    name: 'ChatGLM3-6B',
-    params: 6.0,
-    architecture: 'glm',
-    hiddenSize: 4096,
-    numLayers: 28,
-    numHeads: 32,
-    vocabSize: 65024
-  },
-  {
-    id: 'chatglm4-9b',
-    name: 'ChatGLM4-9B',
-    params: 9.0,
-    architecture: 'glm',
-    hiddenSize: 4096,
-    numLayers: 40,
-    numHeads: 32,
-    vocabSize: 151329
-  },
-
-  // Baichuan系列
-  {
-    id: 'baichuan2-7b',
-    name: 'Baichuan2-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 125696
-  },
-  {
-    id: 'baichuan2-13b',
-    name: 'Baichuan2-13B',
-    params: 13.0,
     architecture: 'transformer',
     hiddenSize: 5120,
-    numLayers: 40,
+    numLayers: 64,
     numHeads: 40,
-    vocabSize: 125696
+    vocabSize: 151643,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'
+  },
+  {
+    id: 'deepseek-r1-distill-qwen-32b-angelacc',
+    name: 'DeepSeek-R1-Distill-Qwen-32B-AngelACC',
+    params: 32.0,
+    architecture: 'transformer',
+    hiddenSize: 5120,
+    numLayers: 64,
+    numHeads: 40,
+    vocabSize: 151643,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'
+  },
+  {
+    id: 'deepseek-v3',
+    name: 'DeepSeek-V3',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3'
+  },
+  {
+    id: 'deepseek-v3-angelacc',
+    name: 'DeepSeek-V3-AngelACC',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V3'
+  },
+  {
+    id: 'deepseek-math-v2',
+    name: 'DeepSeek-Math-V2',
+    params: 671.0,
+    architecture: 'moe',
+    hiddenSize: 7168,
+    numLayers: 61,
+    numHeads: 56,
+    vocabSize: 129000,
+    activeParams: 37.0,
+    vendor: 'DeepSeek',
+    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-Math-V2'
   },
 
-  // MiniMax系列
+  // ==================== Kimi 系列 ====================
   {
-    id: 'minimax-abab6.5',
-    name: 'MiniMax-ABAB6.5',
+    id: 'kimi-k2.5',
+    name: 'Kimi-K2.5',
     params: 100.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 250000
-  },
-  {
-    id: 'minimax-abab6.5s',
-    name: 'MiniMax-ABAB6.5s',
-    params: 70.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 70,
-    numHeads: 64,
-    vocabSize: 250000
-  },
-
-  // 月之暗面系列
-  {
-    id: 'moonshot-v1-128k',
-    name: 'Moonshot-v1-128K',
-    params: 70.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 151936
-  },
-  {
-    id: 'moonshot-v1-32k',
-    name: 'Moonshot-v1-32K',
-    params: 70.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 80,
-    numHeads: 64,
-    vocabSize: 151936
-  },
-
-  // 阶跃星辰系列
-  {
-    id: 'step-1v',
-    name: 'Step-1V',
-    params: 300.0,
     architecture: 'multimodal',
     hiddenSize: 8192,
-    numLayers: 100,
-    numHeads: 64,
-    vocabSize: 200000
-  },
-  {
-    id: 'step-2',
-    name: 'Step-2',
-    params: 800.0,
-    architecture: 'moe',
-    hiddenSize: 8192,
-    numLayers: 120,
+    numLayers: 80,
     numHeads: 64,
     vocabSize: 200000,
-    activeParams: 40.0
-  },
-
-  // 书生·浦语系列
-  {
-    id: 'internlm2.5-7b',
-    name: 'InternLM2.5-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 92544
+    vendor: 'Kimi',
+    huggingfaceUrl: 'https://huggingface.co/moonshotai/Kimi-K2.5'
   },
   {
-    id: 'internlm2.5-20b',
-    name: 'InternLM2.5-20B',
-    params: 20.0,
-    architecture: 'transformer',
-    hiddenSize: 6144,
-    numLayers: 48,
-    numHeads: 48,
-    vocabSize: 92544
-  },
-
-  // 星火系列
-  {
-    id: 'spark-max',
-    name: 'Spark-Max',
-    params: 340.0,
-    architecture: 'moe',
+    id: 'kimi-k2.5-w4a8-xpu',
+    name: 'Kimi-K2.5-w4a8-xpu',
+    params: 100.0,
+    architecture: 'multimodal',
     hiddenSize: 8192,
     numLayers: 80,
     numHeads: 64,
-    vocabSize: 100000,
-    activeParams: 30.0
+    vocabSize: 200000,
+    vendor: 'Kimi',
+    huggingfaceUrl: 'https://huggingface.co/moonshotai/Kimi-K2.5'
   },
   {
-    id: 'spark-pro',
-    name: 'Spark-Pro',
-    params: 175.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 96,
-    numHeads: 64,
-    vocabSize: 100000
-  },
-
-  // Yi系列
-  {
-    id: 'yi-lightning',
-    name: 'Yi-Lightning',
+    id: 'kimi-k2-instruct',
+    name: 'Kimi-K2-Instruct',
     params: 1000.0,
     architecture: 'moe',
     hiddenSize: 8192,
-    numLayers: 100,
+    numLayers: 80,
     numHeads: 64,
     vocabSize: 200000,
-    activeParams: 50.0
+    activeParams: 32.0,
+    vendor: 'Kimi',
+    huggingfaceUrl: 'https://huggingface.co/moonshotai/Kimi-K2-Instruct'
   },
   {
-    id: 'yi-large',
-    name: 'Yi-Large',
-    params: 100.0,
-    architecture: 'transformer',
+    id: 'kimi-k2-thinking',
+    name: 'Kimi-K2-Thinking',
+    params: 1000.0,
+    architecture: 'moe',
     hiddenSize: 8192,
     numLayers: 80,
     numHeads: 64,
-    vocabSize: 200000
-  },
-  {
-    id: 'yi-medium',
-    name: 'Yi-Medium',
-    params: 200.0,
-    architecture: 'moe',
-    hiddenSize: 6400,
-    numLayers: 60,
-    numHeads: 50,
     vocabSize: 200000,
-    activeParams: 20.0
+    activeParams: 32.0,
+    vendor: 'Kimi',
+    huggingfaceUrl: 'https://huggingface.co/moonshotai/Kimi-K2-THINKING'
   },
   {
-    id: 'yi-6b',
-    name: 'Yi-6B',
-    params: 6.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 64000
-  },
-  {
-    id: 'yi-34b',
-    name: 'Yi-34B',
-    params: 34.0,
-    architecture: 'transformer',
-    hiddenSize: 7168,
-    numLayers: 60,
-    numHeads: 56,
-    vocabSize: 64000
-  },
-
-  // Mistral系列
-  {
-    id: 'mistral-7b',
-    name: 'Mistral-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
-  },
-  {
-    id: 'mixtral-8x7b',
-    name: 'Mixtral-8x7B',
-    params: 47.0,
+    id: 'kimi-k2-instruct-0905',
+    name: 'Kimi-K2-Instruct-0905',
+    params: 1000.0,
     architecture: 'moe',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
-  },
-
-  // 其他热门模型
-  {
-    id: 'gemma-2b',
-    name: 'Gemma-2B',
-    params: 2.0,
-    architecture: 'transformer',
-    hiddenSize: 2048,
-    numLayers: 18,
-    numHeads: 8,
-    vocabSize: 256000
-  },
-  {
-    id: 'gemma-7b',
-    name: 'Gemma-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 3072,
-    numLayers: 28,
-    numHeads: 16,
-    vocabSize: 256000
-  },
-  {
-    id: 'phi-3-mini',
-    name: 'Phi-3-Mini',
-    params: 3.8,
-    architecture: 'transformer',
-    hiddenSize: 3072,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32064
-  },
-  {
-    id: 'phi-3-small',
-    name: 'Phi-3-Small',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 100352
-  },
-  {
-    id: 'codellama-7b',
-    name: 'CodeLlama-7B',
-    params: 7.0,
-    architecture: 'transformer',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32016
-  },
-  {
-    id: 'codellama-13b',
-    name: 'CodeLlama-13B',
-    params: 13.0,
-    architecture: 'transformer',
-    hiddenSize: 5120,
-    numLayers: 40,
-    numHeads: 40,
-    vocabSize: 32016
-  },
-  {
-    id: 'codellama-34b',
-    name: 'CodeLlama-34B',
-    params: 34.0,
-    architecture: 'transformer',
-    hiddenSize: 8192,
-    numLayers: 48,
-    numHeads: 64,
-    vocabSize: 32016
-  },
-
-  // Qwen向量模型系列
-  {
-    id: 'qwen3-embedding-0.6b',
-    name: 'Qwen3-Embedding-0.6B',
-    params: 0.6,
-    architecture: 'embedding',
-    hiddenSize: 768,
-    numLayers: 12,
-    numHeads: 12,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-embedding-4b',
-    name: 'Qwen3-Embedding-4B',
-    params: 4.0,
-    architecture: 'embedding',
-    hiddenSize: 2048,
-    numLayers: 24,
-    numHeads: 16,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-embedding-8b',
-    name: 'Qwen3-Embedding-8B',
-    params: 8.0,
-    architecture: 'embedding',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-reranker-0.6b',
-    name: 'Qwen3-Reranker-0.6B',
-    params: 0.6,
-    architecture: 'reranker',
-    hiddenSize: 768,
-    numLayers: 12,
-    numHeads: 12,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-reranker-4b',
-    name: 'Qwen3-Reranker-4B',
-    params: 4.0,
-    architecture: 'reranker',
-    hiddenSize: 2048,
-    numLayers: 24,
-    numHeads: 16,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen3-reranker-8b',
-    name: 'Qwen3-Reranker-8B',
-    params: 8.0,
-    architecture: 'reranker',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 151936
-  },
-
-  // 多模态模型 - 视觉语言模型
-  {
-    id: 'qwen2-vl-7b',
-    name: 'Qwen2-VL-7B',
-    params: 7.6,
-    architecture: 'multimodal',
-    hiddenSize: 4096,
-    numLayers: 28,
-    numHeads: 28,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen2.5-vl-3b',
-    name: 'Qwen2.5-VL-3B',
-    params: 3.1,
-    architecture: 'multimodal',
-    hiddenSize: 2048,
-    numLayers: 36,
-    numHeads: 16,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen2.5-vl-7b',
-    name: 'Qwen2.5-VL-7B',
-    params: 8.3,
-    architecture: 'multimodal',
-    hiddenSize: 4096,
-    numLayers: 28,
-    numHeads: 28,
-    vocabSize: 151936
-  },
-  {
-    id: 'qwen2.5-vl-72b',
-    name: 'Qwen2.5-VL-72B',
-    params: 72.7,
-    architecture: 'multimodal',
     hiddenSize: 8192,
     numLayers: 80,
     numHeads: 64,
-    vocabSize: 151936
+    vocabSize: 200000,
+    activeParams: 32.0,
+    vendor: 'Kimi',
+    huggingfaceUrl: 'https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905'
   },
+
+  // ==================== GLM 系列 ====================
   {
-    id: 'qwq-vl-72b',
-    name: 'QwQ-VL-72B (推理多模态)',
-    params: 72.0,
-    architecture: 'multimodal',
+    id: 'glm-5',
+    name: 'GLM-5',
+    params: 400.0,
+    architecture: 'glm',
     hiddenSize: 8192,
     numLayers: 80,
     numHeads: 64,
-    vocabSize: 151936
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-5'
   },
   {
-    id: 'qwen2.5-vl-32b',
-    name: 'Qwen2.5-VL-32B',
-    params: 32.5,
-    architecture: 'multimodal',
-    hiddenSize: 6400,
-    numLayers: 64,
-    numHeads: 50,
-    vocabSize: 151936
-  },
-
-  // LLaVA系列
-  {
-    id: 'llava-1.5-7b',
-    name: 'LLaVA-1.5-7B',
-    params: 7.0,
-    architecture: 'multimodal',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
-  },
-  {
-    id: 'llava-1.5-13b',
-    name: 'LLaVA-1.5-13B',
-    params: 13.0,
-    architecture: 'multimodal',
-    hiddenSize: 5120,
-    numLayers: 40,
-    numHeads: 40,
-    vocabSize: 32000
-  },
-  {
-    id: 'llava-next-34b',
-    name: 'LLaVA-NeXT-34B',
-    params: 34.0,
-    architecture: 'multimodal',
+    id: 'glm-5-fp8',
+    name: 'GLM-5-FP8',
+    params: 400.0,
+    architecture: 'glm',
     hiddenSize: 8192,
-    numLayers: 60,
+    numLayers: 80,
     numHeads: 64,
-    vocabSize: 32064
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-5-FP8'
   },
-
-  // Idefics系列
   {
-    id: 'idefics2-8b',
-    name: 'Idefics2-8B',
-    params: 8.0,
+    id: 'glm-5-int8-xpu',
+    name: 'GLM-5-int8-xpu',
+    params: 400.0,
+    architecture: 'glm',
+    hiddenSize: 8192,
+    numLayers: 80,
+    numHeads: 64,
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-5'
+  },
+  {
+    id: 'glm-4.7',
+    name: 'GLM-4.7',
+    params: 9.0,
+    architecture: 'glm',
+    hiddenSize: 4096,
+    numLayers: 40,
+    numHeads: 32,
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-4.7'
+  },
+  {
+    id: 'glm-4.7-fp8',
+    name: 'GLM-4.7-FP8',
+    params: 9.0,
+    architecture: 'glm',
+    hiddenSize: 4096,
+    numLayers: 40,
+    numHeads: 32,
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-4.7-FP8'
+  },
+  {
+    id: 'glm-4.7-w8a8-xpu',
+    name: 'GLM-4.7-W8A8-xpu',
+    params: 9.0,
+    architecture: 'glm',
+    hiddenSize: 4096,
+    numLayers: 40,
+    numHeads: 32,
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-4.7'
+  },
+  {
+    id: 'glm-4.5v',
+    name: 'GLM-4.5V',
+    params: 9.0,
     architecture: 'multimodal',
     hiddenSize: 4096,
-    numLayers: 32,
+    numLayers: 40,
     numHeads: 32,
-    vocabSize: 32000
+    vocabSize: 151329,
+    vendor: 'GLM',
+    huggingfaceUrl: 'https://huggingface.co/zai-org/GLM-4.5V'
   },
 
-  // Microsoft Phi多模态
+  // ==================== Qwen 系列 ====================
   {
-    id: 'phi-4-multimodal',
-    name: 'Phi-4-Multimodal',
-    params: 5.6,
-    architecture: 'multimodal',
-    hiddenSize: 3072,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 200064
+    id: 'qwen3.5-27b', name: 'Qwen3.5-27B', params: 27.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3.5-27B'
   },
+  {
+    id: 'qwen3.5-35b-a3b', name: 'Qwen3.5-35B-A3B', params: 35.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3.5-35B-A3B'
+  },
+  {
+    id: 'qwen3.5-122b-a10b', name: 'Qwen3.5-122B-A10B', params: 122.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, activeParams: 10.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3.5-122B-A10B'
+  },
+  {
+    id: 'qwen3.5-397b-a17b', name: 'Qwen3.5-397B-A17B', params: 397.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 17.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3.5-397B-A17B'
+  },
+  {
+    id: 'qwen3.5-397b-a17b-fp8', name: 'Qwen3.5-397B-A17B-FP8', params: 397.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 17.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3.5-397B-A17B-FP8'
+  },
+  {
+    id: 'qwen3-omni-30b-a3b-thinking', name: 'Qwen3-Omni-30B-A3B-Thinking', params: 30.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Thinking'
+  },
+  {
+    id: 'qwen3-235b-a22b-instruct-2507', name: 'Qwen3-235B-A22B-Instruct-2507', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-Instruct-2507'
+  },
+  {
+    id: 'qwen3-235b-a22b-instruct-2507-fp8', name: 'Qwen3-235B-A22B-Instruct-2507-FP8', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-Instruct-2507-FP8'
+  },
+  {
+    id: 'qwen3-235b-a22b-thinking-2507', name: 'Qwen3-235B-A22B-Thinking-2507', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-Thinking-2507'
+  },
+  {
+    id: 'qwen3-235b-a22b-thinking-2507-fp8', name: 'Qwen3-235B-A22B-Thinking-2507-FP8', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-Thinking-2507-FP8'
+  },
+  {
+    id: 'qwen3-30b-a3b-instruct-2507', name: 'Qwen3-30B-A3B-Instruct-2507', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507'
+  },
+  { id: 'qwen3-0.6b', name: 'Qwen3-0.6B', params: 0.6, architecture: 'transformer', hiddenSize: 1024, numLayers: 28, numHeads: 16, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-0.6B' },
+  { id: 'qwen3-0.6b-fp8', name: 'Qwen3-0.6B-FP8', params: 0.6, architecture: 'transformer', hiddenSize: 1024, numLayers: 28, numHeads: 16, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-0.6B-FP8' },
+  { id: 'qwen3-1.7b', name: 'Qwen3-1.7B', params: 1.7, architecture: 'transformer', hiddenSize: 1536, numLayers: 28, numHeads: 12, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-1.7B' },
+  { id: 'qwen3-1.7b-fp8', name: 'Qwen3-1.7B-FP8', params: 1.7, architecture: 'transformer', hiddenSize: 1536, numLayers: 28, numHeads: 12, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-1.7B-FP8' },
+  { id: 'qwen3-4b', name: 'Qwen3-4B', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B' },
+  { id: 'qwen3-4b-fp8', name: 'Qwen3-4B-FP8', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B-FP8' },
+  { id: 'qwen3-8b', name: 'Qwen3-8B', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B' },
+  { id: 'qwen3-8b-fp8', name: 'Qwen3-8B-FP8', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B-FP8' },
+  { id: 'qwen3-14b', name: 'Qwen3-14B', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B' },
+  { id: 'qwen3-14b-fp8', name: 'Qwen3-14B-FP8', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B-FP8' },
+  { id: 'qwen3-30b-a3b', name: 'Qwen3-30B-A3B', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B' },
+  { id: 'qwen3-30b-a3b-fp8', name: 'Qwen3-30B-A3B-FP8', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B-FP8' },
+  { id: 'qwen3-32b', name: 'Qwen3-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-32B' },
+  { id: 'qwen3-32b-fp8', name: 'Qwen3-32B-FP8', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-32B-FP8' },
+  { id: 'qwen3-235b-a22b', name: 'Qwen3-235B-A22B', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B' },
+  { id: 'qwen3-235b-a22b-fp8', name: 'Qwen3-235B-A22B-FP8', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-FP8' },
+  { id: 'qwen3-coder-30b-a3b-instruct', name: 'Qwen3-Coder-30B-A3B-Instruct', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct' },
+  { id: 'qwen3-coder-480b-a35b-instruct', name: 'Qwen3-Coder-480B-A35B-Instruct', params: 480.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 35.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct' },
+  { id: 'qwen3-coder-480b-a35b-instruct-fp8', name: 'Qwen3-Coder-480B-A35B-Instruct-FP8', params: 480.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 35.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8' },
+  { id: 'qwen3-embedding-8b', name: 'Qwen3-Embedding-8B', params: 8.0, architecture: 'embedding', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Embedding-8B' },
+  { id: 'qwen3-embedding-8b-gguf', name: 'Qwen3-Embedding-8B-GGUF', params: 8.0, architecture: 'embedding', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF' },
+  { id: 'qwen3-reranker-8b', name: 'Qwen3-Reranker-8B', params: 8.0, architecture: 'reranker', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Reranker-8B' },
+  { id: 'qwen3-vl-8b-instruct', name: 'Qwen3-VL-8B-Instruct', params: 8.3, architecture: 'multimodal', hiddenSize: 4096, numLayers: 28, numHeads: 28, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct' },
+  { id: 'qwen3-vl-30b-a3b-instruct', name: 'Qwen3-VL-30B-A3B-Instruct', params: 30.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-30B-A3B-Instruct' },
+  { id: 'qwen3-vl-30b-a3b-instruct-fp8', name: 'Qwen3-VL-30B-A3B-Instruct-FP8', params: 30.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-30B-A3B-Instruct-FP8' },
+  { id: 'qwen3-vl-30b-a3b-thinking', name: 'Qwen3-VL-30B-A3B-Thinking', params: 30.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-30B-A3B-Thinking' },
+  { id: 'qwen3-vl-30b-a3b-thinking-fp8', name: 'Qwen3-VL-30B-A3B-Thinking-FP8', params: 30.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-30B-A3B-Thinking-FP8' },
+  { id: 'qwen3-vl-32b-instruct', name: 'Qwen3-VL-32B-Instruct', params: 32.5, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-32B-Instruct' },
+  { id: 'qwen3-vl-235b-a22b-instruct', name: 'Qwen3-VL-235B-A22B-Instruct', params: 235.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-235B-A22B-Instruct' },
+  { id: 'qwen3-next-80b-a3b-instruct', name: 'Qwen3-Next-80B-A3B-Instruct', params: 80.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct' },
+  { id: 'qwen3-next-80b-a3b-thinking', name: 'Qwen3-Next-80B-A3B-Thinking', params: 80.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Thinking' },
+  { id: 'qwen2.5-vl-7b-instruct', name: 'Qwen2.5-VL-7B-Instruct', params: 8.3, architecture: 'multimodal', hiddenSize: 4096, numLayers: 28, numHeads: 28, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct' },
+  { id: 'qwen2.5-vl-32b-instruct', name: 'Qwen2.5-VL-32B-Instruct', params: 32.5, architecture: 'multimodal', hiddenSize: 6400, numLayers: 64, numHeads: 50, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-32B-Instruct' },
+  { id: 'qwen2.5-vl-72b-instruct', name: 'Qwen2.5-VL-72B-Instruct', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct' },
+  { id: 'qwen2.5-vl-72b-instruct-awq', name: 'Qwen2.5-VL-72B-Instruct-AWQ', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct-AWQ' },
+  { id: 'qwq-32b', name: 'QwQ-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/QwQ-32B' },
 
-  // 音频模型
-  {
-    id: 'whisper-large-v3',
-    name: 'Whisper-Large-v3',
-    params: 1.55,
-    architecture: 'audio-text',
-    hiddenSize: 1280,
-    numLayers: 32,
-    numHeads: 20,
-    vocabSize: 51865
-  },
-  {
-    id: 'whisper-medium',
-    name: 'Whisper-Medium',
-    params: 0.769,
-    architecture: 'audio-text',
-    hiddenSize: 1024,
-    numLayers: 24,
-    numHeads: 16,
-    vocabSize: 51865
-  },
-  {
-    id: 'whisper-small',
-    name: 'Whisper-Small',
-    params: 0.244,
-    architecture: 'audio-text',
-    hiddenSize: 768,
-    numLayers: 12,
-    numHeads: 12,
-    vocabSize: 51865
-  },
+  // ==================== 腾讯系列 ====================
+  { id: 'tairos-embodied-planning-v1', name: 'Tairos-Embodied-Planning-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'tairos-embodied-planning-for-guided-tours-v1', name: 'Tairos-Embodied-Planning-for-Guided-Tours-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-large-instruct', name: 'Hunyuan-Large-Instruct', params: 389.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Tencent-Hunyuan-Large' },
+  { id: 'hunyuan-a13b-instruct', name: 'Hunyuan-A13B-Instruct', params: 80.0, architecture: 'moe', hiddenSize: 6400, numLayers: 64, numHeads: 50, vocabSize: 100000, activeParams: 13.0, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-A13B-Instruct' },
+  { id: 'hy2.0-406b-a32b-144k-instruct-fp8', name: 'HY2.0-406B-A32B-144k-Instruct-FP8', params: 406.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 32.0, vendor: '腾讯' },
+  { id: 'hy2.0-406b-a32b-192k-thinking-fp8', name: 'HY2.0-406B-A32B-192k-Thinking-FP8', params: 406.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 32.0, vendor: '腾讯' },
+  { id: 'hunyuan-13b-32k-sft', name: 'Hunyuan-13b-32k-SFT-241021', params: 13.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 40, numHeads: 40, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-2b-256k-sft-v2', name: 'Hunyuan-2b-256k-SFT-V2-241229', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-2b-32k-instruct-v2', name: 'Hunyuan-2b-32k-Instruct-V2-250606', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-7b-256k-dpo-v2', name: 'Hunyuan-7b-256k-DPO-V2-250117', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-7b-256k-instruct-v2-0528', name: 'Hunyuan-7b-256k-Instruct-V2-250528', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-7b-256k-instruct-v2-0613', name: 'Hunyuan-7b-256k-Instruct-V2-250613', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
+  { id: 'hunyuan-7b-256k-instruct-v2-0724', name: 'Hunyuan-7b-256k-Instruct-V2-250724', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-7B-Instruct' },
+  { id: 'hunyuan-4b-256k-instruct-v2', name: 'hunyuan-4b-256k-Instruct-V2-250721', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-4B-Instruct' },
+  { id: 'hunyuan-a3b-moe-64k', name: 'Hunyuan-A3B-MoE-64K-250930', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 100000, activeParams: 3.0, vendor: '腾讯' },
+  { id: 'hunyuan-vision-t1-a56b', name: 'Hunyuan-Vision-T1-A56B-32k-251027', params: 400.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 56.0, vendor: '腾讯' },
+  { id: 'hunyuan-vision-turbos-a56b', name: 'Hunyuan-Vision-TurboS-A56B-32k-251027', params: 400.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 56.0, vendor: '腾讯' },
+  { id: 'hunyuan-t1-20250321', name: 'hunyuan-t1-20250321', params: 400.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: '腾讯' },
+  { id: 'hunyuan-t1-32k-250710', name: 'hunyuan-t1-32k-250710', params: 400.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: '腾讯' },
+  { id: 'youtu-llm-2b', name: 'Youtu-LLM-2B', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Youtu-LLM-2B' },
+  { id: 'youtu-embedding', name: 'Youtu-Embedding', params: 0.3, architecture: 'embedding', hiddenSize: 768, numLayers: 12, numHeads: 12, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Youtu-Embedding' },
 
-  // 多模态音频视频模型
-  {
-    id: 'jamba-1.5-mini',
-    name: 'Jamba-1.5-Mini',
-    params: 12.0,
-    architecture: 'hybrid-mamba',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 65536
-  },
-  {
-    id: 'openomni-7b',
-    name: 'OpenOmni-7B',
-    params: 7.0,
-    architecture: 'omnimodal',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
-  },
-
-  // 视频理解模型
-  {
-    id: 'video-llama-7b',
-    name: 'Video-LLaMA-7B',
-    params: 7.0,
-    architecture: 'video-text',
-    hiddenSize: 4096,
-    numLayers: 32,
-    numHeads: 32,
-    vocabSize: 32000
-  },
-
-  // 文档理解模型
-  {
-    id: 'nougat-base',
-    name: 'Nougat-Base',
-    params: 0.35,
-    architecture: 'document-ocr',
-    hiddenSize: 1024,
-    numLayers: 4,
-    numHeads: 16,
-    vocabSize: 8842
-  }
+  // ==================== 其他 ====================
+  { id: 'gpt-oss-20b', name: 'GPT-OSS-20B', params: 20.0, architecture: 'transformer', hiddenSize: 6144, numLayers: 48, numHeads: 48, vocabSize: 200064, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/openai/gpt-oss-20b' },
+  { id: 'gpt-oss-120b', name: 'GPT-OSS-120B', params: 120.0, architecture: 'transformer', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 200064, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/openai/gpt-oss-120b' },
+  { id: 'gemma3-12b-it', name: 'Gemma3-12B-IT', params: 12.0, architecture: 'multimodal', hiddenSize: 4096, numLayers: 40, numHeads: 32, vocabSize: 256000, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/google/gemma-3-12b-it' },
+  { id: 'gemma3-27b-it', name: 'Gemma3-27B-IT', params: 27.0, architecture: 'multimodal', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 256000, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/google/gemma-3-27b-it' },
+  { id: 'whisper-large-v3', name: 'Whisper-Large-V3', params: 1.55, architecture: 'audio-text', hiddenSize: 1280, numLayers: 32, numHeads: 20, vocabSize: 51865, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/openai/whisper-large-v3' },
+  { id: 'cosmos-reason1-7b', name: 'Cosmos-Reason1-7B', params: 7.0, architecture: 'multimodal', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 128256, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/nvidia/Cosmos-Reason1-7B' },
 ];
 
 /**
@@ -960,7 +706,7 @@ export const GPU_DATABASE: GPU[] = [
   // 数据中心级 GPU - Blackwell 架构
   {
     id: 'pnv6s',
-    name: 'PNV6s (B200 141GB)',
+    name: 'PNV6s 141GB',
     memory: 141,
     architecture: 'Blackwell',
     computeCapability: '10.0',
@@ -971,7 +717,7 @@ export const GPU_DATABASE: GPU[] = [
   },
   {
     id: 'pnv6',
-    name: 'PNV6 (B200 96GB)',
+    name: 'PNV6 96GB',
     memory: 96,
     architecture: 'Blackwell',
     computeCapability: '10.0',
@@ -1032,7 +778,7 @@ export const GPU_DATABASE: GPU[] = [
   // 专业推理/训练 GPU - Ada Lovelace 架构
   {
     id: 'pnv5b',
-    name: 'PNV5b (L40S 48GB)',
+    name: 'PNV5b 48GB',
     memory: 48,
     architecture: 'Ada Lovelace',
     computeCapability: '8.9',
@@ -1328,4 +1074,62 @@ export function getModelsByCategoryAndArchitecture(type: 'nlp' | 'multimodal') {
   }, {} as Record<string, ModelInfo[]>);
   
   return categories;
+}
+
+/**
+ * 获取所有供应商列表
+ */
+export function getVendors(): ModelVendor[] {
+  return ['DeepSeek', 'Kimi', 'GLM', 'Qwen', '腾讯', '其他'];
+}
+
+/**
+ * 根据供应商过滤模型
+ */
+export function getModelsByVendor(vendor: ModelVendor): ModelInfo[] {
+  return MODELS_DATABASE.filter(model => model.vendor === vendor);
+}
+
+/**
+ * 根据架构类型和供应商过滤模型
+ */
+export function getModelsByArchitectureAndVendor(
+  type: 'nlp' | 'multimodal' | 'embedding',
+  vendor?: ModelVendor
+): ModelInfo[] {
+  let models = getModelsByArchitecture(type);
+  if (vendor) {
+    models = models.filter(model => model.vendor === vendor);
+  }
+  return models;
+}
+
+/**
+ * 根据架构类型和供应商按系列分组模型
+ */
+export function getModelsByCategoryArchitectureAndVendor(
+  type: 'nlp' | 'multimodal',
+  vendor?: ModelVendor
+) {
+  const filteredModels = getModelsByArchitectureAndVendor(type, vendor);
+  
+  const categories = filteredModels.reduce((acc, model) => {
+    const category = model.name.split('-')[0];
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(model);
+    return acc;
+  }, {} as Record<string, ModelInfo[]>);
+  
+  return categories;
+}
+
+/**
+ * 获取指定架构类型下有模型的供应商列表
+ */
+export function getVendorsForArchitecture(type: 'nlp' | 'multimodal' | 'embedding'): ModelVendor[] {
+  const models = getModelsByArchitecture(type);
+  const vendors = [...new Set(models.map(m => m.vendor).filter(Boolean))] as ModelVendor[];
+  // 保持固定顺序
+  const order: ModelVendor[] = ['DeepSeek', 'Kimi', 'GLM', 'Qwen', '腾讯', '其他'];
+  return order.filter(v => vendors.includes(v));
 } 

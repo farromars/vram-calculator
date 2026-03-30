@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, Database, BarChart3, Zap } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AnimatedNumber } from '@/components/animated-number';
 import { LoadingOverlay } from '@/components/ui/loading-spinner';
 import { formatMemorySize } from '@/utils/memory-formulas';
-import { getModelById, getModelsByCategoryAndArchitecture } from '@/lib/models-data';
-import { InferenceConfig, PrecisionType, QuantizationType } from '@/types';
+import { getModelById, getModelsByCategoryArchitectureAndVendor, getVendorsForArchitecture } from '@/lib/models-data';
+import { InferenceConfig, PrecisionType, QuantizationType, ModelVendor } from '@/types';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -22,6 +22,7 @@ export function InferenceCalculator() {
   } = useCalculatorStore();
   
   const { t } = useLanguage();
+  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>('DeepSeek');
 
   // 获取当前选中模型信息
   const selectedModel = useMemo(() => 
@@ -32,10 +33,13 @@ export function InferenceCalculator() {
     setConfig({ [key]: value });
   };
 
-  // 按系列分组NLP模型
+  // 获取该架构下有模型的供应商列表
+  const vendors = useMemo(() => getVendorsForArchitecture('nlp'), []);
+
+  // 按供应商和系列分组NLP模型
   const modelsByCategory = useMemo(() => {
-    return getModelsByCategoryAndArchitecture('nlp');
-  }, []);
+    return getModelsByCategoryArchitectureAndVendor('nlp', selectedVendor);
+  }, [selectedVendor]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
@@ -56,6 +60,24 @@ export function InferenceCalculator() {
         {/* 模型选择 */}
         <div className="space-y-3">
           <label className="text-sm font-medium">{t('preset.model')}</label>
+          
+          {/* 供应商选项卡 */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {vendors.map((vendor) => (
+              <button
+                key={vendor}
+                onClick={() => setSelectedVendor(vendor)}
+                className={`px-3 py-1 text-xs rounded-full transition-all ${
+                  selectedVendor === vendor
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/40'
+                    : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                }`}
+              >
+                {vendor}
+              </button>
+            ))}
+          </div>
+
           <Select 
             value={config.modelId} 
             onValueChange={(value) => handleConfigChange('modelId', value)}
