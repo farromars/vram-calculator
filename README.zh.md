@@ -46,12 +46,12 @@
 
 ### 性能估算引擎（新增）
 - **性能与内存结果卡片**：环形饼图展示显存占比 + 实时 TPS/TTFT/吞吐量估算
-- **基于 alibaba/InferSim 公式**：Decode 阶段（内存带宽受限）和 Prefill 阶段（计算受限）
+- **基于 InferSim 公式**：Decode 阶段（内存带宽受限）和 Prefill 阶段（计算受限）
 - **按 GPU 架构自动估算 MFU**：Hopper 0.40、Blackwell 0.35、Ada 0.22~0.30
 - **全场景适配**：6 种计算模式（推理/训练/微调/GRPO/多模态/高级微调）均可显示
 
-### 腾讯云 GPU 数据对齐
-- **GPU 数据库替换**：15 款来自[腾讯云 TI-ONE 平台](https://cloud.tencent.com/document/product/851/74108)的 GPU（B200、H800、A800、A100、L40S、V100、RTX 5090D/4090/3090、T4 等）
+### GPU 数据对齐
+- **GPU 数据库替换**：15 款来自腾讯云平台的 GPU
 - **新增 bandwidth 和 fp16Tflops 字段**（用于性能估算）
 - **移除市场价格和云服务价格列**，替换为显存带宽和 FP16 算力
 
