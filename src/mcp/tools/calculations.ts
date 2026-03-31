@@ -120,10 +120,14 @@ export function registerCalculationTools(server: any) {
       }
 
       const config = {
+        modelId: params.modelId as string,
         precision: params.precision,
         batchSize: params.batchSize,
         numGenerations: params.numGenerations,
         sequenceLength: params.sequenceLength,
+        maxPromptLength: 512,
+        maxCompletionLength: 512,
+        gradientAccumulationSteps: 1,
         use8BitOptimizer: true,
         gradientCheckpointing: true
       };
@@ -199,13 +203,16 @@ export function registerCalculationTools(server: any) {
       const totalSequenceLength = textSeqLength + imageSeqLength + audioSeqLength + videoSeqLength;
 
       const config = {
+        modelId: params.modelId as string,
         batchSize: params.batchSize,
         sequenceLength: totalSequenceLength,
         textPrecision: params.precision,
-        modalityType: ['text'],
+        visionPrecision: params.precision,
+        modalityType: ['text'] as any,
         imageResolution: params.imageResolution,
         numImages: params.imageCount,
         patchSize: 14,
+        hasVisionEncoder: params.imageCount > 0,
         mode: params.mode
       };
 
@@ -223,7 +230,7 @@ export function registerCalculationTools(server: any) {
       const calculationResult = createCalculationResult(result, 'multimodal', model.name);
 
       // 添加多模态特定信息
-      calculationResult.breakdown.sequenceBreakdown = {
+      (calculationResult.breakdown as any).sequenceBreakdown = {
         text: textSeqLength,
         image: imageSeqLength,
         audio: audioSeqLength,
@@ -264,7 +271,7 @@ export function registerCalculationTools(server: any) {
     { method: "tools/call", params: { name: "calculate_advanced_finetuning_vram" } },
     withErrorHandling(async (request) => {
       mcpLogger.info("收到高级微调请求参数", { arguments: request.params?.arguments });
-      const params = validateParams(AdvancedFineTuningParamsSchema, request.params?.arguments);
+      const params = AdvancedFineTuningParamsSchema.parse(request.params?.arguments) as AdvancedFineTuningParams;
 
       mcpLogger.info("开始高级微调显存计算", {
         modelType: params.modelType,
@@ -417,7 +424,7 @@ export function registerCalculationTools(server: any) {
 
       // 添加到历史记录
       addCalculationHistory(
-        'advanced_finetuning',
+        'finetuning',
         `${params.modelType}_${params.architectureType}`,
         `${params.modelType.toUpperCase()} ${params.architectureType} (${params.modelSize}B)`,
         params,

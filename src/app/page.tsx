@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Brain, Calculator, Cpu, Zap, History, Star, Users, MessageSquare, Image, HelpCircle } from 'lucide-react';
+import { Brain, Calculator, Cpu, Zap, History, Users, MessageSquare, Image, HelpCircle } from 'lucide-react';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ZH } from '@/lib/i18n';
@@ -27,18 +27,11 @@ const GRPOCalculator = dynamic(
   () => import('@/components/calculators/grpo-calculator').then(mod => ({ default: mod.GRPOCalculator })),
   { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
-const AdvancedFineTuningCalculator = dynamic(
-  () => import('@/components/calculators/advanced-fine-tuning-calculator').then(mod => ({ default: mod.AdvancedFineTuningCalculator })),
-  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
-);
 const MultimodalCalculator = dynamic(
   () => import('@/components/calculators/multimodal-calculator').then(mod => ({ default: mod.MultimodalCalculator })),
   { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
 );
 const HistoryPanel = dynamic(() => import('@/components/history-panel'), {
-  loading: () => null,
-});
-const ConfigPresetsPanel = dynamic(() => import('@/components/config-presets-panel').then(mod => ({ default: mod.ConfigPresetsPanel })), {
   loading: () => null,
 });
 
@@ -53,11 +46,9 @@ export default function Home() {
     trainingConfig,
     fineTuningConfig,
     grpoConfig,
-    advancedFineTuningConfig,
   } = useCalculatorStore();
 
   const [showHistory, setShowHistory] = useState(false);
-  const [showPresets, setShowPresets] = useState(false);
 
   // 初始化语言为中文
   useEffect(() => {
@@ -132,8 +123,8 @@ export default function Home() {
           perfConfig = {
             precision: fineTuningConfig.precision,
             quantization: fineTuningConfig.quantization,
-            batchSize: 2, // FineTuningConfig 没有 batchSize，用默认值
-            sequenceLength: 2048,
+            batchSize: fineTuningConfig.batchSize,
+            sequenceLength: fineTuningConfig.sequenceLength,
             mode: `微调 (${fineTuningConfig.method})` as string,
           };
           break;
@@ -158,28 +149,6 @@ export default function Home() {
         sequenceLength: multimodalConfig.sequenceLength,
         mode: `多模态 ${modeLabels[multimodalConfig.mode] || '推理'}` as string,
       };
-    } else if (primaryTab === 'advanced') {
-      const cfg = advancedFineTuningConfig;
-      const nlp = cfg.nlpConfig;
-      if (nlp) {
-        modelInfo = {
-          id: 'advanced-ft',
-          name: `${nlp.modelSize}B ${cfg.modelType} 模型`,
-          params: nlp.modelSize,
-          architecture: 'transformer',
-          hiddenSize: nlp.hiddenSize,
-          numLayers: nlp.numLayers,
-          numHeads: nlp.numAttentionHeads,
-          vocabSize: nlp.vocabSize,
-        };
-        perfConfig = {
-          precision: nlp.precision,
-          quantization: nlp.quantizationTech,
-          batchSize: nlp.batchSize,
-          sequenceLength: nlp.sequenceLength,
-          mode: `高级微调 (${cfg.modelType})` as string,
-        };
-      }
     }
 
     return { currentModelInfo: modelInfo, currentPerfConfig: perfConfig };
@@ -190,7 +159,6 @@ export default function Home() {
     fineTuningConfig.baseModel, fineTuningConfig.precision, fineTuningConfig.quantization, fineTuningConfig.method,
     grpoConfig.modelId, grpoConfig.precision, grpoConfig.batchSize, grpoConfig.sequenceLength,
     multimodalConfig.modelId, multimodalConfig.textPrecision, multimodalConfig.batchSize, multimodalConfig.sequenceLength, multimodalConfig.mode,
-    advancedFineTuningConfig,
   ]);
 
   const getTabLabel = () => {
@@ -225,10 +193,6 @@ export default function Home() {
             <HelpCircle className="w-4 h-4" />
             <span>{ZH.nav.help}</span>
           </Link>
-          <button onClick={() => setShowPresets(true)} className="glass-button flex items-center gap-1.5 text-sm">
-            <Star className="w-4 h-4" />
-            <span>{ZH.nav.presets}</span>
-          </button>
           <button onClick={() => setShowHistory(true)} className="glass-button flex items-center gap-1.5 text-sm relative">
             <History className="w-4 h-4" />
             <span>{ZH.nav.history}</span>
@@ -269,7 +233,7 @@ export default function Home() {
           >
             <Tabs value={primaryTab} onValueChange={(v) => setPrimaryTab(v as typeof primaryTab)} className="w-full">
               <div className="flex justify-center mb-5">
-                <TabsList className="grid w-full max-w-xl grid-cols-3 bg-tc-bg-secondary rounded-lg p-1">
+                <TabsList className="grid w-full max-w-lg grid-cols-2 bg-tc-bg-secondary rounded-lg p-1">
                   <TabsTrigger value="nlp" className="flex items-center gap-2 text-sm">
                     <MessageSquare className="w-4 h-4" />
                     <span>{ZH.tabs.nlp}</span>
@@ -277,10 +241,6 @@ export default function Home() {
                   <TabsTrigger value="multimodal" className="flex items-center gap-2 text-sm">
                     <Image className="w-4 h-4" />
                     <span>{ZH.tabs.multimodal}</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="advanced" className="flex items-center gap-2 text-sm">
-                    <Brain className="w-4 h-4" />
-                    <span>{ZH.tabs.advanced}</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -340,10 +300,6 @@ export default function Home() {
                 </Tabs>
               </TabsContent>
 
-              {/* 高级微调组 */}
-              <TabsContent value="advanced" className="space-y-5">
-                <AdvancedFineTuningCalculator />
-              </TabsContent>
             </Tabs>
           </motion.div>
 
@@ -400,9 +356,6 @@ export default function Home() {
 
       {/* 历史记录面板 */}
       <HistoryPanel isOpen={showHistory} onClose={() => setShowHistory(false)} />
-
-      {/* 配置预设面板 */}
-      <ConfigPresetsPanel isOpen={showPresets} onClose={() => setShowPresets(false)} currentType={activeTab} />
     </div>
   );
 }

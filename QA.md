@@ -73,7 +73,6 @@ docker run -p 3000:3000 vram-calc
 | 12 | GPU推荐(单卡/多卡) | `GPURecommendations` | [gpu-recommendations.tsx](src/components/gpu-recommendations.tsx) |
 | 13 | 功能特色展示 | 内联3列卡片 | [page.tsx#L358-L386](src/app/page.tsx) |
 | 14 | 历史记录面板 | `HistoryPanel` | [history-panel.tsx](src/components/history-panel.tsx) |
-| 15 | 配置预设面板 | `ConfigPresetsPanel` | [config-presets-panel.tsx](src/components/config-presets-panel.tsx) |
 
 #### 核心计算流程
 
@@ -225,48 +224,48 @@ MFU(实际算力利用率):
 
 ### 4.1 功能层面
 
-| 问题 | 说明 | 优先级 |
-|------|------|--------|
-| 无单元测试 | 计算公式没有测试覆盖，修改后可能引入错误 | 高 |
-| 性能估算仅理论值 | TPS/TTFT 基于理论公式，未与实际 benchmark 校验 | 高 |
-| 高级微调页getCurrentResult返回null | `primaryTab='advanced'` 时 `getCurrentResult()` 未处理该分支 | 中 |
-| 微调配置缺少batchSize/seqLen | FineTuningConfig 接口无此字段，性能卡片使用硬编码默认值 | 中 |
-| 多卡推荐无通信开销 | 多GPU并行的NVLink/通信开销未纳入显存计算 | 中 |
+| 问题 | 说明 | 优先级 | 状态 |
+|------|------|--------|------|
+| 无单元测试 | 计算公式没有测试覆盖，修改后可能引入错误 | 高 | 待处理 |
+| 性能估算仅理论值 | TPS/TTFT 基于理论公式，未与实际 benchmark 校验 | 高 | 待处理 |
+| 高级微调页getCurrentResult返回null | `primaryTab='advanced'` 时 `getCurrentResult()` 未处理该分支 | 中 | ✅ 已修复 |
+| 微调配置缺少batchSize/seqLen | FineTuningConfig 接口无此字段，性能卡片使用硬编码默认值 | 中 | ✅ 已修复 |
+| 多卡推荐无通信开销 | 多GPU并行的NVLink/通信开销未纳入显存计算 | 中 | 待处理 |
 
 ### 4.2 数据层面
 
-| 问题 | 说明 |
-|------|------|
-| 模型数据可能过时 | 130+模型参数为静态数据，新模型需手动添加 |
-| GPU带宽/算力为公开规格 | 实际云环境可能因虚拟化有10-20%损耗 |
-| 量化压缩比是理论值 | INT4实际压缩比受实现方案(GPTQ/AWQ/GGUF)影响 |
+| 问题 | 说明 | 状态 |
+|------|------|------|
+| 模型数据可能过时 | 130+模型参数为静态数据，新模型需手动添加 | 待处理 |
+| GPU带宽/算力为公开规格 | 实际云环境可能因虚拟化有10-20%损耗 | 待处理 |
+| 量化压缩比是理论值 | INT4实际压缩比受实现方案(GPTQ/AWQ/GGUF)影响 | 待处理 |
 
 ### 4.3 工程层面
 
-| 问题 | 说明 |
-|------|------|
-| TypeScript类型检查被跳过 | `next.config.ts` 中 `ignoreBuildErrors: true` |
-| ESLint检查被跳过 | `ignoreDuringBuilds: true` |
-| 无CI/CD流程 | 缺少GitHub Actions自动构建/部署 |
-| 有.backup文件未清理 | `multimodal-calculator.tsx.backup` 应删除 |
-| language-context.tsx 过大 | 58KB，中英翻译数据应拆分为JSON文件 |
+| 问题 | 说明 | 状态 |
+|------|------|------|
+| TypeScript类型检查被跳过 | `next.config.ts` 中 `ignoreBuildErrors: true` | ✅ 已修复（修复全部TS错误后启用） |
+| ESLint检查被跳过 | `ignoreDuringBuilds: true` | ✅ 已修复（已启用，构建通过） |
+| 无CI/CD流程 | 缺少GitHub Actions自动构建/部署 | 暂不处理 |
+| 有.backup文件未清理 | `multimodal-calculator.tsx.backup` 应删除 | ✅ 已修复 |
+| language-context.tsx 过大 | 原58KB含大量重复key | ✅ 已修复（去除重复key后降至约35KB） |
 
 ### 4.4 用户体验层面
 
-| 问题 | 说明 |
-|------|------|
-| 无移动端适配 | 设计要求仅PC端，但基础响应式可做 |
-| 无加载骨架屏 | 动态组件加载时仅显示"加载中..."文字 |
-| 计算历史无导出 | 历史记录存localStorage，换浏览器丢失 |
-| 无暗色模式 | ThemeProvider已存在但UI未全面适配 |
-| 帮助页无搜索 | FAQ数量少时无问题，增多后需要搜索功能 |
+| 问题 | 说明 | 状态 |
+|------|------|------|
+| 无移动端适配 | 设计要求仅PC端，但基础响应式可做 | 待处理 |
+| 无加载骨架屏 | 动态组件加载时仅显示"加载中..."文字 | 待处理 |
+| 计算历史无导出 | 历史记录存localStorage，换浏览器丢失 | 待处理 |
+| 无暗色模式 | ThemeProvider已存在但UI未全面适配 | 待处理 |
+| 帮助页无搜索 | FAQ数量少时无问题，增多后需要搜索功能 | 待处理 |
 
 ### 4.5 安全层面
 
-| 问题 | 说明 |
-|------|------|
-| API路由无鉴权 | `/api/mcp` 和 `/api/analytics` 无权限校验 |
-| CSP策略含unsafe-eval | middleware.ts 中允许 `unsafe-eval`，存在XSS风险 |
+| 问题 | 说明 | 状态 |
+|------|------|------|
+| API路由无鉴权 | `/api/mcp` 和 `/api/analytics` 无权限校验 | 待处理 |
+| CSP策略含unsafe-eval | middleware.ts 中允许 `unsafe-eval`，存在XSS风险 | ✅ 已修复（已移除 unsafe-eval） |
 
 ---
 

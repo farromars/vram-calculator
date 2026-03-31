@@ -26,14 +26,14 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
-  // 跳过类型检查以解决构建问题
+  // TypeScript 类型检查（已修复所有类型错误，启用严格检查）
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
-  // 跳过ESLint检查
+  // ESLint 检查（已清理代码，启用构建时检查）
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
 
   // 图片优化

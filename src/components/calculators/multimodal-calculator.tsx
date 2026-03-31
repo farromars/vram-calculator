@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Image, Database, BarChart3, Eye } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
 
@@ -230,34 +231,30 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
         </div>
 
         {/* 批量大小和序列长度 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
+        <div className="space-y-4">
+          <div className="space-y-2">
             <label className="text-sm font-medium flex justify-between">
               <span>{t('multimodal.batch.size')}</span>
               <span className="font-mono text-cyan-600">{config.batchSize}</span>
             </label>
-            <Slider
-              value={[config.batchSize]}
-              onValueChange={([value]) => handleConfigChange('batchSize', value)}
-              min={1}
-              max={16}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={config.batchSize}
+              onChange={(v) => handleConfigChange('batchSize', v)}
+              min={1} max={16} step={1}
+              ticks={[1,2,4,8,12,16].map(n => ({ value: n, label: String(n) }))}
             />
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label className="text-sm font-medium flex justify-between">
               <span>{t('multimodal.sequence.length')}</span>
               <span className="font-mono text-cyan-600">{config.sequenceLength}</span>
             </label>
-            <Slider
-              value={[config.sequenceLength]}
-              onValueChange={([value]) => handleConfigChange('sequenceLength', value)}
-              min={512}
-              max={4096}
-              step={256}
-              className="w-full"
+            <TickSlider
+              value={config.sequenceLength}
+              onChange={(v) => handleConfigChange('sequenceLength', v)}
+              min={512} max={32768} step={512}
+              ticks={[1024,4096,8192,16384,32768].map(n => ({ value: n, label: `${n/1024}K` }))}
             />
           </div>
         </div>
@@ -315,18 +312,16 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
           </div>
 
           {/* 每样本图像数量 */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label className="text-sm font-medium flex justify-between">
               <span>{t('multimodal.num.images')}</span>
               <span className="font-mono text-cyan-600">{config.numImages}</span>
             </label>
-            <Slider
-              value={[config.numImages]}
-              onValueChange={([value]) => handleConfigChange('numImages', value)}
-              min={1}
-              max={8}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={config.numImages}
+              onChange={(v) => handleConfigChange('numImages', v)}
+              min={1} max={8} step={1}
+              ticks={[1,2,3,4,5,6,7,8].map(n => ({ value: n, label: String(n) }))}
             />
           </div>
 
@@ -389,18 +384,16 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
             </div>
 
             {/* 音频窗口长度 */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               <label className="text-sm font-medium flex justify-between">
                 <span>{t('multimodal.window.length')}</span>
                 <span className="font-mono text-cyan-600">{config.audioWindowLength || 30}</span>
               </label>
-              <Slider
-                value={[config.audioWindowLength || 30]}
-                onValueChange={([value]) => handleConfigChange('audioWindowLength', value)}
-                min={5}
-                max={120}
-                step={5}
-                className="w-full"
+              <TickSlider
+                value={config.audioWindowLength || 30}
+                onChange={(v) => handleConfigChange('audioWindowLength', v)}
+                min={5} max={120} step={5}
+                ticks={[5,10,15,20,30,45,60,90,120].map(n => ({ value: n, label: `${n}s` }))}
               />
             </div>
 
@@ -455,18 +448,16 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
             </div>
 
             {/* 视频长度 */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               <label className="text-sm font-medium flex justify-between">
                 <span>{t('multimodal.video.length')}</span>
                 <span className="font-mono text-cyan-600">{config.videoLength || 10}</span>
               </label>
-              <Slider
-                value={[config.videoLength || 10]}
-                onValueChange={([value]) => handleConfigChange('videoLength', value)}
-                min={1}
-                max={60}
-                step={1}
-                className="w-full"
+              <TickSlider
+                value={config.videoLength || 10}
+                onChange={(v) => handleConfigChange('videoLength', v)}
+                min={1} max={60} step={1}
+                ticks={[1,5,10,15,20,30,45,60].map(n => ({ value: n, label: `${n}s` }))}
               />
             </div>
 

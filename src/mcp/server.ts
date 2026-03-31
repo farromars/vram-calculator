@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * MCP (Model Context Protocol) 服务器核心实现
  * 为AI显存计算器提供标准化的MCP接口

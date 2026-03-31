@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Layers, TrendingUp, Lightbulb } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
 import { LoadingOverlay } from '@/components/ui/loading-spinner';
@@ -269,6 +270,35 @@ export function FineTuningCalculator() {
                 <SelectItem value="BF16">BF16</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        {/* 批大小和序列长度 */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">{t('batch.size')}</label>
+              <AnimatedNumber value={config.batchSize} className="text-sm font-mono text-green-600" />
+            </div>
+            <TickSlider
+              value={config.batchSize}
+              onChange={(v) => handleConfigChange('batchSize', v)}
+              min={1} max={32} step={1}
+              ticks={[1,2,4,8,12,16,24,32].map(n => ({ value: n, label: String(n) }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">{t('sequence.length')}</label>
+              <AnimatedNumber value={config.sequenceLength} className="text-sm font-mono text-purple-600" />
+            </div>
+            <TickSlider
+              value={config.sequenceLength}
+              onChange={(v) => handleConfigChange('sequenceLength', v)}
+              min={512} max={8192} step={512}
+              ticks={[1024,4096,8192].map(n => ({ value: n, label: `${n/1024}K` }))}
+            />
           </div>
         </div>
       </motion.div>

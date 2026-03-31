@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Layers, TrendingUp, Lightbulb, Settings, Zap } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
-import { LoadingOverlay } from '@/components/ui/loading-spinner';
 import { formatMemorySize } from '@/utils/memory-formulas';
 import { 
   AdvancedModelType, 
@@ -38,32 +38,30 @@ export function AdvancedFineTuningCalculator() {
   const [activeSection, setActiveSection] = useState<'basic' | 'advanced' | 'optimization'>('basic');
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [optimizationSuggestions, setOptimizationSuggestions] = useState<OptimizationSuggestion[]>([]);
+  const [, startTransition] = useTransition();
 
   // 初始化计算
   useEffect(() => {
-    // 如果没有计算结果，触发初始计算
     if (!memoryResult && !isLoading) {
       calculateAdvancedFineTuningMemory();
     }
   }, [memoryResult, isLoading, calculateAdvancedFineTuningMemory]);
 
-  const handleConfigChange = (key: keyof AdvancedFineTuningConfig, value: unknown) => {
-    const newConfig = { ...config, [key]: value };
-    setConfig(newConfig); // 修复：使用完整的newConfig而不是覆盖
+  // 延迟执行验证和建议生成（不阻塞渲染）
+  useEffect(() => {
+    startTransition(() => {
+      const validation = validateAdvancedFineTuningConfig(config);
+      setValidationResult(validation);
+      if (memoryResult) {
+        const suggestions = OptimizationAdvisor.generateOptimizationSuggestions(config, memoryResult);
+        setOptimizationSuggestions(suggestions);
+      }
+    });
+  }, [config, memoryResult]);
 
-    // 实时验证配置
-    const validation = validateAdvancedFineTuningConfig(newConfig);
-    setValidationResult(validation);
-
-    // 生成优化建议
-    if (memoryResult) {
-      const suggestions = OptimizationAdvisor.generateOptimizationSuggestions(
-        newConfig,
-        memoryResult
-      );
-      setOptimizationSuggestions(suggestions);
-    }
-  };
+  const handleConfigChange = useCallback((key: keyof AdvancedFineTuningConfig, value: unknown) => {
+    setConfig({ ...config, [key]: value });
+  }, [config, setConfig]);
 
   const handleModelTypeChange = (modelType: AdvancedModelType) => {
     // 切换模型类型时重置相应的配置
@@ -168,33 +166,6 @@ export function AdvancedFineTuningCalculator() {
           expertRegularization: 0.01
         };
         break;
-      case 'CNN':
-        newConfig.cnnConfig = {
-          modelSize: 0.05,
-          architectureType: 'ResNet',
-          precision: 'FP32',
-          quantizationSupport: true,
-          batchSize: 64,
-          gradientAccumulationSteps: 1,
-          learningRate: 1e-3,
-          optimizer: 'SGD',
-          trainingEpochs: 100,
-          inputImageSize: 224,
-          kernelSize: 3,
-          poolingStrategy: 'MaxPool',
-          dataAugmentationStrategy: ['RandomCrop', 'RandomFlip'],
-          frozenLayers: 0,
-          classificationHeadDim: 1000,
-          dropoutRate: 0.2,
-          weightDecay: 1e-4,
-          lrScheduler: 'StepLR',
-          freezeBatchNorm: false,
-          mixedPrecisionTraining: true,
-          warmupSteps: 0,
-          gradientClipping: 1.0,
-          labelSmoothing: 0.1
-        };
-        break;
     }
     
     setConfig(newConfig);
@@ -219,8 +190,8 @@ export function AdvancedFineTuningCalculator() {
           </h3>
         </div>
         
-        <div className="grid grid-cols-4 gap-4">
-          {(['NLP', 'Multimodal', 'MoE', 'CNN'] as AdvancedModelType[]).map((type) => (
+        <div className="grid grid-cols-3 gap-4">
+          {(['NLP', 'Multimodal', 'MoE'] as AdvancedModelType[]).map((type) => (
             <button
               key={type}
               onClick={() => handleModelTypeChange(type)}
@@ -278,8 +249,9 @@ export function AdvancedFineTuningCalculator() {
       {/* 动态配置面板 */}
       <motion.div
         key={`${config.modelType}-${activeSection}`}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
         className={`${
           actualTheme === 'dark'
             ? 'bg-white/10 backdrop-blur-sm border-white/20'
@@ -287,17 +259,14 @@ export function AdvancedFineTuningCalculator() {
         } rounded-xl p-6 border`}
       >
         {/* 这里将根据模型类型和配置面板类型渲染不同的配置选项 */}
-        {config.modelType === 'NLP' && renderNLPConfig(config, setConfig, activeSection, t, setValidationResult, setOptimizationSuggestions, memoryResult)}
-        {config.modelType === 'Multimodal' && renderMultimodalConfig(config, setConfig, activeSection, t, setValidationResult, setOptimizationSuggestions, memoryResult)}
-        {config.modelType === 'MoE' && renderMoEConfig(config, setConfig, activeSection, t, setValidationResult, setOptimizationSuggestions, memoryResult)}
-        {config.modelType === 'CNN' && renderCNNConfig(config, setConfig, activeSection, t, setValidationResult, setOptimizationSuggestions, memoryResult)}
+        {config.modelType === 'NLP' && renderNLPConfig(config, setConfig, activeSection, t)}
+        {config.modelType === 'Multimodal' && renderMultimodalConfig(config, setConfig, activeSection, t)}
+        {config.modelType === 'MoE' && renderMoEConfig(config, setConfig, activeSection, t)}
       </motion.div>
 
       {/* 计算结果显示 */}
       {memoryResult && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className={`${
             actualTheme === 'dark'
               ? 'bg-white/10 backdrop-blur-sm border-white/20'
@@ -417,11 +386,15 @@ export function AdvancedFineTuningCalculator() {
               </ul>
             </div>
           )}
-        </motion.div>
+        </div>
       )}
 
       {/* 加载状态 */}
-      {isLoading && <LoadingOverlay />}
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 }
@@ -431,10 +404,7 @@ function renderNLPConfig(
   config: AdvancedFineTuningConfig,
   setConfig: any,
   activeSection: string,
-  t: any,
-  setValidationResult: any,
-  setOptimizationSuggestions: any,
-  memoryResult: any
+  t: any
 ) {
   const nlpConfig = config.nlpConfig;
   if (!nlpConfig) return null;
@@ -445,19 +415,6 @@ function renderNLPConfig(
     // 更新store配置，这会触发防抖计算 - 修复：保留其他配置
     const updatedConfig = { ...config, nlpConfig: newNLPConfig };
     setConfig(updatedConfig);
-
-    // 实时验证配置
-    const validation = validateAdvancedFineTuningConfig(updatedConfig);
-    setValidationResult(validation);
-
-    // 生成优化建议
-    if (memoryResult) {
-      const suggestions = OptimizationAdvisor.generateOptimizationSuggestions(
-        updatedConfig,
-        memoryResult
-      );
-      setOptimizationSuggestions(suggestions);
-    }
   };
 
   if (activeSection === 'basic') {
@@ -475,18 +432,12 @@ function renderNLPConfig(
               className="text-sm font-mono text-blue-600"
             />
           </div>
-          <Slider
-            value={[nlpConfig.modelSize]}
-            onValueChange={([value]) => updateNLPConfig('modelSize', value)}
-            max={175}
-            min={0.125}
-            step={0.125}
-            className="w-full"
+          <TickSlider
+            value={nlpConfig.modelSize}
+            onChange={(v) => updateNLPConfig('modelSize', v)}
+            min={0.125} max={175} step={0.125}
+            ticks={[{ value: 0.125, label: "125M" }, { value: 1, label: "1B" }, { value: 7, label: "7B" }, { value: 13, label: "13B" }, { value: 34, label: "34B" }, { value: 70, label: "70B" }, { value: 175, label: "175B" }]}
           />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>125M</span>
-            <span>175B+</span>
-          </div>
         </div>
 
         {/* 架构类型 */}
@@ -557,13 +508,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-green-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.batchSize]}
-              onValueChange={([value]) => updateNLPConfig('batchSize', value)}
-              max={64}
-              min={1}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.batchSize}
+              onChange={(v) => updateNLPConfig("batchSize", v)}
+              min={1} max={64} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 48, label: "48" }, { value: 64, label: "64" }]}
             />
           </div>
 
@@ -575,13 +524,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-purple-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.sequenceLength]}
-              onValueChange={([value]) => updateNLPConfig('sequenceLength', value)}
-              max={32768}
-              min={512}
-              step={512}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.sequenceLength}
+              onChange={(v) => updateNLPConfig("sequenceLength", v)}
+              min={512} max={32768} step={512}
+              ticks={[{ value: 1024, label: "1K" }, { value: 4096, label: "4K" }, { value: 8192, label: "8K" }, { value: 16384, label: "16K" }, { value: 32768, label: "32K" }]}
             />
           </div>
         </div>
@@ -646,13 +593,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-blue-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.vocabSize]}
-              onValueChange={([value]) => updateNLPConfig('vocabSize', value)}
-              max={100000}
-              min={30000}
-              step={1000}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.vocabSize}
+              onChange={(v) => updateNLPConfig("vocabSize", v)}
+              min={30000} max={100000} step={1000}
+              ticks={[{ value: 30000, label: "30K" }, { value: 50000, label: "50K" }, { value: 80000, label: "80K" }, { value: 100000, label: "100K" }]}
             />
           </div>
 
@@ -664,13 +609,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-green-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.numAttentionHeads]}
-              onValueChange={([value]) => updateNLPConfig('numAttentionHeads', value)}
-              max={128}
-              min={8}
-              step={8}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.numAttentionHeads}
+              onChange={(v) => updateNLPConfig("numAttentionHeads", v)}
+              min={8} max={128} step={8}
+              ticks={[{ value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 64, label: "64" }, { value: 96, label: "96" }, { value: 128, label: "128" }]}
             />
           </div>
         </div>
@@ -685,13 +628,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-purple-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.hiddenSize]}
-              onValueChange={([value]) => updateNLPConfig('hiddenSize', value)}
-              max={12288}
-              min={768}
-              step={256}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.hiddenSize}
+              onChange={(v) => updateNLPConfig("hiddenSize", v)}
+              min={768} max={12288} step={256}
+              ticks={[{ value: 768, label: "768" }, { value: 2048, label: "2K" }, { value: 4096, label: "4K" }, { value: 8192, label: "8K" }, { value: 12288, label: "12K" }]}
             />
           </div>
 
@@ -703,13 +644,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-orange-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.intermediateSize]}
-              onValueChange={([value]) => updateNLPConfig('intermediateSize', value)}
-              max={49152}
-              min={2048}
-              step={512}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.intermediateSize}
+              onChange={(v) => updateNLPConfig("intermediateSize", v)}
+              min={2048} max={49152} step={512}
+              ticks={[{ value: 2048, label: "2K" }, { value: 4096, label: "4K" }, { value: 11008, label: "11K" }, { value: 28672, label: "28K" }, { value: 49152, label: "49K" }]}
             />
           </div>
 
@@ -721,13 +660,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-red-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.numLayers]}
-              onValueChange={([value]) => updateNLPConfig('numLayers', value)}
-              max={96}
-              min={12}
-              step={4}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.numLayers}
+              onChange={(v) => updateNLPConfig("numLayers", v)}
+              min={12} max={96} step={4}
+              ticks={[{ value: 12, label: "12" }, { value: 24, label: "24" }, { value: 32, label: "32" }, { value: 48, label: "48" }, { value: 64, label: "64" }, { value: 80, label: "80" }, { value: 96, label: "96" }]}
             />
           </div>
         </div>
@@ -742,13 +679,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-purple-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.loraRank]}
-              onValueChange={([value]) => updateNLPConfig('loraRank', value)}
-              max={256}
-              min={4}
-              step={4}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.loraRank}
+              onChange={(v) => updateNLPConfig("loraRank", v)}
+              min={4} max={256} step={4}
+              ticks={[{ value: 4, label: "4" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 64, label: "64" }, { value: 128, label: "128" }, { value: 256, label: "256" }]}
             />
           </div>
 
@@ -760,13 +695,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-orange-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.loraAlpha]}
-              onValueChange={([value]) => updateNLPConfig('loraAlpha', value)}
-              max={128}
-              min={16}
-              step={8}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.loraAlpha}
+              onChange={(v) => updateNLPConfig("loraAlpha", v)}
+              min={16} max={128} step={8}
+              ticks={[{ value: 16, label: "16" }, { value: 32, label: "32" }, { value: 64, label: "64" }, { value: 96, label: "96" }, { value: 128, label: "128" }]}
             />
           </div>
 
@@ -799,13 +732,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-red-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.maxGenerationLength]}
-              onValueChange={([value]) => updateNLPConfig('maxGenerationLength', value)}
-              max={4096}
-              min={256}
-              step={256}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.maxGenerationLength}
+              onChange={(v) => updateNLPConfig("maxGenerationLength", v)}
+              min={256} max={4096} step={256}
+              ticks={[{ value: 256, label: "256" }, { value: 1024, label: "1K" }, { value: 4096, label: "4K" }]}
             />
           </div>
 
@@ -816,13 +747,11 @@ function renderNLPConfig(
                 {nlpConfig.temperature.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[nlpConfig.temperature]}
-              onValueChange={([value]) => updateNLPConfig('temperature', value)}
-              max={1.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.temperature}
+              onChange={(v) => updateNLPConfig('temperature', v)}
+              min={0.1} max={1.0} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 0.3, label: "0.3" }, { value: 0.5, label: "0.5" }, { value: 0.7, label: "0.7" }, { value: 1.0, label: "1.0" }]}
             />
           </div>
 
@@ -833,13 +762,11 @@ function renderNLPConfig(
                 {nlpConfig.topP.toFixed(2)}
               </span>
             </div>
-            <Slider
-              value={[nlpConfig.topP]}
-              onValueChange={([value]) => updateNLPConfig('topP', value)}
-              max={0.95}
-              min={0.9}
-              step={0.01}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.topP}
+              onChange={(v) => updateNLPConfig('topP', v)}
+              min={0.9} max={0.95} step={0.01}
+              ticks={[{ value: 0.90, label: "0.90" }, { value: 0.91, label: "0.91" }, { value: 0.93, label: "0.93" }, { value: 0.95, label: "0.95" }]}
             />
           </div>
         </div>
@@ -883,13 +810,11 @@ function renderNLPConfig(
                 className="text-sm font-mono text-green-600"
               />
             </div>
-            <Slider
-              value={[nlpConfig.warmupSteps]}
-              onValueChange={([value]) => updateNLPConfig('warmupSteps', value)}
-              max={1000}
-              min={0}
-              step={50}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.warmupSteps}
+              onChange={(v) => updateNLPConfig("warmupSteps", v)}
+              min={0} max={1000} step={50}
+              ticks={[{ value: 0, label: "0" }, { value: 100, label: "100" }, { value: 200, label: "200" }, { value: 500, label: "500" }, { value: 1000, label: "1K" }]}
             />
           </div>
         </div>
@@ -903,13 +828,11 @@ function renderNLPConfig(
                 {nlpConfig.gradientClipping.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[nlpConfig.gradientClipping]}
-              onValueChange={([value]) => updateNLPConfig('gradientClipping', value)}
-              max={5.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.gradientClipping}
+              onChange={(v) => updateNLPConfig("gradientClipping", v)}
+              min={0.1} max={5} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 0.5, label: "0.5" }, { value: 1.0, label: "1.0" }, { value: 2.0, label: "2.0" }, { value: 5.0, label: "5.0" }]}
             />
           </div>
 
@@ -920,13 +843,11 @@ function renderNLPConfig(
                 {nlpConfig.dropoutRate.toFixed(2)}
               </span>
             </div>
-            <Slider
-              value={[nlpConfig.dropoutRate]}
-              onValueChange={([value]) => updateNLPConfig('dropoutRate', value)}
-              max={0.5}
-              min={0.0}
-              step={0.01}
-              className="w-full"
+            <TickSlider
+              value={nlpConfig.dropoutRate}
+              onChange={(v) => updateNLPConfig("dropoutRate", v)}
+              min={0} max={0.5} step={0.01}
+              ticks={[{ value: 0.0, label: "0" }, { value: 0.1, label: "0.1" }, { value: 0.2, label: "0.2" }, { value: 0.3, label: "0.3" }, { value: 0.5, label: "0.5" }]}
             />
           </div>
         </div>
@@ -940,14 +861,12 @@ function renderNLPConfig(
               className="text-sm font-mono text-red-600"
             />
           </div>
-          <Slider
-            value={[nlpConfig.gradientAccumulationSteps]}
-            onValueChange={([value]) => updateNLPConfig('gradientAccumulationSteps', value)}
-            max={128}
-            min={1}
-            step={1}
-            className="w-full"
-          />
+          <TickSlider
+              value={nlpConfig.gradientAccumulationSteps}
+              onChange={(v) => updateNLPConfig("gradientAccumulationSteps", v)}
+              min={1} max={128} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 4, label: "4" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 64, label: "64" }, { value: 128, label: "128" }]}
+            />
           <div className="text-xs text-gray-500">
             {t('advanced.finetuning.effective.batch.size')}: {nlpConfig.batchSize * nlpConfig.gradientAccumulationSteps}
           </div>
@@ -963,10 +882,7 @@ function renderMultimodalConfig(
   config: AdvancedFineTuningConfig,
   setConfig: any,
   activeSection: string,
-  t: any,
-  setValidationResult: any,
-  setOptimizationSuggestions: any,
-  memoryResult: any
+  t: any
 ) {
   const multimodalConfig = config.multimodalConfig;
   if (!multimodalConfig) return null;
@@ -977,19 +893,6 @@ function renderMultimodalConfig(
     // 更新store配置，这会触发防抖计算 - 修复：保留其他配置
     const updatedConfig = { ...config, multimodalConfig: newMultimodalConfig };
     setConfig(updatedConfig);
-
-    // 实时验证配置
-    const validation = validateAdvancedFineTuningConfig(updatedConfig);
-    setValidationResult(validation);
-
-    // 生成优化建议
-    if (memoryResult) {
-      const suggestions = OptimizationAdvisor.generateOptimizationSuggestions(
-        updatedConfig,
-        memoryResult
-      );
-      setOptimizationSuggestions(suggestions);
-    }
   };
 
   if (activeSection === 'basic') {
@@ -1008,13 +911,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-blue-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.modelSize]}
-              onValueChange={([value]) => updateMultimodalConfig('modelSize', value)}
-              max={100}
-              min={1}
-              step={0.5}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.modelSize}
+              onChange={(v) => updateMultimodalConfig("modelSize", v)}
+              min={1} max={100} step={0.5}
+              ticks={[{ value: 1, label: "1B" }, { value: 7, label: "7B" }, { value: 13, label: "13B" }, { value: 34, label: "34B" }, { value: 72, label: "72B" }, { value: 100, label: "100B" }]}
             />
           </div>
 
@@ -1047,18 +948,12 @@ function renderMultimodalConfig(
                 {multimodalConfig.imageResolution}×{multimodalConfig.imageResolution}
               </span>
             </div>
-            <Slider
-              value={[multimodalConfig.imageResolution]}
-              onValueChange={([value]) => updateMultimodalConfig('imageResolution', value)}
-              max={1024}
-              min={224}
-              step={112}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.imageResolution}
+              onChange={(v) => updateMultimodalConfig('imageResolution', v)}
+              min={224} max={1024} step={112}
+              ticks={[{ value: 224, label: "224" }, { value: 336, label: "336" }, { value: 448, label: "448" }, { value: 672, label: "672" }, { value: 1024, label: "1024" }]}
             />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>224×224</span>
-              <span>1024×1024</span>
-            </div>
           </div>
 
           <div className="space-y-3">
@@ -1069,13 +964,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-purple-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.patchSize]}
-              onValueChange={([value]) => updateMultimodalConfig('patchSize', value)}
-              max={32}
-              min={14}
-              step={2}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.patchSize}
+              onChange={(v) => updateMultimodalConfig("patchSize", v)}
+              min={14} max={32} step={2}
+              ticks={[{ value: 14, label: "14" }, { value: 16, label: "16" }, { value: 32, label: "32" }]}
             />
           </div>
         </div>
@@ -1127,13 +1020,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-orange-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.batchSize]}
-              onValueChange={([value]) => updateMultimodalConfig('batchSize', value)}
-              max={32}
-              min={4}
-              step={2}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.batchSize}
+              onChange={(v) => updateMultimodalConfig("batchSize", v)}
+              min={4} max={32} step={2}
+              ticks={[{ value: 4, label: "4" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 24, label: "24" }, { value: 32, label: "32" }]}
             />
           </div>
 
@@ -1145,13 +1036,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-red-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.sequenceLength]}
-              onValueChange={([value]) => updateMultimodalConfig('sequenceLength', value)}
-              max={2048}
-              min={256}
-              step={256}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.sequenceLength}
+              onChange={(v) => updateMultimodalConfig("sequenceLength", v)}
+              min={256} max={2048} step={256}
+              ticks={[{ value: 256, label: "256" }, { value: 1024, label: "1K" }, { value: 2048, label: "2K" }]}
             />
           </div>
 
@@ -1163,13 +1052,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-cyan-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.trainingEpochs]}
-              onValueChange={([value]) => updateMultimodalConfig('trainingEpochs', value)}
-              max={30}
-              min={3}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.trainingEpochs}
+              onChange={(v) => updateMultimodalConfig("trainingEpochs", v)}
+              min={3} max={30} step={1}
+              ticks={[{ value: 3, label: "3" }, { value: 5, label: "5" }, { value: 10, label: "10" }, { value: 20, label: "20" }, { value: 30, label: "30" }]}
             />
           </div>
         </div>
@@ -1209,13 +1096,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-blue-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.visionFeatureDim]}
-              onValueChange={([value]) => updateMultimodalConfig('visionFeatureDim', value)}
-              max={1024}
-              min={768}
-              step={64}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.visionFeatureDim}
+              onChange={(v) => updateMultimodalConfig("visionFeatureDim", v)}
+              min={768} max={1024} step={64}
+              ticks={[{ value: 768, label: "768" }, { value: 896, label: "896" }, { value: 1024, label: "1K" }]}
             />
           </div>
         </div>
@@ -1229,13 +1114,11 @@ function renderMultimodalConfig(
                 {multimodalConfig.crossModalAlignmentWeight.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[multimodalConfig.crossModalAlignmentWeight]}
-              onValueChange={([value]) => updateMultimodalConfig('crossModalAlignmentWeight', value)}
-              max={1.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.crossModalAlignmentWeight}
+              onChange={(v) => updateMultimodalConfig("crossModalAlignmentWeight", v)}
+              min={0.1} max={1} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 0.3, label: "0.3" }, { value: 0.5, label: "0.5" }, { value: 0.8, label: "0.8" }, { value: 1.0, label: "1.0" }]}
             />
           </div>
 
@@ -1246,13 +1129,11 @@ function renderMultimodalConfig(
                 {multimodalConfig.imageTextContrastWeight.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[multimodalConfig.imageTextContrastWeight]}
-              onValueChange={([value]) => updateMultimodalConfig('imageTextContrastWeight', value)}
-              max={1.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.imageTextContrastWeight}
+              onChange={(v) => updateMultimodalConfig("imageTextContrastWeight", v)}
+              min={0.1} max={1} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 0.3, label: "0.3" }, { value: 0.5, label: "0.5" }, { value: 0.8, label: "0.8" }, { value: 1.0, label: "1.0" }]}
             />
           </div>
         </div>
@@ -1333,6 +1214,10 @@ function renderMultimodalConfig(
               step={0.1}
               className="w-full"
             />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>1e-4</span>
+              <span>1e-1</span>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -1343,13 +1228,11 @@ function renderMultimodalConfig(
                 className="text-sm font-mono text-green-600"
               />
             </div>
-            <Slider
-              value={[multimodalConfig.warmupSteps]}
-              onValueChange={([value]) => updateMultimodalConfig('warmupSteps', value)}
-              max={500}
-              min={0}
-              step={25}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.warmupSteps}
+              onChange={(v) => updateMultimodalConfig("warmupSteps", v)}
+              min={0} max={500} step={25}
+              ticks={[{ value: 0, label: "0" }, { value: 50, label: "50" }, { value: 100, label: "100" }, { value: 250, label: "250" }, { value: 500, label: "500" }]}
             />
           </div>
         </div>
@@ -1363,13 +1246,11 @@ function renderMultimodalConfig(
                 {multimodalConfig.gradientClipping.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[multimodalConfig.gradientClipping]}
-              onValueChange={([value]) => updateMultimodalConfig('gradientClipping', value)}
-              max={5.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={multimodalConfig.gradientClipping}
+              onChange={(v) => updateMultimodalConfig("gradientClipping", v)}
+              min={0.1} max={5} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 0.5, label: "0.5" }, { value: 1.0, label: "1.0" }, { value: 2.0, label: "2.0" }, { value: 5.0, label: "5.0" }]}
             />
           </div>
 
@@ -1396,14 +1277,12 @@ function renderMultimodalConfig(
               className="text-sm font-mono text-red-600"
             />
           </div>
-          <Slider
-            value={[multimodalConfig.gradientAccumulationSteps]}
-            onValueChange={([value]) => updateMultimodalConfig('gradientAccumulationSteps', value)}
-            max={32}
-            min={1}
-            step={1}
-            className="w-full"
-          />
+          <TickSlider
+              value={multimodalConfig.gradientAccumulationSteps}
+              onChange={(v) => updateMultimodalConfig("gradientAccumulationSteps", v)}
+              min={1} max={32} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 4, label: "4" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 24, label: "24" }, { value: 32, label: "32" }]}
+            />
           <div className="text-xs text-gray-500">
             {t('advanced.finetuning.effective.batch.size.label')}: {multimodalConfig.batchSize * multimodalConfig.gradientAccumulationSteps}
           </div>
@@ -1419,10 +1298,7 @@ function renderMoEConfig(
   config: AdvancedFineTuningConfig,
   setConfig: any,
   activeSection: string,
-  t: any,
-  setValidationResult: any,
-  setOptimizationSuggestions: any,
-  memoryResult: any
+  t: any
 ) {
   const moeConfig = config.moeConfig;
   if (!moeConfig) return null;
@@ -1433,19 +1309,6 @@ function renderMoEConfig(
     // 更新store配置，这会触发防抖计算 - 修复：保留其他配置
     const updatedConfig = { ...config, moeConfig: newMoEConfig };
     setConfig(updatedConfig);
-
-    // 实时验证配置
-    const validation = validateAdvancedFineTuningConfig(updatedConfig);
-    setValidationResult(validation);
-
-    // 生成优化建议
-    if (memoryResult) {
-      const suggestions = OptimizationAdvisor.generateOptimizationSuggestions(
-        updatedConfig,
-        memoryResult
-      );
-      setOptimizationSuggestions(suggestions);
-    }
   };
 
   if (activeSection === 'basic') {
@@ -1464,13 +1327,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-blue-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.modelSize]}
-              onValueChange={([value]) => updateMoEConfig('modelSize', value)}
-              max={1600}
-              min={1}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.modelSize}
+              onChange={(v) => updateMoEConfig("modelSize", v)}
+              min={1} max={1600} step={1}
+              ticks={[{ value: 1, label: "1B" }, { value: 100, label: "100B" }, { value: 400, label: "400B" }, { value: 800, label: "800B" }, { value: 1600, label: "1.6T" }]}
             />
           </div>
 
@@ -1482,13 +1343,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-green-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.numExperts]}
-              onValueChange={([value]) => updateMoEConfig('numExperts', value)}
-              max={2048}
-              min={8}
-              step={8}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.numExperts}
+              onChange={(v) => updateMoEConfig("numExperts", v)}
+              min={8} max={2048} step={8}
+              ticks={[{ value: 8, label: "8" }, { value: 64, label: "64" }, { value: 256, label: "256" }, { value: 512, label: "512" }, { value: 2048, label: "2K" }]}
             />
           </div>
         </div>
@@ -1503,13 +1362,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-purple-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.numActiveExperts]}
-              onValueChange={([value]) => updateMoEConfig('numActiveExperts', value)}
-              max={8}
-              min={1}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.numActiveExperts}
+              onChange={(v) => updateMoEConfig("numActiveExperts", v)}
+              min={1} max={8} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 2, label: "2" }, { value: 4, label: "4" }, { value: 8, label: "8" }]}
             />
           </div>
 
@@ -1541,13 +1398,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-orange-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.batchSize]}
-              onValueChange={([value]) => updateMoEConfig('batchSize', value)}
-              max={64}
-              min={8}
-              step={8}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.batchSize}
+              onChange={(v) => updateMoEConfig("batchSize", v)}
+              min={8} max={64} step={8}
+              ticks={[{ value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 48, label: "48" }, { value: 64, label: "64" }]}
             />
           </div>
 
@@ -1559,13 +1414,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-red-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.sequenceLength]}
-              onValueChange={([value]) => updateMoEConfig('sequenceLength', value)}
-              max={8192}
-              min={512}
-              step={512}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.sequenceLength}
+              onChange={(v) => updateMoEConfig("sequenceLength", v)}
+              min={512} max={8192} step={512}
+              ticks={[{ value: 1024, label: "1K" }, { value: 4096, label: "4K" }, { value: 8192, label: "8K" }]}
             />
           </div>
 
@@ -1577,13 +1430,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-cyan-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.trainingEpochs]}
-              onValueChange={([value]) => updateMoEConfig('trainingEpochs', value)}
-              max={5}
-              min={1}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.trainingEpochs}
+              onChange={(v) => updateMoEConfig("trainingEpochs", v)}
+              min={1} max={5} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }, { value: 4, label: "4" }, { value: 5, label: "5" }]}
             />
           </div>
         </div>
@@ -1605,13 +1456,11 @@ function renderMoEConfig(
                 {moeConfig.expertCapacityFactor.toFixed(2)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.expertCapacityFactor]}
-              onValueChange={([value]) => updateMoEConfig('expertCapacityFactor', value)}
-              max={2.0}
-              min={1.0}
-              step={0.05}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.expertCapacityFactor}
+              onChange={(v) => updateMoEConfig("expertCapacityFactor", v)}
+              min={1} max={2} step={0.05}
+              ticks={[{ value: 1.0, label: "1.0" }, { value: 1.25, label: "1.25" }, { value: 1.5, label: "1.5" }, { value: 2.0, label: "2.0" }]}
             />
           </div>
 
@@ -1622,13 +1471,11 @@ function renderMoEConfig(
                 {moeConfig.expertSpecialization.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.expertSpecialization]}
-              onValueChange={([value]) => updateMoEConfig('expertSpecialization', value)}
-              max={1.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.expertSpecialization}
+              onChange={(v) => updateMoEConfig("expertSpecialization", v)}
+              min={0.1} max={1} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 0.5, label: "0.5" }, { value: 0.8, label: "0.8" }, { value: 1.0, label: "1.0" }]}
             />
           </div>
         </div>
@@ -1642,13 +1489,11 @@ function renderMoEConfig(
                 {moeConfig.loadBalanceLossWeight.toFixed(3)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.loadBalanceLossWeight]}
-              onValueChange={([value]) => updateMoEConfig('loadBalanceLossWeight', value)}
-              max={0.1}
-              min={0.01}
-              step={0.001}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.loadBalanceLossWeight}
+              onChange={(v) => updateMoEConfig("loadBalanceLossWeight", v)}
+              min={0.01} max={0.1} step={0.001}
+              ticks={[{ value: 0.01, label: "0.01" }, { value: 0.05, label: "0.05" }, { value: 0.1, label: "0.1" }]}
             />
           </div>
 
@@ -1659,13 +1504,11 @@ function renderMoEConfig(
                 {moeConfig.auxiliaryLossWeight.toFixed(4)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.auxiliaryLossWeight]}
-              onValueChange={([value]) => updateMoEConfig('auxiliaryLossWeight', value)}
-              max={0.01}
-              min={0.001}
-              step={0.0001}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.auxiliaryLossWeight}
+              onChange={(v) => updateMoEConfig("auxiliaryLossWeight", v)}
+              min={0.001} max={0.01} step={0.0001}
+              ticks={[{ value: 0.001, label: "0.001" }, { value: 0.005, label: "0.005" }, { value: 0.01, label: "0.01" }]}
             />
           </div>
         </div>
@@ -1715,14 +1558,12 @@ function renderMoEConfig(
               className="text-sm font-mono text-red-600"
             />
           </div>
-          <Slider
-            value={[moeConfig.expertParallelism]}
-            onValueChange={([value]) => updateMoEConfig('expertParallelism', value)}
-            max={8}
-            min={1}
-            step={1}
-            className="w-full"
-          />
+          <TickSlider
+              value={moeConfig.expertParallelism}
+              onChange={(v) => updateMoEConfig("expertParallelism", v)}
+              min={1} max={8} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 2, label: "2" }, { value: 4, label: "4" }, { value: 8, label: "8" }]}
+            />
         </div>
       </div>
     );
@@ -1750,6 +1591,10 @@ function renderMoEConfig(
               step={0.1}
               className="w-full"
             />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>1e-4</span>
+              <span>1e-1</span>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -1759,13 +1604,11 @@ function renderMoEConfig(
                 {moeConfig.expertRegularization.toFixed(3)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.expertRegularization]}
-              onValueChange={([value]) => updateMoEConfig('expertRegularization', value)}
-              max={0.1}
-              min={0.001}
-              step={0.001}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.expertRegularization}
+              onChange={(v) => updateMoEConfig("expertRegularization", v)}
+              min={0.001} max={0.1} step={0.001}
+              ticks={[{ value: 0.001, label: "0.001" }, { value: 0.01, label: "0.01" }, { value: 0.1, label: "0.1" }]}
             />
           </div>
         </div>
@@ -1779,13 +1622,11 @@ function renderMoEConfig(
                 {moeConfig.gradientClipping.toFixed(1)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.gradientClipping]}
-              onValueChange={([value]) => updateMoEConfig('gradientClipping', value)}
-              max={5.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.gradientClipping}
+              onChange={(v) => updateMoEConfig("gradientClipping", v)}
+              min={0.1} max={5} step={0.1}
+              ticks={[{ value: 0.1, label: "0.1" }, { value: 1.0, label: "1.0" }, { value: 5.0, label: "5.0" }]}
             />
           </div>
 
@@ -1796,13 +1637,11 @@ function renderMoEConfig(
                 {moeConfig.expertDropoutRate.toFixed(2)}
               </span>
             </div>
-            <Slider
-              value={[moeConfig.expertDropoutRate]}
-              onValueChange={([value]) => updateMoEConfig('expertDropoutRate', value)}
-              max={0.1}
-              min={0.0}
-              step={0.01}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.expertDropoutRate}
+              onChange={(v) => updateMoEConfig("expertDropoutRate", v)}
+              min={0} max={0.1} step={0.01}
+              ticks={[{ value: 0.0, label: "0" }, { value: 0.05, label: "0.05" }, { value: 0.1, label: "0.1" }]}
             />
           </div>
         </div>
@@ -1817,13 +1656,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-cyan-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.warmupSteps]}
-              onValueChange={([value]) => updateMoEConfig('warmupSteps', value)}
-              max={200}
-              min={0}
-              step={10}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.warmupSteps}
+              onChange={(v) => updateMoEConfig("warmupSteps", v)}
+              min={0} max={200} step={10}
+              ticks={[{ value: 0, label: "0" }, { value: 50, label: "50" }, { value: 100, label: "100" }, { value: 200, label: "200" }]}
             />
           </div>
 
@@ -1835,13 +1672,11 @@ function renderMoEConfig(
                 className="text-sm font-mono text-pink-600"
               />
             </div>
-            <Slider
-              value={[moeConfig.gradientAccumulationSteps]}
-              onValueChange={([value]) => updateMoEConfig('gradientAccumulationSteps', value)}
-              max={16}
-              min={1}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={moeConfig.gradientAccumulationSteps}
+              onChange={(v) => updateMoEConfig("gradientAccumulationSteps", v)}
+              min={1} max={16} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 4, label: "4" }, { value: 8, label: "8" }, { value: 16, label: "16" }]}
             />
           </div>
         </div>
@@ -1850,428 +1685,4 @@ function renderMoEConfig(
   }
 
   return <div>{t('advanced.finetuning.moe')} {activeSection} {t('advanced.finetuning.config')}</div>;
-}
-
-function renderCNNConfig(
-  config: AdvancedFineTuningConfig,
-  setConfig: any,
-  activeSection: string,
-  t: any,
-  setValidationResult: any,
-  setOptimizationSuggestions: any,
-  memoryResult: any
-) {
-  const cnnConfig = config.cnnConfig;
-  if (!cnnConfig) return null;
-
-  const updateCNNConfig = (key: string, value: any) => {
-    const newCNNConfig = { ...cnnConfig, [key]: value };
-
-    // 更新store配置，这会触发防抖计算 - 修复：保留其他配置
-    const updatedConfig = { ...config, cnnConfig: newCNNConfig };
-    setConfig(updatedConfig);
-
-    // 实时验证配置
-    const validation = validateAdvancedFineTuningConfig(updatedConfig);
-    setValidationResult(validation);
-
-    // 生成优化建议
-    if (memoryResult) {
-      const suggestions = OptimizationAdvisor.generateOptimizationSuggestions(
-        updatedConfig,
-        memoryResult
-      );
-      setOptimizationSuggestions(suggestions);
-    }
-  };
-
-  if (activeSection === 'basic') {
-    return (
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold mb-4">{t('advanced.finetuning.cnn.basic.config')}</h4>
-
-        {/* 模型大小和图像尺寸 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.model.size.label')}</label>
-              <AnimatedNumber
-                value={cnnConfig.modelSize}
-                format={(n) => `${n}M`}
-                className="text-sm font-mono text-blue-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.modelSize * 1000]}
-              onValueChange={([value]) => updateCNNConfig('modelSize', value / 1000)}
-              max={500}
-              min={5}
-              step={5}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.input.image.size')}</label>
-              <span className="text-sm font-mono text-green-600">
-                {cnnConfig.inputImageSize}×{cnnConfig.inputImageSize}
-              </span>
-            </div>
-            <Slider
-              value={[cnnConfig.inputImageSize]}
-              onValueChange={([value]) => updateCNNConfig('inputImageSize', value)}
-              max={512}
-              min={224}
-              step={32}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* 架构和训练参数 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-sm font-medium">{t('advanced.finetuning.architecture.type')}</label>
-            <Select
-              value={cnnConfig.architectureType}
-              onValueChange={(value: ModelArchitectureType) => updateCNNConfig('architectureType', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ResNet">ResNet</SelectItem>
-                <SelectItem value="EfficientNet">EfficientNet</SelectItem>
-                <SelectItem value="ConvNeXt">ConvNeXt</SelectItem>
-                <SelectItem value="RegNet">RegNet</SelectItem>
-                <SelectItem value="DenseNet">DenseNet</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.batch.size')}</label>
-              <AnimatedNumber
-                value={cnnConfig.batchSize}
-                className="text-sm font-mono text-purple-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.batchSize]}
-              onValueChange={([value]) => updateCNNConfig('batchSize', value)}
-              max={512}
-              min={32}
-              step={32}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* 学习率和训练轮数 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.learning.rate')}</label>
-              <span className="text-sm font-mono text-orange-600">
-                {cnnConfig.learningRate.toExponential(1)}
-              </span>
-            </div>
-            <Slider
-              value={[Math.log10(cnnConfig.learningRate)]}
-              onValueChange={([value]) => updateCNNConfig('learningRate', Math.pow(10, value))}
-              max={-2}
-              min={-4}
-              step={0.1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>1e-4</span>
-              <span>1e-2</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.training.epochs')}</label>
-              <AnimatedNumber
-                value={cnnConfig.trainingEpochs}
-                className="text-sm font-mono text-red-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.trainingEpochs]}
-              onValueChange={([value]) => updateCNNConfig('trainingEpochs', value)}
-              max={300}
-              min={50}
-              step={10}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (activeSection === 'advanced') {
-    return (
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold mb-4">{t('advanced.finetuning.cnn.advanced.config')}</h4>
-
-        {/* 卷积配置 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-sm font-medium">{t('advanced.finetuning.pooling.strategy')}</label>
-            <Select
-              value={cnnConfig.poolingStrategy}
-              onValueChange={(value) => updateCNNConfig('poolingStrategy', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={t('advanced.finetuning.pooling.maxpool')}>MaxPool</SelectItem>
-                <SelectItem value={t('advanced.finetuning.pooling.avgpool')}>AvgPool</SelectItem>
-                <SelectItem value={t('advanced.finetuning.pooling.adaptive.avgpool')}>AdaptiveAvgPool</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">冻结层数</label>
-              <AnimatedNumber
-                value={cnnConfig.frozenLayers}
-                className="text-sm font-mono text-blue-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.frozenLayers]}
-              onValueChange={([value]) => updateCNNConfig('frozenLayers', value)}
-              max={50}
-              min={0}
-              step={1}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* 分类头配置 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">分类头维度</label>
-              <AnimatedNumber
-                value={cnnConfig.classificationHeadDim}
-                className="text-sm font-mono text-green-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.classificationHeadDim]}
-              onValueChange={([value]) => updateCNNConfig('classificationHeadDim', value)}
-              max={10000}
-              min={10}
-              step={10}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-sm font-medium">{t('advanced.finetuning.lr.scheduler')}</label>
-            <Select
-              value={cnnConfig.lrScheduler}
-              onValueChange={(value) => updateCNNConfig('lrScheduler', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={t('advanced.finetuning.lr.scheduler.step')}>StepLR</SelectItem>
-                <SelectItem value={t('advanced.finetuning.lr.scheduler.cosine')}>CosineAnnealingLR</SelectItem>
-                <SelectItem value={t('advanced.finetuning.lr.scheduler.plateau')}>ReduceLROnPlateau</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* 数据增强策略 */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium">{t('advanced.finetuning.data.augmentation.strategy')}</label>
-          <div className="grid grid-cols-2 gap-2">
-            {['RandomCrop', 'RandomFlip', 'ColorJitter', 'AutoAugment'].map((strategy) => (
-              <label key={strategy} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={cnnConfig.dataAugmentationStrategy.includes(strategy as any)}
-                  onChange={(e) => {
-                    const current = cnnConfig.dataAugmentationStrategy;
-                    if (e.target.checked) {
-                      updateCNNConfig('dataAugmentationStrategy', [...current, strategy]);
-                    } else {
-                      updateCNNConfig('dataAugmentationStrategy', current.filter(s => s !== strategy));
-                    }
-                  }}
-                  className="rounded"
-                />
-                <span className="text-sm">{strategy}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* 批归一化设置 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-sm font-medium">{t('advanced.finetuning.batch.normalization')}</label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={cnnConfig.freezeBatchNorm}
-                onChange={(e) => updateCNNConfig('freezeBatchNorm', e.target.checked)}
-                className="rounded"
-              />
-              <span className="text-sm">{t('advanced.finetuning.freeze.bn.layers')}</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-sm font-medium">混合精度训练</label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={cnnConfig.mixedPrecisionTraining}
-                onChange={(e) => updateCNNConfig('mixedPrecisionTraining', e.target.checked)}
-                className="rounded"
-              />
-              <span className="text-sm">启用AMP</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (activeSection === 'optimization') {
-    return (
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold mb-4">{t('advanced.finetuning.cnn.optimization.settings')}</h4>
-
-        {/* 正则化配置 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Dropout率</label>
-              <span className="text-sm font-mono text-blue-600">
-                {cnnConfig.dropoutRate.toFixed(2)}
-              </span>
-            </div>
-            <Slider
-              value={[cnnConfig.dropoutRate]}
-              onValueChange={([value]) => updateCNNConfig('dropoutRate', value)}
-              max={0.5}
-              min={0.1}
-              step={0.01}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">权重衰减</label>
-              <span className="text-sm font-mono text-green-600">
-                {cnnConfig.weightDecay.toExponential(1)}
-              </span>
-            </div>
-            <Slider
-              value={[Math.log10(cnnConfig.weightDecay)]}
-              onValueChange={([value]) => updateCNNConfig('weightDecay', Math.pow(10, value))}
-              max={-2}
-              min={-4}
-              step={0.1}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* 梯度裁剪和标签平滑 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.gradient.clipping')}</label>
-              <span className="text-sm font-mono text-purple-600">
-                {cnnConfig.gradientClipping.toFixed(1)}
-              </span>
-            </div>
-            <Slider
-              value={[cnnConfig.gradientClipping]}
-              onValueChange={([value]) => updateCNNConfig('gradientClipping', value)}
-              max={5.0}
-              min={0.1}
-              step={0.1}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.label.smoothing')}</label>
-              <span className="text-sm font-mono text-orange-600">
-                {cnnConfig.labelSmoothing.toFixed(2)}
-              </span>
-            </div>
-            <Slider
-              value={[cnnConfig.labelSmoothing]}
-              onValueChange={([value]) => updateCNNConfig('labelSmoothing', value)}
-              max={0.3}
-              min={0.0}
-              step={0.01}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* 预热和梯度累积 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">预热步数</label>
-              <AnimatedNumber
-                value={cnnConfig.warmupSteps}
-                className="text-sm font-mono text-cyan-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.warmupSteps]}
-              onValueChange={([value]) => updateCNNConfig('warmupSteps', value)}
-              max={1000}
-              min={0}
-              step={50}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">{t('advanced.finetuning.gradient.accumulation.steps')}</label>
-              <AnimatedNumber
-                value={cnnConfig.gradientAccumulationSteps}
-                className="text-sm font-mono text-pink-600"
-              />
-            </div>
-            <Slider
-              value={[cnnConfig.gradientAccumulationSteps]}
-              onValueChange={([value]) => updateCNNConfig('gradientAccumulationSteps', value)}
-              max={8}
-              min={1}
-              step={1}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return <div>{t('advanced.finetuning.cnn')} {activeSection} {t('advanced.finetuning.config')}</div>;
 }

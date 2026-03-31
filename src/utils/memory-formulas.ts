@@ -818,8 +818,9 @@ export function calculateMultimodalFineTuningMemory(config: MultimodalFineTuning
     modelSize, precision, batchSize, sequenceLength,
     imageResolution, patchSize, visionFeatureDim, textEncoderType,
     visionEncoderType, modalFusionStrategy, crossModalAlignmentWeight,
-    gradientAccumulationSteps, optimizer, numAttentionHeads = 12
+    gradientAccumulationSteps, optimizer
   } = config;
+  const numAttentionHeads = (config as any).numAttentionHeads ?? 12;
 
   const modelPrecisionBytes = getPrecisionBytes(precision);
 

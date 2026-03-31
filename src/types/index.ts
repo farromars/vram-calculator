@@ -134,6 +134,8 @@ export interface FineTuningConfig {
   loraAlpha?: number;
   quantization: QuantizationType;
   precision: PrecisionType;
+  batchSize: number;
+  sequenceLength: number;
 }
 
 // NLP模型微调超参数配置

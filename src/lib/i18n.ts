@@ -15,7 +15,6 @@ export const ZH = {
     calculator: '计算器',
     history: '历史记录',
     help: '帮助',
-    presets: '预设模板',
     settings: '设置',
   },
 
@@ -162,14 +161,6 @@ export const ZH = {
     richModelsDesc: '涵盖 Qwen、DeepSeek、Llama、ChatGLM 等热门模型系列，参数规格实时更新',
     smartGPU: '智能 GPU 推荐',
     smartGPUDesc: '基于显存需求自动匹配最适合的 NVIDIA GPU，包含价格对比和利用率分析',
-  },
-
-  // 预设模板分类
-  presetCategory: {
-    beginner: '入门级',
-    professional: '专业级',
-    enterprise: '企业级',
-    research: '科研级',
   },
 
   // 历史记录

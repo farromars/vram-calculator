@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Zap, Database, BarChart3 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
 
@@ -145,50 +146,44 @@ export function GRPOCalculator() {
         </div>
 
         {/* 批量大小 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <label className="text-sm font-medium flex justify-between">
             <span>{t('grpo.batch.size')}</span>
             <span className="font-mono text-purple-600">{config.batchSize}</span>
           </label>
-          <Slider
-            value={[config.batchSize]}
-            onValueChange={([value]) => handleConfigChange('batchSize', value)}
-            min={1}
-            max={32}
-            step={1}
-            className="w-full"
+          <TickSlider
+            value={config.batchSize}
+            onChange={(v) => handleConfigChange('batchSize', v)}
+            min={1} max={32} step={1}
+            ticks={[1,4,8,12,16,20,24,28,32].map(n => ({ value: n, label: String(n) }))}
           />
         </div>
 
         {/* 序列长度 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <label className="text-sm font-medium flex justify-between">
             <span>{t('grpo.max.sequence.length')}</span>
             <span className="font-mono text-purple-600">{config.sequenceLength}</span>
           </label>
-          <Slider
-            value={[config.sequenceLength]}
-            onValueChange={([value]) => handleConfigChange('sequenceLength', value)}
-            min={512}
-            max={8192}
-            step={512}
-            className="w-full"
+          <TickSlider
+            value={config.sequenceLength}
+            onChange={(v) => handleConfigChange('sequenceLength', v)}
+            min={512} max={8192} step={512}
+            ticks={[1024,4096,8192].map(n => ({ value: n, label: `${n/1024}K` }))}
           />
         </div>
 
         {/* 生成数量 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <label className="text-sm font-medium flex justify-between">
             <span>{t('grpo.generations.per.prompt')}</span>
             <span className="font-mono text-purple-600">{config.numGenerations}</span>
           </label>
-          <Slider
-            value={[config.numGenerations]}
-            onValueChange={([value]) => handleConfigChange('numGenerations', value)}
-            min={4}
-            max={64}
-            step={4}
-            className="w-full"
+          <TickSlider
+            value={config.numGenerations}
+            onChange={(v) => handleConfigChange('numGenerations', v)}
+            min={4} max={64} step={4}
+            ticks={[4,8,16,32,48,64].map(n => ({ value: n, label: String(n) }))}
           />
           <p className="text-xs text-gray-500">
             {t('grpo.description')}
@@ -205,13 +200,11 @@ export function GRPOCalculator() {
               <span>{t('grpo.gradient.accumulation.steps')}</span>
               <span className="font-mono text-purple-600">{config.gradientAccumulationSteps}</span>
             </label>
-            <Slider
-              value={[config.gradientAccumulationSteps]}
-              onValueChange={([value]) => handleConfigChange('gradientAccumulationSteps', value)}
-              min={1}
-              max={32}
-              step={1}
-              className="w-full"
+            <TickSlider
+              value={config.gradientAccumulationSteps}
+              onChange={(v) => handleConfigChange('gradientAccumulationSteps', v)}
+              min={1} max={32} step={1}
+              ticks={[1,4,8,16,24,32].map(n => ({ value: n, label: String(n) }))}
             />
           </div>
 

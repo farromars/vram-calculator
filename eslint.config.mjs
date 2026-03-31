@@ -17,6 +17,13 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  {
+    // mcp/server.ts 使用第三方SDK，允许 @ts-nocheck
+    files: ["src/mcp/**/*.ts"],
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

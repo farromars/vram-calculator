@@ -160,7 +160,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
         loraRank: 4,
         loraAlpha: 32,
         quantization: 'None',
-        precision: 'FP16'
+        precision: 'FP16',
+        batchSize: 2,
+        sequenceLength: 2048
       },
       fineTuningResult: null,
 
@@ -586,11 +588,14 @@ export const useCalculatorStore = create<CalculatorStore>()(
       },
 
       getCurrentResult: () => {
-        const { primaryTab, activeTab, trainingResult, inferenceResult, fineTuningResult, grpoResult, multimodalResult } = get();
+        const { primaryTab, activeTab, trainingResult, inferenceResult, fineTuningResult, grpoResult, multimodalResult, advancedFineTuningResult } = get();
         
-        // 如果是多模态分组，直接返回多模态结果
         if (primaryTab === 'multimodal') {
           return multimodalResult;
+        }
+
+        if (primaryTab === 'advanced') {
+          return advancedFineTuningResult;
         }
         
         // NLP分组根据activeTab返回对应结果

@@ -2,7 +2,7 @@
  * 成本分析和性价比计算工具
  */
 
-import { GPU_DATABASE } from '@/lib/models-data';
+import { GPU_DATABASE, MODELS_DATABASE } from '@/lib/models-data';
 import { 
   CostAnalysisParamsSchema,
   GPURecommendationParamsSchema
@@ -282,7 +282,7 @@ export function registerAnalysisTools(server: any) {
       const comparisons = [];
       
       for (const modelId of params.modelIds) {
-        const model = GPU_DATABASE.find(m => m.id === modelId);
+        const model = MODELS_DATABASE.find(m => m.id === modelId);
         if (!model) {
           mcpLogger.warn("模型未找到，跳过", { modelId });
           continue;
