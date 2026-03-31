@@ -45,6 +45,8 @@ function getLabel(key: string, language: string = 'zh'): string {
       'audio.patches': '音频Patch',
       'video.patches': '视频Patch',
       'vision.encoder': '视觉编码器',
+      'audio.encoder': '音频编码器',
+      'video.encoder': '视频编码器',
       'text.encoder': '文本编码器',
       'fusion.layer': '融合层',
       'image.features': '图像特征',
@@ -94,6 +96,8 @@ function getLabel(key: string, language: string = 'zh'): string {
       'audio.patches': 'Audio Patches',
       'video.patches': 'Video Patches',
       'vision.encoder': 'Vision Encoder',
+      'audio.encoder': 'Audio Encoder',
+      'video.encoder': 'Video Encoder',
       'text.encoder': 'Text Encoder',
       'fusion.layer': 'Fusion Layer',
       'image.features': 'Image Features',
@@ -501,8 +505,10 @@ export function calculateGRPOMemory(config: GRPOConfig, modelInfo?: { params?: n
  * 总显存占用 = A(模型显存) + B(优化器状态) + C(梯度) + D(激活值) + E(其他开销)
  */
 export function calculateMultimodalMemory(config: MultimodalConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number; numHeads?: number }): MemoryBreakdown {
-  const { mode, modalityType, textPrecision, batchSize, sequenceLength, 
+  const { mode, modalityType, textPrecision, visionPrecision, audioPrecision,
+          batchSize, sequenceLength, 
           imageResolution, patchSize, numImages,
+          hasVisionEncoder, hasAudioEncoder, hasVideoEncoder,
           audioWindowLength, videoFrameRate, videoLength } = config;
   
   // 从模型信息获取参数，如果没有则使用默认值
@@ -569,15 +575,52 @@ export function calculateMultimodalMemory(config: MultimodalConfig, modelInfo?: 
   const activationPrecisionBytes = getPrecisionBytes(textPrecision);
   const activationsGB = (batchSize * totalSequenceLength * hiddenSize * numLayers * activationPrecisionBytes) / (1024 ** 3);
   
-  // E. 其他开销 - CUDA上下文、临时变量、框架开销等
+  // E. 独立编码器显存
+  // 视觉编码器（image / video 模态下，如 ViT-L/14 约 0.3B）
+  let visionEncoderGB = 0;
+  const visionPrecBytes = getPrecisionBytes(visionPrecision || textPrecision);
+  if (hasVisionEncoder && (modalityType?.includes('image') || modalityType?.includes('video'))) {
+    const visionEncoderParams = Math.max(0.3, modelParams * 0.2); // 至少 0.3B（ViT-B 量级）
+    visionEncoderGB = (visionEncoderParams * 1e9 * visionPrecBytes) / (1024 ** 3);
+  }
+
+  // 独立视频编码器（video 模态，如 VideoMAE 约 0.3B）
+  let videoEncoderGB = 0;
+  if (hasVideoEncoder && modalityType?.includes('video')) {
+    const videoEncoderParams = Math.max(0.3, modelParams * 0.15);
+    videoEncoderGB = (videoEncoderParams * 1e9 * visionPrecBytes) / (1024 ** 3);
+  }
+
+  // 独立音频编码器（audio 模态，如 Whisper-large 约 1.5B）
+  let audioEncoderGB = 0;
+  const audioPrecBytes = getPrecisionBytes(audioPrecision || textPrecision);
+  if (hasAudioEncoder && modalityType?.includes('audio')) {
+    const audioEncoderParams = Math.max(0.3, modelParams * 0.15);
+    audioEncoderGB = (audioEncoderParams * 1e9 * audioPrecBytes) / (1024 ** 3);
+  }
+
+  // F. 其他开销 - CUDA上下文、临时变量、框架开销等
   const otherOverheadGB = 1.5; // 1.5GB固定开销
   
-  const total = modelParamsGB + optimizerGB + gradientsGB + activationsGB + otherOverheadGB;
+  const total = modelParamsGB + optimizerGB + gradientsGB + activationsGB
+              + visionEncoderGB + videoEncoderGB + audioEncoderGB + otherOverheadGB;
   
   // 构建breakdown数组
   const breakdown = [
     { label: getLabel('model.params'), value: modelParamsGB, percentage: (modelParamsGB / total) * 100, color: '#3B82F6' }
   ];
+  
+  if (visionEncoderGB > 0) {
+    breakdown.push({ label: getLabel('vision.encoder'), value: visionEncoderGB, percentage: (visionEncoderGB / total) * 100, color: '#06B6D4' });
+  }
+
+  if (videoEncoderGB > 0) {
+    breakdown.push({ label: getLabel('video.encoder'), value: videoEncoderGB, percentage: (videoEncoderGB / total) * 100, color: '#8B5CF6' });
+  }
+
+  if (audioEncoderGB > 0) {
+    breakdown.push({ label: getLabel('audio.encoder'), value: audioEncoderGB, percentage: (audioEncoderGB / total) * 100, color: '#F97316' });
+  }
   
   if (optimizerGB > 0) {
     breakdown.push({ label: getLabel('optimizer.states'), value: optimizerGB, percentage: (optimizerGB / total) * 100, color: '#F59E0B' });

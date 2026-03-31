@@ -146,7 +146,7 @@ export default function Home() {
     primaryTab, activeTab,
     inferenceConfig.modelId, inferenceConfig.precision, inferenceConfig.quantization, inferenceConfig.batchSize, inferenceConfig.sequenceLength,
     trainingConfig.modelId, trainingConfig.precision, trainingConfig.batchSize, trainingConfig.sequenceLength,
-    fineTuningConfig.baseModel, fineTuningConfig.precision, fineTuningConfig.quantization, fineTuningConfig.method,
+    fineTuningConfig.baseModel, fineTuningConfig.precision, fineTuningConfig.quantization, fineTuningConfig.method, fineTuningConfig.batchSize, fineTuningConfig.sequenceLength,
     grpoConfig.modelId, grpoConfig.precision, grpoConfig.batchSize, grpoConfig.sequenceLength,
     multimodalConfig.modelId, multimodalConfig.textPrecision, multimodalConfig.batchSize, multimodalConfig.sequenceLength, multimodalConfig.mode,
   ]);
@@ -229,6 +229,7 @@ export default function Home() {
                     <span>{ZH.tabs.nlp}</span>
                   </TabsTrigger>
                   <TabsTrigger value="multimodal" className="flex items-center gap-2 text-sm">
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
                     <Image className="w-4 h-4" />
                     <span>{ZH.tabs.multimodal}</span>
                   </TabsTrigger>

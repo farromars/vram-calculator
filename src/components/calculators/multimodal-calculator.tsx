@@ -409,7 +409,7 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
                 value={config.audioWindowLength || 30}
                 onChange={(v) => handleConfigChange('audioWindowLength', v)}
                 min={5} max={120} step={5}
-                ticks={[5,10,15,20,30,45,60,90,120].map(n => ({ value: n, label: `${n}s` }))}
+                ticks={[5,15,20,30,45,60,90,120].map(n => ({ value: n, label: `${n}s` }))}
               />
             </div>
 
