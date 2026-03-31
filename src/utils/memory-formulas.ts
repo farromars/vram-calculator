@@ -228,8 +228,13 @@ export function calculateLoRAParams(baseParams: number, rank: number): number {
  * 训练显存计算 - 通用LLM框架（全量微调）
  * 总显存 = 模型权重 + 优化器状态 + 梯度 + 激活值 + 其他开销
  */
-export function calculateTrainingMemory(config: TrainingConfig): MemoryBreakdown {
-  const { modelParams, batchSize, sequenceLength, precision, optimizer, gradientCheckpointing } = config;
+export function calculateTrainingMemory(config: TrainingConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number; numHeads?: number }): MemoryBreakdown {
+  const { batchSize, sequenceLength, precision, optimizer, gradientCheckpointing } = config;
+  
+  // 从模型信息获取参数，如果没有则使用默认值
+  const modelParams = modelInfo?.params || 7;
+  const hiddenSize = modelInfo?.hiddenSize || 4096;
+  const numLayers = modelInfo?.numLayers || 32;
   
   // 1. 模型权重 (Model Weights)
   const modelPrecisionBytes = getPrecisionBytes(precision);
@@ -245,7 +250,7 @@ export function calculateTrainingMemory(config: TrainingConfig): MemoryBreakdown
   const gradientsGB = (modelParams * 1e9 * gradientPrecisionBytes) / (1024 ** 3);
   
   // 4. 激活值 (Activations)
-  const baseActivationsGB = calculateActivations(batchSize, sequenceLength, 4096, 32, precision);
+  const baseActivationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision);
   const gradientCheckpointMultiplier = gradientCheckpointing ? 0.3 : 1.0; // 梯度检查点减少70%
   const activationsGB = baseActivationsGB * gradientCheckpointMultiplier;
   

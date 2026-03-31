@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, Database, BarChart3, Zap } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
 import { LoadingOverlay } from '@/components/ui/loading-spinner';
@@ -163,7 +164,7 @@ export function InferenceCalculator() {
         </div>
 
         {/* 批次大小 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">{t('batch.size')}</label>
             <AnimatedNumber 
@@ -171,22 +172,16 @@ export function InferenceCalculator() {
               className="text-sm font-mono text-green-600"
             />
           </div>
-          <Slider
-            value={[config.batchSize]}
-            onValueChange={([value]) => handleConfigChange('batchSize', value)}
-            max={32}
-            min={1}
-            step={1}
-            className="w-full"
+          <TickSlider
+            value={config.batchSize}
+            onChange={(v) => handleConfigChange('batchSize', v)}
+            min={1} max={32} step={1}
+            ticks={[1, 8, 16, 32].map(n => ({ value: n, label: String(n) }))}
           />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>1 ({t('inference.single')})</span>
-            <span>32 ({t('inference.batch')})</span>
-          </div>
         </div>
 
         {/* 序列长度 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">{t('sequence.length')}</label>
             <AnimatedNumber 
@@ -194,18 +189,29 @@ export function InferenceCalculator() {
               className="text-sm font-mono text-purple-600"
             />
           </div>
-          <Slider
-            value={[config.sequenceLength]}
-            onValueChange={([value]) => handleConfigChange('sequenceLength', value)}
-            max={32768}
-            min={512}
-            step={512}
-            className="w-full"
+          <TickSlider
+            value={config.sequenceLength}
+            onChange={(v) => handleConfigChange('sequenceLength', v)}
+            min={512} max={32768} step={512}
+            ticks={[1024, 4096, 8192, 16384, 32768].map(n => ({ value: n, label: `${n / 1024}K` }))}
           />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>512</span>
-            <span>32768</span>
+        </div>
+
+        {/* 并发用户数 */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">并发用户数</label>
+            <AnimatedNumber 
+              value={config.concurrentUsers} 
+              className="text-sm font-mono text-orange-600"
+            />
           </div>
+          <TickSlider
+            value={config.concurrentUsers}
+            onChange={(v) => handleConfigChange('concurrentUsers', v)}
+            min={1} max={32} step={1}
+            ticks={[1, 4, 8, 16, 32].map(n => ({ value: n, label: String(n) }))}
+          />
         </div>
 
         {/* KV缓存比例 */}

@@ -107,7 +107,7 @@ export interface ModelInfo {
 
 // 训练配置
 export interface TrainingConfig {
-  modelParams: number;
+  modelId: string;
   batchSize: number;
   sequenceLength: number;
   precision: PrecisionType;
@@ -124,6 +124,7 @@ export interface InferenceConfig {
   batchSize: number;
   sequenceLength: number;
   kvCacheRatio: number;
+  concurrentUsers: number;
 }
 
 // 微调配置
@@ -331,6 +332,7 @@ export interface MultimodalConfig {
   audioPrecision?: PrecisionType; // 音频精度
   batchSize: number;
   sequenceLength: number;
+  concurrentUsers: number; // 并发用户数（推理场景）
   // 图像相关配置
   imageResolution: number; // 图像分辨率 (eg. 224, 336, 448)
   patchSize: number; // patch大小 (eg. 14, 16)

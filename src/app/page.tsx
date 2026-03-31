@@ -99,17 +99,7 @@ export default function Home() {
           };
           break;
         case 'training':
-          // training 没有 modelId，构造虚拟 ModelInfo
-          modelInfo = {
-            id: 'custom-training',
-            name: `${trainingConfig.modelParams}B 训练模型`,
-            params: trainingConfig.modelParams,
-            architecture: 'transformer',
-            hiddenSize: trainingConfig.modelParams >= 65 ? 8192 : trainingConfig.modelParams >= 30 ? 5120 : 4096,
-            numLayers: Math.round(trainingConfig.modelParams * 4.5),
-            numHeads: trainingConfig.modelParams >= 65 ? 64 : 32,
-            vocabSize: 50000,
-          };
+          modelInfo = getModelById(trainingConfig.modelId) || null;
           perfConfig = {
             precision: trainingConfig.precision,
             quantization: 'None' as const,
@@ -155,7 +145,7 @@ export default function Home() {
   }, [
     primaryTab, activeTab,
     inferenceConfig.modelId, inferenceConfig.precision, inferenceConfig.quantization, inferenceConfig.batchSize, inferenceConfig.sequenceLength,
-    trainingConfig.modelParams, trainingConfig.precision, trainingConfig.batchSize, trainingConfig.sequenceLength,
+    trainingConfig.modelId, trainingConfig.precision, trainingConfig.batchSize, trainingConfig.sequenceLength,
     fineTuningConfig.baseModel, fineTuningConfig.precision, fineTuningConfig.quantization, fineTuningConfig.method,
     grpoConfig.modelId, grpoConfig.precision, grpoConfig.batchSize, grpoConfig.sequenceLength,
     multimodalConfig.modelId, multimodalConfig.textPrecision, multimodalConfig.batchSize, multimodalConfig.sequenceLength, multimodalConfig.mode,

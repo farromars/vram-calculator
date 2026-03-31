@@ -10,22 +10,26 @@ interface AnimatedNumberProps {
 }
 
 export function AnimatedNumber({ value, format, className }: AnimatedNumberProps) {
-  const spring = useSpring(value, { 
+  // 防止 NaN/undefined/Infinity（localStorage 旧版本恢复时可能出现）
+  const safeValue = (typeof value === 'number' && isFinite(value)) ? value : 0;
+
+  const spring = useSpring(safeValue, { 
     stiffness: 100, 
     damping: 30, 
     mass: 1 
   });
   
   const display = useTransform(spring, (current) => {
+    const safe = isFinite(current) ? current : 0;
     if (format) {
-      return format(Math.round(current * 10) / 10);
+      return format(Math.round(safe * 10) / 10);
     }
-    return (Math.round(current * 10) / 10).toFixed(1);
+    return (Math.round(safe * 10) / 10).toFixed(1);
   });
 
   useEffect(() => {
-    spring.set(value);
-  }, [spring, value]);
+    spring.set(safeValue);
+  }, [spring, safeValue]);
 
   return (
     <motion.span 

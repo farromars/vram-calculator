@@ -155,7 +155,7 @@ export function GRPOCalculator() {
             value={config.batchSize}
             onChange={(v) => handleConfigChange('batchSize', v)}
             min={1} max={32} step={1}
-            ticks={[1,4,8,12,16,20,24,28,32].map(n => ({ value: n, label: String(n) }))}
+            ticks={[1, 8, 16, 32].map(n => ({ value: n, label: String(n) }))}
           />
         </div>
 
@@ -168,8 +168,8 @@ export function GRPOCalculator() {
           <TickSlider
             value={config.sequenceLength}
             onChange={(v) => handleConfigChange('sequenceLength', v)}
-            min={512} max={8192} step={512}
-            ticks={[1024,4096,8192].map(n => ({ value: n, label: `${n/1024}K` }))}
+            min={512} max={32768} step={512}
+            ticks={[1024, 4096, 8192, 16384, 32768].map(n => ({ value: n, label: `${n / 1024}K` }))}
           />
         </div>
 

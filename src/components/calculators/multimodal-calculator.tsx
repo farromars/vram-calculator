@@ -240,8 +240,8 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
             <TickSlider
               value={config.batchSize}
               onChange={(v) => handleConfigChange('batchSize', v)}
-              min={1} max={16} step={1}
-              ticks={[1,2,4,8,12,16].map(n => ({ value: n, label: String(n) }))}
+              min={1} max={32} step={1}
+              ticks={[1, 8, 16, 32].map(n => ({ value: n, label: String(n) }))}
             />
           </div>
 
@@ -254,9 +254,25 @@ export function MultimodalCalculator({ mode = 'inference' }: MultimodalCalculato
               value={config.sequenceLength}
               onChange={(v) => handleConfigChange('sequenceLength', v)}
               min={512} max={32768} step={512}
-              ticks={[1024,4096,8192,16384,32768].map(n => ({ value: n, label: `${n/1024}K` }))}
+              ticks={[1024, 4096, 8192, 16384, 32768].map(n => ({ value: n, label: `${n / 1024}K` }))}
             />
           </div>
+
+          {/* 并发用户数（仅推理模式） */}
+          {currentMode === 'inference' && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex justify-between">
+                <span>并发用户数</span>
+                <span className="font-mono text-orange-600">{config.concurrentUsers}</span>
+              </label>
+              <TickSlider
+                value={config.concurrentUsers}
+                onChange={(v) => handleConfigChange('concurrentUsers', v)}
+                min={1} max={32} step={1}
+                ticks={[1, 4, 8, 16, 32].map(n => ({ value: n, label: String(n) }))}
+              />
+            </div>
+          )}
         </div>
 
         {/* 图像配置 */}

@@ -511,8 +511,8 @@ function renderNLPConfig(
             <TickSlider
               value={nlpConfig.batchSize}
               onChange={(v) => updateNLPConfig("batchSize", v)}
-              min={1} max={64} step={1}
-              ticks={[{ value: 1, label: "1" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 48, label: "48" }, { value: 64, label: "64" }]}
+              min={1} max={32} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }]}
             />
           </div>
 
@@ -1023,8 +1023,8 @@ function renderMultimodalConfig(
             <TickSlider
               value={multimodalConfig.batchSize}
               onChange={(v) => updateMultimodalConfig("batchSize", v)}
-              min={4} max={32} step={2}
-              ticks={[{ value: 4, label: "4" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 24, label: "24" }, { value: 32, label: "32" }]}
+              min={1} max={32} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }]}
             />
           </div>
 
@@ -1401,8 +1401,8 @@ function renderMoEConfig(
             <TickSlider
               value={moeConfig.batchSize}
               onChange={(v) => updateMoEConfig("batchSize", v)}
-              min={8} max={64} step={8}
-              ticks={[{ value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }, { value: 48, label: "48" }, { value: 64, label: "64" }]}
+              min={1} max={32} step={1}
+              ticks={[{ value: 1, label: "1" }, { value: 8, label: "8" }, { value: 16, label: "16" }, { value: 32, label: "32" }]}
             />
           </div>
 
@@ -1417,8 +1417,8 @@ function renderMoEConfig(
             <TickSlider
               value={moeConfig.sequenceLength}
               onChange={(v) => updateMoEConfig("sequenceLength", v)}
-              min={512} max={8192} step={512}
-              ticks={[{ value: 1024, label: "1K" }, { value: 4096, label: "4K" }, { value: 8192, label: "8K" }]}
+              min={512} max={32768} step={512}
+              ticks={[{ value: 1024, label: "1K" }, { value: 4096, label: "4K" }, { value: 8192, label: "8K" }, { value: 16384, label: "16K" }, { value: 32768, label: "32K" }]}
             />
           </div>
 

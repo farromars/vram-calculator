@@ -1,14 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Settings, Zap, Activity } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
 import { LoadingOverlay } from '@/components/ui/loading-spinner';
 import { formatMemorySize } from '@/utils/memory-formulas';
-import { TrainingConfig, PrecisionType, OptimizerType } from '@/types';
+import { getModelById, getModelsByCategoryArchitectureAndVendor, getVendorsForArchitecture } from '@/lib/models-data';
+import { TrainingConfig, PrecisionType, OptimizerType, ModelVendor } from '@/types';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { useLanguage } from '@/contexts/language-context';
 
@@ -21,10 +23,24 @@ export function TrainingCalculator() {
   } = useCalculatorStore();
   
   const { t } = useLanguage();
+  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>('DeepSeek');
+
+  // 获取当前选中模型信息
+  const selectedModel = useMemo(() => 
+    getModelById(config.modelId), [config.modelId]
+  );
 
   const handleConfigChange = (key: keyof TrainingConfig, value: unknown) => {
     setConfig({ [key]: value });
   };
+
+  // 获取该架构下有模型的供应商列表
+  const vendors = useMemo(() => getVendorsForArchitecture('nlp'), []);
+
+  // 按供应商和系列分组NLP模型
+  const modelsByCategory = useMemo(() => {
+    return getModelsByCategoryArchitectureAndVendor('nlp', selectedVendor);
+  }, [selectedVendor]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
@@ -42,34 +58,62 @@ export function TrainingCalculator() {
           <h3 className="text-xl font-semibold">{t('training.config')}</h3>
         </div>
 
-        {/* 模型参数量 */}
+        {/* 基础模型选择 */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">{t('model.parameters.count')}</label>
-            <div className="flex items-center gap-2">
-              <AnimatedNumber 
-                value={config.modelParams} 
-                format={(n) => `${Math.round(n)}B`}
-                className="text-sm font-mono text-blue-600"
-              />
+          <label className="text-sm font-medium">{t('preset.model')}</label>
+          
+          {/* 供应商选项卡 */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {vendors.map((vendor) => (
+              <button
+                key={vendor}
+                onClick={() => setSelectedVendor(vendor)}
+                className={`px-3 py-1 text-xs rounded-full transition-all ${
+                  selectedVendor === vendor
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
+                    : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                }`}
+              >
+                {vendor}
+              </button>
+            ))}
+          </div>
+
+          <Select 
+            value={config.modelId} 
+            onValueChange={(value) => handleConfigChange('modelId', value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {Object.entries(modelsByCategory).map(([category, models]) => (
+                <div key={category}>
+                  <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase">
+                    {category}
+                  </div>
+                  {models.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name} ({model.params}B)
+                    </SelectItem>
+                  ))}
+                </div>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* 当前模型参数量展示 */}
+          {selectedModel && (
+            <div className="text-xs text-gray-500">
+              参数量: <span className="font-mono text-blue-500">{selectedModel.params}B</span>
+              {selectedModel.hiddenSize && <span className="ml-2">Hidden: {selectedModel.hiddenSize}</span>}
+              {selectedModel.numLayers && <span className="ml-2">Layers: {selectedModel.numLayers}</span>}
             </div>
-          </div>
-          <Slider
-            value={[config.modelParams]}
-            onValueChange={([value]) => handleConfigChange('modelParams', Math.round(value))}
-            max={175}
-            min={1}
-            step={1}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>1B</span>
-            <span>175B</span>
-          </div>
+          )}
         </div>
 
         {/* 批次大小 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">批次大小</label>
             <AnimatedNumber 
@@ -77,22 +121,16 @@ export function TrainingCalculator() {
               className="text-sm font-mono text-green-600"
             />
           </div>
-          <Slider
-            value={[config.batchSize]}
-            onValueChange={([value]) => handleConfigChange('batchSize', value)}
-            max={128}
-            min={1}
-            step={1}
-            className="w-full"
+          <TickSlider
+            value={config.batchSize}
+            onChange={(v) => handleConfigChange('batchSize', v)}
+            min={1} max={32} step={1}
+            ticks={[1, 8, 16, 32].map(n => ({ value: n, label: String(n) }))}
           />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>1</span>
-            <span>128</span>
-          </div>
         </div>
 
         {/* 序列长度 */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">序列长度</label>
             <AnimatedNumber 
@@ -100,23 +138,17 @@ export function TrainingCalculator() {
               className="text-sm font-mono text-purple-600"
             />
           </div>
-          <Slider
-            value={[config.sequenceLength]}
-            onValueChange={([value]) => handleConfigChange('sequenceLength', value)}
-            max={8192}
-            min={512}
-            step={512}
-            className="w-full"
+          <TickSlider
+            value={config.sequenceLength}
+            onChange={(v) => handleConfigChange('sequenceLength', v)}
+            min={512} max={32768} step={512}
+            ticks={[1024, 4096, 8192, 16384, 32768].map(n => ({ value: n, label: `${n / 1024}K` }))}
           />
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>512</span>
-            <span>8192</span>
-          </div>
         </div>
 
         {/* 精度选择 */}
         <div className="space-y-3">
-                      <label className="text-sm font-medium">{t('numerical.precision')}</label>
+          <label className="text-sm font-medium">{t('numerical.precision')}</label>
           <Select 
             value={config.precision} 
             onValueChange={(value: PrecisionType) => handleConfigChange('precision', value)}
@@ -220,7 +252,7 @@ export function TrainingCalculator() {
           </div>
           
           <div className="space-y-4">
-                          {memoryResult?.breakdown?.map((item, index) => (
+            {memoryResult?.breakdown?.map((item, index) => (
               <motion.div
                 key={item.label}
                 className="space-y-2"
@@ -285,7 +317,7 @@ export function TrainingCalculator() {
               </div>
             )}
             
-            {config.optimizer === 'AdamW' && config.modelParams > 30 && (
+            {selectedModel && config.optimizer === 'AdamW' && selectedModel.params > 30 && (
               <div className="flex items-start gap-2 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
                 <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 flex-shrink-0" />
                 <span>{t('large.model.sgd')}</span>
@@ -297,4 +329,4 @@ export function TrainingCalculator() {
       </motion.div>
     </div>
   );
-} 
+}

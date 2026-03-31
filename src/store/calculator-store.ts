@@ -132,7 +132,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
       
       // 训练配置默认值
       trainingConfig: {
-        modelParams: 7.0,
+        modelId: 'qwen3-8b',
         batchSize: 4,
         sequenceLength: 2048,
         precision: 'FP16',
@@ -149,7 +149,8 @@ export const useCalculatorStore = create<CalculatorStore>()(
         quantization: 'None',
         batchSize: 1,
         sequenceLength: 2048,
-        kvCacheRatio: 1.0
+        kvCacheRatio: 1.0,
+        concurrentUsers: 1,
       },
       inferenceResult: null,
 
@@ -191,6 +192,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
         audioPrecision: 'FP16',
         batchSize: 2,
         sequenceLength: 2048,
+        concurrentUsers: 1,
         imageResolution: 336,
         patchSize: 16,
         numImages: 1,
@@ -418,12 +420,14 @@ export const useCalculatorStore = create<CalculatorStore>()(
         try {
           // 模拟异步计算（实际可能涉及复杂计算）
           await new Promise(resolve => setTimeout(resolve, 100));
-          const result = calculateTrainingMemory(trainingConfig);
+          const { getModelById } = await import('@/lib/models-data');
+          const modelInfo = getModelById(trainingConfig.modelId);
+          const result = calculateTrainingMemory(trainingConfig, modelInfo);
           set({ trainingResult: result, trainingLoading: false });
           
           // 自动保存到历史记录
           if (preferences.autoSave) {
-            get().addToHistory('training', trainingConfig, result);
+            get().addToHistory('training', trainingConfig, result, modelInfo?.name || trainingConfig.modelId);
           }
         } catch (error) {
           console.error('Training memory calculation error:', error);
@@ -616,6 +620,32 @@ export const useCalculatorStore = create<CalculatorStore>()(
     {
       name: 'ai-memory-calculator-store',
       storage: createJSONStorage(() => localStorage),
+      version: 3, // 每次新增持久化字段时递增
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as Record<string, unknown>;
+        // v0/v1 → v2：补全新增的 concurrentUsers 字段
+        if (version < 2) {
+          const inf = state.inferenceConfig as Record<string, unknown> | undefined;
+          if (inf && inf.concurrentUsers === undefined) {
+            inf.concurrentUsers = 1;
+          }
+          const mm = state.multimodalConfig as Record<string, unknown> | undefined;
+          if (mm && mm.concurrentUsers === undefined) {
+            mm.concurrentUsers = 1;
+          }
+        }
+        // v2 → v3：训练配置从 modelParams 改为 modelId
+        if (version < 3) {
+          const tr = state.trainingConfig as Record<string, unknown> | undefined;
+          if (tr) {
+            if (tr.modelId === undefined) {
+              tr.modelId = 'qwen3-8b';
+            }
+            delete tr.modelParams;
+          }
+        }
+        return state;
+      },
       // 只持久化配置和偏好，不持久化计算结果
       partialize: (state) => ({
         primaryTab: state.primaryTab,
