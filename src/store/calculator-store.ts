@@ -569,7 +569,11 @@ export const useCalculatorStore = create<CalculatorStore>()(
           }
 
           // 解析MCP API返回的结果
-          const result = JSON.parse(data.result.content[0].text);
+          const responseText = data?.result?.content?.[0]?.text;
+          if (!responseText) {
+            throw new Error('MCP API 响应格式异常：缺少 content[0].text');
+          }
+          const result = JSON.parse(responseText);
           set({ advancedFineTuningResult: result, advancedFineTuningLoading: false });
 
           // 自动保存到历史记录

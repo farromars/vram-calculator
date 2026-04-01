@@ -350,7 +350,7 @@ export function FineTuningCalculator() {
             </div>
             <div className="text-sm mt-1">
               {config.method === 'Full' && t('finetuning.full.effect.best')}
-              {config.method === 'LoRA' && `${t('finetuning.lora.params.percent')}${((config.loraRank ?? 4 * 2 * 4096) / (baseModel?.params || 7) / 1e9 * 100).toFixed(2)}${t('finetuning.params.to.train')}`}
+              {config.method === 'LoRA' && `${t('finetuning.lora.params.percent')}${(((config.loraRank ?? 4) * 2 * 4096) / (baseModel?.params || 7) / 1e9 * 100).toFixed(2)}${t('finetuning.params.to.train')}`}
               {config.method === 'QLoRA' && t('finetuning.qlora.optimal')}
               {config.method === 'Prefix' && t('finetuning.prefix.one.percent')}
             </div>
