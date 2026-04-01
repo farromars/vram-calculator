@@ -264,4 +264,58 @@ describe('calculateFineTuningMemory', () => {
     );
     expect(full.total).toBeGreaterThan(qlora.total);
   });
+
+  it('LoRA 激活值随 batchSize 增加而增加', () => {
+    const small = calculateFineTuningMemory(
+      { method: 'LoRA', loraRank: 16, quantization: 'None', precision: 'FP16', batchSize: 1, sequenceLength: 2048 },
+      modelInfo
+    );
+    const large = calculateFineTuningMemory(
+      { method: 'LoRA', loraRank: 16, quantization: 'None', precision: 'FP16', batchSize: 8, sequenceLength: 2048 },
+      modelInfo
+    );
+    expect(large.activations).toBeGreaterThan(small.activations);
+  });
+
+  it('LoRA 激活值随 sequenceLength 增加而增加', () => {
+    const short = calculateFineTuningMemory(
+      { method: 'LoRA', loraRank: 16, quantization: 'None', precision: 'FP16', batchSize: 2, sequenceLength: 512 },
+      modelInfo
+    );
+    const long = calculateFineTuningMemory(
+      { method: 'LoRA', loraRank: 16, quantization: 'None', precision: 'FP16', batchSize: 2, sequenceLength: 4096 },
+      modelInfo
+    );
+    expect(long.activations).toBeGreaterThan(short.activations);
+  });
+});
+
+// ── 8. 推理计算器 GQA 连通性测试 ──────────────────────────
+describe('calculateInferenceMemory GQA 连通性', () => {
+  const baseConfig = {
+    precision: 'FP16' as const,
+    quantization: 'None' as const,
+    batchSize: 16,
+    sequenceLength: 4096,
+    kvCacheRatio: 1.0,
+    concurrentUsers: 1,
+  };
+
+  it('Qwen3-8B（GQA-8）KV Cache 应比 MHA-32 低 4×', () => {
+    const mha  = calculateInferenceMemory(baseConfig, { params: 8, hiddenSize: 4096, numLayers: 36, numHeads: 32 });
+    const gqa8 = calculateInferenceMemory(baseConfig, { params: 8, hiddenSize: 4096, numLayers: 36, numHeads: 32, numKVHeads: 8 });
+    expect(approx(gqa8.kvCache, mha.kvCache / 4, 0.05)).toBe(true);
+  });
+
+  it('LLaMA-3.1-70B（GQA-8，numHeads=64）KV Cache 应比 MHA 低 8×', () => {
+    const mha  = calculateInferenceMemory(baseConfig, { params: 70, hiddenSize: 8192, numLayers: 80, numHeads: 64 });
+    const gqa8 = calculateInferenceMemory(baseConfig, { params: 70, hiddenSize: 8192, numLayers: 80, numHeads: 64, numKVHeads: 8 });
+    expect(approx(gqa8.kvCache, mha.kvCache / 8, 0.05)).toBe(true);
+  });
+
+  it('未提供 numKVHeads 时默认 MHA（与显式传入 numKVHeads=numHeads 等价）', () => {
+    const noKV = calculateInferenceMemory(baseConfig, { params: 7, hiddenSize: 4096, numLayers: 32, numHeads: 32 });
+    const mha  = calculateInferenceMemory(baseConfig, { params: 7, hiddenSize: 4096, numLayers: 32, numHeads: 32, numKVHeads: 32 });
+    expect(approx(noKV.kvCache, mha.kvCache, 0.001)).toBe(true);
+  });
 });

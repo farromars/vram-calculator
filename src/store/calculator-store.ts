@@ -666,6 +666,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
         fineTuningConfig: state.fineTuningConfig,
         grpoConfig: state.grpoConfig,
         multimodalConfig: state.multimodalConfig,
+        advancedFineTuningConfig: state.advancedFineTuningConfig,
         preferences: state.preferences,
         history: state.history.slice(0, 10), // 只保存最近10条历史记录
       }),

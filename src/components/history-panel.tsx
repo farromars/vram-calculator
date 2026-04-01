@@ -24,7 +24,10 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
     setTrainingConfig,
     setInferenceConfig,
     setFineTuningConfig,
-    setActiveTab
+    setGrpoConfig,
+    setMultimodalConfig,
+    setActiveTab,
+    setPrimaryTab,
   } = useCalculatorStore();
   
   const { t, language } = useLanguage();
@@ -42,6 +45,8 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
       case 'training': return t('mode.training');
       case 'inference': return t('mode.inference');
       case 'finetuning': return t('mode.finetuning');
+      case 'grpo': return 'GRPO 偏好优化';
+      case 'multimodal': return '多模态计算';
       default: return type;
     }
   };
@@ -51,6 +56,8 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
       case 'training': return 'bg-blue-500';
       case 'inference': return 'bg-green-500';
       case 'finetuning': return 'bg-purple-500';
+      case 'grpo': return 'bg-orange-500';
+      case 'multimodal': return 'bg-cyan-500';
       default: return 'bg-gray-500';
     }
   };
@@ -60,15 +67,27 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
     switch (historyItem.type) {
       case 'training':
         setTrainingConfig(historyItem.config as Record<string, unknown>);
+        setPrimaryTab('nlp');
         setActiveTab('training');
         break;
       case 'inference':
         setInferenceConfig(historyItem.config as Record<string, unknown>);
+        setPrimaryTab('nlp');
         setActiveTab('inference');
         break;
       case 'finetuning':
         setFineTuningConfig(historyItem.config as Record<string, unknown>);
+        setPrimaryTab('nlp');
         setActiveTab('finetuning');
+        break;
+      case 'grpo':
+        setGrpoConfig(historyItem.config as Record<string, unknown>);
+        setPrimaryTab('nlp');
+        setActiveTab('grpo');
+        break;
+      case 'multimodal':
+        setMultimodalConfig(historyItem.config as Record<string, unknown>);
+        setPrimaryTab('multimodal');
         break;
     }
     onClose();

@@ -99,6 +99,7 @@ export interface ModelInfo {
   hiddenSize: number;
   numLayers: number;
   numHeads: number;
+  numKVHeads?: number; // GQA/MQA 模型的 KV head 数；缺省 = numHeads（标准 MHA）
   vocabSize: number;
   activeParams?: number; // billions, for MoE models
   vendor?: ModelVendor; // 模型供应商

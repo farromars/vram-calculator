@@ -56,8 +56,8 @@ export function estimateInferencePerformance(
   const tps = 1 / tpotSeconds;
 
   // === Prefill 阶段: 计算受限 ===
-  // FLOPs = 2 × params × input_tokens (前向传播)
-  const prefillFlops = 2 * modelInfo.params * 1e9 * config.sequenceLength;
+  // FLOPs = 2 × params × input_tokens × batch_size（prefill 时所有请求同时处理）
+  const prefillFlops = 2 * modelInfo.params * 1e9 * config.sequenceLength * config.batchSize;
   const effectiveFlops = fp16Tflops * 1e12 * mfu;
   const ttftSeconds = prefillFlops / effectiveFlops;
   const ttftMs = ttftSeconds * 1000;

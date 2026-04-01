@@ -336,6 +336,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     hiddenSize: 4096,
     numLayers: 28,
     numHeads: 28,
+    numKVHeads: 4,  // GQA: 4 KV heads
     vocabSize: 151643,
     vendor: 'DeepSeek',
     huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
@@ -348,6 +349,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     hiddenSize: 5120,
     numLayers: 48,
     numHeads: 40,
+    numKVHeads: 8,  // GQA: 8 KV heads
     vocabSize: 151643,
     vendor: 'DeepSeek',
     huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B'
@@ -360,6 +362,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     hiddenSize: 5120,
     numLayers: 64,
     numHeads: 40,
+    numKVHeads: 8,  // GQA: 8 KV heads
     vocabSize: 151643,
     vendor: 'DeepSeek',
     huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'
@@ -372,6 +375,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     hiddenSize: 5120,
     numLayers: 64,
     numHeads: 40,
+    numKVHeads: 8,  // GQA: 8 KV heads
     vocabSize: 151643,
     vendor: 'DeepSeek',
     huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'
@@ -601,22 +605,22 @@ export const MODELS_DATABASE: ModelInfo[] = [
   {
     id: 'qwen3-30b-a3b-instruct-2507', name: 'Qwen3-30B-A3B-Instruct-2507', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507'
   },
-  { id: 'qwen3-0.6b', name: 'Qwen3-0.6B', params: 0.6, architecture: 'transformer', hiddenSize: 1024, numLayers: 28, numHeads: 16, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-0.6B' },
-  { id: 'qwen3-0.6b-fp8', name: 'Qwen3-0.6B-FP8', params: 0.6, architecture: 'transformer', hiddenSize: 1024, numLayers: 28, numHeads: 16, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-0.6B-FP8' },
-  { id: 'qwen3-1.7b', name: 'Qwen3-1.7B', params: 1.7, architecture: 'transformer', hiddenSize: 1536, numLayers: 28, numHeads: 12, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-1.7B' },
-  { id: 'qwen3-1.7b-fp8', name: 'Qwen3-1.7B-FP8', params: 1.7, architecture: 'transformer', hiddenSize: 1536, numLayers: 28, numHeads: 12, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-1.7B-FP8' },
-  { id: 'qwen3-4b', name: 'Qwen3-4B', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B' },
-  { id: 'qwen3-4b-fp8', name: 'Qwen3-4B-FP8', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B-FP8' },
-  { id: 'qwen3-8b', name: 'Qwen3-8B', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 36, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B' },
-  { id: 'qwen3-8b-fp8', name: 'Qwen3-8B-FP8', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 36, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B-FP8' },
-  { id: 'qwen3-14b', name: 'Qwen3-14B', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B' },
-  { id: 'qwen3-14b-fp8', name: 'Qwen3-14B-FP8', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B-FP8' },
-  { id: 'qwen3-30b-a3b', name: 'Qwen3-30B-A3B', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B' },
-  { id: 'qwen3-30b-a3b-fp8', name: 'Qwen3-30B-A3B-FP8', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B-FP8' },
-  { id: 'qwen3-32b', name: 'Qwen3-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-32B' },
-  { id: 'qwen3-32b-fp8', name: 'Qwen3-32B-FP8', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-32B-FP8' },
-  { id: 'qwen3-235b-a22b', name: 'Qwen3-235B-A22B', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B' },
-  { id: 'qwen3-235b-a22b-fp8', name: 'Qwen3-235B-A22B-FP8', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-FP8' },
+  { id: 'qwen3-0.6b', name: 'Qwen3-0.6B', params: 0.6, architecture: 'transformer', hiddenSize: 1024, numLayers: 28, numHeads: 16, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-0.6B' },
+  { id: 'qwen3-0.6b-fp8', name: 'Qwen3-0.6B-FP8', params: 0.6, architecture: 'transformer', hiddenSize: 1024, numLayers: 28, numHeads: 16, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-0.6B-FP8' },
+  { id: 'qwen3-1.7b', name: 'Qwen3-1.7B', params: 1.7, architecture: 'transformer', hiddenSize: 1536, numLayers: 28, numHeads: 12, numKVHeads: 2, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-1.7B' },
+  { id: 'qwen3-1.7b-fp8', name: 'Qwen3-1.7B-FP8', params: 1.7, architecture: 'transformer', hiddenSize: 1536, numLayers: 28, numHeads: 12, numKVHeads: 2, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-1.7B-FP8' },
+  { id: 'qwen3-4b', name: 'Qwen3-4B', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, numKVHeads: 4, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B' },
+  { id: 'qwen3-4b-fp8', name: 'Qwen3-4B-FP8', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, numKVHeads: 4, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B-FP8' },
+  { id: 'qwen3-8b', name: 'Qwen3-8B', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 36, numHeads: 32, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B' },
+  { id: 'qwen3-8b-fp8', name: 'Qwen3-8B-FP8', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 36, numHeads: 32, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B-FP8' },
+  { id: 'qwen3-14b', name: 'Qwen3-14B', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B' },
+  { id: 'qwen3-14b-fp8', name: 'Qwen3-14B-FP8', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B-FP8' },
+  { id: 'qwen3-30b-a3b', name: 'Qwen3-30B-A3B', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, numKVHeads: 4, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B' },
+  { id: 'qwen3-30b-a3b-fp8', name: 'Qwen3-30B-A3B-FP8', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, numKVHeads: 4, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B-FP8' },
+  { id: 'qwen3-32b', name: 'Qwen3-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-32B' },
+  { id: 'qwen3-32b-fp8', name: 'Qwen3-32B-FP8', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-32B-FP8' },
+  { id: 'qwen3-235b-a22b', name: 'Qwen3-235B-A22B', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, numKVHeads: 4, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B' },
+  { id: 'qwen3-235b-a22b-fp8', name: 'Qwen3-235B-A22B-FP8', params: 235.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, numKVHeads: 4, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-235B-A22B-FP8' },
   { id: 'qwen3-coder-30b-a3b-instruct', name: 'Qwen3-Coder-30B-A3B-Instruct', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct' },
   { id: 'qwen3-coder-480b-a35b-instruct', name: 'Qwen3-Coder-480B-A35B-Instruct', params: 480.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 35.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct' },
   { id: 'qwen3-coder-480b-a35b-instruct-fp8', name: 'Qwen3-Coder-480B-A35B-Instruct-FP8', params: 480.0, architecture: 'moe', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 35.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8' },
@@ -632,11 +636,11 @@ export const MODELS_DATABASE: ModelInfo[] = [
   { id: 'qwen3-vl-235b-a22b-instruct', name: 'Qwen3-VL-235B-A22B-Instruct', params: 235.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 94, numHeads: 64, vocabSize: 151936, activeParams: 22.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-VL-235B-A22B-Instruct' },
   { id: 'qwen3-next-80b-a3b-instruct', name: 'Qwen3-Next-80B-A3B-Instruct', params: 80.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct' },
   { id: 'qwen3-next-80b-a3b-thinking', name: 'Qwen3-Next-80B-A3B-Thinking', params: 80.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Thinking' },
-  { id: 'qwen2.5-vl-7b-instruct', name: 'Qwen2.5-VL-7B-Instruct', params: 8.3, architecture: 'multimodal', hiddenSize: 4096, numLayers: 28, numHeads: 28, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct' },
-  { id: 'qwen2.5-vl-32b-instruct', name: 'Qwen2.5-VL-32B-Instruct', params: 32.5, architecture: 'multimodal', hiddenSize: 6400, numLayers: 64, numHeads: 50, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-32B-Instruct' },
-  { id: 'qwen2.5-vl-72b-instruct', name: 'Qwen2.5-VL-72B-Instruct', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct' },
-  { id: 'qwen2.5-vl-72b-instruct-awq', name: 'Qwen2.5-VL-72B-Instruct-AWQ', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct-AWQ' },
-  { id: 'qwq-32b', name: 'QwQ-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/QwQ-32B' },
+  { id: 'qwen2.5-vl-7b-instruct', name: 'Qwen2.5-VL-7B-Instruct', params: 8.3, architecture: 'multimodal', hiddenSize: 4096, numLayers: 28, numHeads: 28, numKVHeads: 4, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct' },
+  { id: 'qwen2.5-vl-32b-instruct', name: 'Qwen2.5-VL-32B-Instruct', params: 32.5, architecture: 'multimodal', hiddenSize: 6400, numLayers: 64, numHeads: 50, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-32B-Instruct' },
+  { id: 'qwen2.5-vl-72b-instruct', name: 'Qwen2.5-VL-72B-Instruct', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct' },
+  { id: 'qwen2.5-vl-72b-instruct-awq', name: 'Qwen2.5-VL-72B-Instruct-AWQ', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct-AWQ' },
+  { id: 'qwq-32b', name: 'QwQ-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, numKVHeads: 8, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/QwQ-32B' },
 
   // ==================== Hunyuan 系列 ====================
   { id: 'tairos-embodied-planning-v1', name: 'Tairos-Embodied-Planning-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan' },

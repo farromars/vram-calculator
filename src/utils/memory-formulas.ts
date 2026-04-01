@@ -303,7 +303,7 @@ export function calculateTrainingMemory(config: TrainingConfig, modelInfo?: { pa
 /**
  * 推理显存计算
  */
-export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number; numHeads?: number }): MemoryBreakdown {
+export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number; numHeads?: number; numKVHeads?: number }): MemoryBreakdown {
   const { precision, quantization, batchSize, sequenceLength, kvCacheRatio } = config;
   
   // 从模型信息获取参数，如果没有则使用默认值
@@ -311,6 +311,7 @@ export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { 
   const hiddenSize = modelInfo?.hiddenSize || 4096;
   const numLayers = modelInfo?.numLayers || 32;
   const numHeads = modelInfo?.numHeads || 32;
+  const numKVHeads = modelInfo?.numKVHeads; // 未提供时 calculateKVCache 内部默认为 numHeads（MHA）
   
   const quantizationRatio = getQuantizationRatio(quantization);
   const paramBytes = getPrecisionBytes(precision);
@@ -318,8 +319,8 @@ export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { 
   // 量化后的模型参数
   const modelParamsGB = (modelParams * 1e9 * paramBytes * quantizationRatio) / (1024 ** 3);
   
-  // KV缓存
-  const kvCacheGB = calculateKVCache(batchSize, sequenceLength, hiddenSize, numLayers, numHeads, precision) * kvCacheRatio;
+  // KV缓存（正确传入 numKVHeads，支持 GQA/MQA）
+  const kvCacheGB = calculateKVCache(batchSize, sequenceLength, hiddenSize, numLayers, numHeads, precision, numKVHeads) * kvCacheRatio;
   
   // 推理时的少量激活值
   const activationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision) * 0.1;
@@ -346,7 +347,7 @@ export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { 
  * 总显存 = 模型权重 + 优化器状态 + 梯度 + 激活值 + 其他开销
  */
 export function calculateFineTuningMemory(config: FineTuningConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number }): MemoryBreakdown {
-  const { method, loraRank = 4, quantization, precision } = config;
+  const { method, loraRank = 4, quantization, precision, batchSize, sequenceLength } = config;
   
   // 从模型信息获取参数，如果没有则使用默认值
   const baseModelParams = modelInfo?.params || 7; // 参数量（B）
@@ -369,28 +370,28 @@ export function calculateFineTuningMemory(config: FineTuningConfig, modelInfo?: 
       // 全量微调：P_train = P_total
       modelWeightsGB = (baseModelParams * 1e9 * modelPrecisionBytes) / (1024 ** 3);
       trainableParams = baseModelParams;
-      activationsGB = calculateActivations(2, 2048, hiddenSize, numLayers, precision); // 使用合理的默认值
+      activationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision);
       break;
       
     case 'LoRA':
       // LoRA微调：基础模型 + 小LoRA参数
       modelWeightsGB = (baseModelParams * 1e9 * modelPrecisionBytes) / (1024 ** 3);
       trainableParams = calculateLoRAParams(baseModelParams, loraRank, hiddenSize);
-      activationsGB = calculateActivations(2, 2048, hiddenSize, numLayers, precision) * 0.8; // LoRA稍微减少激活值
+      activationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision) * 0.8;
       break;
       
     case 'QLoRA':
       // QLoRA：量化基础模型 + LoRA参数
       modelWeightsGB = (baseModelParams * 1e9 * modelPrecisionBytes * quantizationRatio) / (1024 ** 3);
       trainableParams = calculateLoRAParams(baseModelParams, loraRank, hiddenSize);
-      activationsGB = calculateActivations(2, 2048, hiddenSize, numLayers, precision) * 0.6; // QLoRA进一步减少
+      activationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision) * 0.6;
       break;
       
     case 'Prefix':
       // Prefix Tuning：约1%参数可训练
       modelWeightsGB = (baseModelParams * 1e9 * modelPrecisionBytes) / (1024 ** 3);
-      trainableParams = baseModelParams * 0.01; // 1%的参数量
-      activationsGB = calculateActivations(2, 2048, hiddenSize, numLayers, precision) * 0.7;
+      trainableParams = baseModelParams * 0.01;
+      activationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision) * 0.7;
       break;
   }
   
