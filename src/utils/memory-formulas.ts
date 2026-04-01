@@ -449,6 +449,19 @@ export function formatMemorySize(sizeGB: number): string {
 }
 
 /**
+ * 格式化百分比 — 避免小值显示为 "0.0%"
+ * - < 0.1%  → "<0.1%"
+ * - < 1%    → 保留 2 位小数（如 "0.35%"）
+ * - >= 1%   → 保留 1 位小数（如 "12.3%"）
+ */
+export function formatPercentage(value: number): string {
+  if (value === 0) return '0%';
+  if (value < 0.1) return '<0.1%';
+  if (value < 1) return `${value.toFixed(2)}%`;
+  return `${value.toFixed(1)}%`;
+}
+
+/**
  * GRPO显存计算 - 按照正确的通用LLM框架实现
  * Group-wise Ranking Preference Optimization
  * 核心特点：激活值显存 = k × SFT_Activations，其中k是偏好组大小
@@ -789,11 +802,15 @@ export function calculateNLPFineTuningMemory(config: NLPFineTuningConfig, langua
   const activationsGB = (batchSize * sequenceLength * hiddenSize * numLayers * activationMultiplier * modelPrecisionBytes) / (1024 ** 3);
 
   // 9. 注意力分数显存 = batch_size × num_heads × S × S × L × B
+  // 注：此处按 vanilla attention 计算，实际使用 Flash Attention 时注意力矩阵无需全量存储，可大幅降低
   const attentionScoresGB = (batchSize * numAttentionHeads * sequenceLength * sequenceLength * numLayers * modelPrecisionBytes) / (1024 ** 3);
 
-  // 10. KV缓存显存 = 2 × batch_size × max_length × H × L × B
+  // 10. KV缓存显存
+  // 训练/微调阶段 KV Cache 在前向传播中动态生成并在反向传播后释放，不需要预先分配固定显存。
+  // 仅在生成式推理阶段（如推理计算器）才需要预留 KV Cache 显存。
+  // 因此此处设为 0，避免对微调场景造成高估。
   const maxLength = maxGenerationLength || sequenceLength;
-  const kvCacheGB = (2 * batchSize * maxLength * hiddenSize * numLayers * modelPrecisionBytes) / (1024 ** 3);
+  const kvCacheGB = 0;
 
   // 11. LoRA显存 = Σ(r × (d_in + d_out)) × B
   // 根据文档公式计算精确的LoRA参数量

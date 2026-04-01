@@ -58,7 +58,7 @@ export type LRSchedulerType = 'StepLR' | 'CosineAnnealingLR' | 'ReduceLROnPlatea
 export type AdvancedModelType = 'NLP' | 'Multimodal' | 'MoE' | 'CNN';
 
 // 计算器类型
-export type CalculatorType = 'training' | 'inference' | 'finetuning' | 'grpo' | 'multimodal';
+export type CalculatorType = 'training' | 'inference' | 'finetuning' | 'finetuning_advanced' | 'grpo' | 'multimodal';
 
 // 添加主分组类型
 export type PrimaryTab = 'nlp' | 'multimodal' | 'advanced';

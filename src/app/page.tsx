@@ -70,9 +70,9 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 仅在挂载时执行一次
 
-  // 初始化语言为中文
+  // 初始化语言：仅在尚未设置时才写入默认值（中文），避免覆盖用户的语言偏好
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
       localStorage.setItem('language', 'zh');
     }
   }, []);
@@ -115,7 +115,7 @@ export default function Home() {
             quantization: inferenceConfig.quantization,
             batchSize: inferenceConfig.batchSize,
             sequenceLength: inferenceConfig.sequenceLength,
-            mode: '推理' as const,
+            mode: ZH.tabs.inference,
           };
           break;
         case 'training':
@@ -125,7 +125,7 @@ export default function Home() {
             quantization: 'None' as const,
             batchSize: trainingConfig.batchSize,
             sequenceLength: trainingConfig.sequenceLength,
-            mode: '训练' as const,
+            mode: ZH.tabs.training,
           };
           break;
         case 'finetuning':
@@ -135,7 +135,7 @@ export default function Home() {
             quantization: fineTuningConfig.quantization,
             batchSize: fineTuningConfig.batchSize,
             sequenceLength: fineTuningConfig.sequenceLength,
-            mode: `微调 (${fineTuningConfig.method})` as string,
+            mode: `微调 (${fineTuningConfig.method})`,
           };
           break;
         case 'grpo':
@@ -145,19 +145,19 @@ export default function Home() {
             quantization: 'None' as const,
             batchSize: grpoConfig.batchSize,
             sequenceLength: grpoConfig.sequenceLength,
-            mode: 'GRPO 训练' as const,
+            mode: 'GRPO 训练',
           };
           break;
       }
     } else if (primaryTab === 'multimodal') {
       modelInfo = getModelById(multimodalConfig.modelId) || null;
-      const modeLabels: Record<string, string> = { training: '训练', inference: '推理', finetuning: '微调' };
+      const modeLabels: Record<string, string> = { training: ZH.tabs.training, inference: ZH.tabs.inference, finetuning: ZH.tabs.finetuning };
       perfConfig = {
         precision: multimodalConfig.textPrecision,
         quantization: 'None' as const,
         batchSize: multimodalConfig.batchSize,
         sequenceLength: multimodalConfig.sequenceLength,
-        mode: `多模态 ${modeLabels[multimodalConfig.mode] || '推理'}` as string,
+        mode: `${ZH.tabs.multimodal} ${modeLabels[multimodalConfig.mode] || ZH.tabs.inference}` as string,
       };
     }
 
@@ -173,11 +173,11 @@ export default function Home() {
 
   const getTabLabel = () => {
     if (primaryTab === 'multimodal') {
-      const modeLabels: Record<string, string> = { training: '训练', inference: '推理', finetuning: '微调' };
-      return `多模态模型 - ${modeLabels[multimodalConfig.mode] || '推理'}`;
+      const modeLabels: Record<string, string> = { training: ZH.tabs.training, inference: ZH.tabs.inference, finetuning: ZH.tabs.finetuning };
+      return `${ZH.tabs.multimodal} - ${modeLabels[multimodalConfig.mode] || ZH.tabs.inference}`;
     }
-    const tabLabels: Record<string, string> = { training: '训练', inference: '推理', finetuning: '微调', grpo: 'GRPO' };
-    return `NLP模型 - ${tabLabels[activeTab] || '推理'}`;
+    const tabLabels: Record<string, string> = { training: ZH.tabs.training, inference: ZH.tabs.inference, finetuning: ZH.tabs.finetuning, grpo: ZH.tabs.grpo };
+    return `NLP${ZH.tabs.nlp.replace('NLP', '')} - ${tabLabels[activeTab] || ZH.tabs.inference}`;
   };
 
   return (

@@ -12,7 +12,7 @@ import { mcpLogger } from '../logger';
 interface CalculationHistory {
   id: string;
   timestamp: string;
-  mode: 'inference' | 'training' | 'finetuning' | 'grpo' | 'multimodal';
+  mode: 'inference' | 'training' | 'finetuning' | 'finetuning_advanced' | 'grpo' | 'multimodal';
   modelId: string;
   modelName: string;
   parameters: Record<string, any>;

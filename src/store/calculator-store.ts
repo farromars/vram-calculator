@@ -579,7 +579,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
           // 自动保存到历史记录
           if (preferences.autoSave) {
             const modelName = `${advancedFineTuningConfig.modelType} Model`;
-            get().addToHistory('finetuning', advancedFineTuningConfig, result, modelName);
+            get().addToHistory('finetuning_advanced', advancedFineTuningConfig, result, modelName);
           }
         } catch (error) {
           console.error('Advanced fine-tuning memory calculation error:', error);
@@ -593,7 +593,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
 
             if (preferences.autoSave) {
               const modelName = `${advancedFineTuningConfig.modelType} Model`;
-              get().addToHistory('finetuning', advancedFineTuningConfig, result, modelName);
+              get().addToHistory('finetuning_advanced', advancedFineTuningConfig, result, modelName);
             }
           } catch (fallbackError) {
             console.error('Local calculation also failed:', fallbackError);

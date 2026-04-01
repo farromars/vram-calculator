@@ -1,18 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { randomBytes } from 'crypto';
 
 export function middleware(_request: NextRequest) {
-  // 为每个请求生成唯一 nonce，防止 XSS
-  const nonce = randomBytes(16).toString('base64');
-  const response = NextResponse.next({
-    request: {
-      headers: new Headers({
-        ...(Object.fromEntries(_request.headers.entries())),
-        'x-nonce': nonce,
-      }),
-    },
-  });
+  const response = NextResponse.next();
 
   // 安全头配置
   response.headers.set('X-Frame-Options', 'DENY');
@@ -21,15 +11,20 @@ export function middleware(_request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-  // Content Security Policy — nonce-based，移除 'unsafe-inline'
-  // Next.js RSC/SSR 使用 nonce 注入内联脚本，需要在 _document 或 layout 中读取 x-nonce header
+  // Content Security Policy
+  // 说明：Next.js 静态预渲染的页面在构建期生成 HTML，不经过 middleware，
+  // 因此 nonce-based CSP（需要每次请求动态生成 nonce）与静态页面不兼容。
+  // 使用 'self' + 'unsafe-inline' 策略：
+  // - script-src 'self'：只允许同源脚本（_next/static/ 下的 JS 文件都是同源）
+  // - 'unsafe-inline'：允许 Next.js 注入的少量内联脚本（__NEXT_DATA__ 等）
+  // - style-src 'unsafe-inline'：CSS-in-JS（Tailwind）需要
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    "style-src 'self' 'unsafe-inline'", // CSS-in-JS（Tailwind）需要保留，不影响 XSS（style 注入危害远低于 script）
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",  // unsafe-eval 供 Next.js HMR/动态import使用
+    "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
-    "font-src 'self'",
-    "connect-src 'self' https://api.github.com",
+    "font-src 'self' data:",
+    "connect-src 'self' https://api.github.com ws://localhost:* wss://localhost:*",
     "worker-src 'self' blob:",
     "frame-ancestors 'none'",
     "base-uri 'self'",
@@ -37,8 +32,6 @@ export function middleware(_request: NextRequest) {
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);
-  // 将 nonce 暴露给 layout/document 组件读取
-  response.headers.set('x-nonce', nonce);
 
   return response;
 }
@@ -54,4 +47,4 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
-}; 
+};

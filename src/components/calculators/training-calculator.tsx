@@ -8,7 +8,7 @@ import { TickSlider } from '@/components/ui/tick-slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedNumber } from '@/components/animated-number';
 import { LoadingOverlay } from '@/components/ui/loading-spinner';
-import { formatMemorySize } from '@/utils/memory-formulas';
+import { formatMemorySize, formatPercentage } from '@/utils/memory-formulas';
 import { getModelById, getModelsByCategoryArchitectureAndVendor, getVendorsForArchitecture } from '@/lib/models-data';
 import { TrainingConfig, PrecisionType, OptimizerType, ModelVendor } from '@/types';
 import { useCalculatorStore } from '@/store/calculator-store';
@@ -289,7 +289,7 @@ export function TrainingCalculator() {
                       className="font-mono text-xs"
                     />
                     <span className="text-xs text-gray-500">
-                      (<AnimatedNumber value={item.percentage} format={(n) => `${n.toFixed(1)}%`} />)
+                      (<AnimatedNumber value={item.percentage} format={formatPercentage} />)
                     </span>
                   </div>
                 </div>
@@ -298,7 +298,7 @@ export function TrainingCalculator() {
                     className="h-full rounded-full"
                     style={{ backgroundColor: item.color }}
                     initial={{ width: 0 }}
-                    animate={{ width: `${item.percentage}%` }}
+                    animate={{ width: `${Math.max(item.percentage, item.value > 0 ? 0.3 : 0)}%` }}
                     transition={{ duration: 0.8, delay: index * 0.1 }}
                   />
                 </div>

@@ -107,6 +107,7 @@ export function generateReport(historyItem: HistoryItem): string {
     training: '训练',
     inference: '推理', 
     finetuning: '微调',
+    finetuning_advanced: '高级微调',
     grpo: 'GRPO',
     multimodal: '多模态'
   };
@@ -232,6 +233,7 @@ export function shareToSocial(platform: 'twitter' | 'linkedin' | 'reddit', histo
     training: '训练',
     inference: '推理',
     finetuning: '微调',
+    finetuning_advanced: '高级微调',
     grpo: 'GRPO',
     multimodal: '多模态'
   }[historyItem.type] || '未知';

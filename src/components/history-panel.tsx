@@ -24,6 +24,7 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
     setTrainingConfig,
     setInferenceConfig,
     setFineTuningConfig,
+    setAdvancedFineTuningConfig,
     setGrpoConfig,
     setMultimodalConfig,
     setActiveTab,
@@ -45,8 +46,9 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
       case 'training': return t('mode.training');
       case 'inference': return t('mode.inference');
       case 'finetuning': return t('mode.finetuning');
-      case 'grpo': return 'GRPO 偏好优化';
-      case 'multimodal': return '多模态计算';
+      case 'finetuning_advanced': return t('mode.advanced.finetuning') || '高级微调';
+      case 'grpo': return t('mode.grpo') || 'GRPO 偏好优化';
+      case 'multimodal': return t('mode.multimodal') || '多模态计算';
       default: return type;
     }
   };
@@ -56,6 +58,7 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
       case 'training': return 'bg-blue-500';
       case 'inference': return 'bg-green-500';
       case 'finetuning': return 'bg-purple-500';
+      case 'finetuning_advanced': return 'bg-violet-500';
       case 'grpo': return 'bg-orange-500';
       case 'multimodal': return 'bg-cyan-500';
       default: return 'bg-gray-500';
@@ -79,6 +82,10 @@ export default function HistoryPanel({ isOpen, onClose }: HistoryPanelProps) {
         setFineTuningConfig(historyItem.config as Record<string, unknown>);
         setPrimaryTab('nlp');
         setActiveTab('finetuning');
+        break;
+      case 'finetuning_advanced':
+        setAdvancedFineTuningConfig(historyItem.config as Record<string, unknown>);
+        setPrimaryTab('advanced');
         break;
       case 'grpo':
         setGrpoConfig(historyItem.config as Record<string, unknown>);
