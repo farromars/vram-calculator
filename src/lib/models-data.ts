@@ -1,37 +1,11 @@
 import { ModelInfo, GPU, ModelVendor } from '@/types';
 
 /**
- * TI-ONE 平台模型数据库 (120 模型)
- * 数据来源: 腾讯云 TI-ONE 平台支持的模型清单
+ * 主流大模型数据库
+ * 涵盖 DeepSeek、Qwen、GLM、Llama、Mistral、Hunyuan 等主流系列
  */
 export const MODELS_DATABASE: ModelInfo[] = [
-  // ==================== DeepSeek 系列 ====================
-  {
-    id: 'deepseek-v4',
-    name: 'DeepSeek-V4',
-    params: 800.0,
-    architecture: 'moe',
-    hiddenSize: 7168,
-    numLayers: 61,
-    numHeads: 56,
-    vocabSize: 129000,
-    activeParams: 40.0,
-    vendor: 'DeepSeek',
-    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V4'
-  },
-  {
-    id: 'deepseek-v4-pd',
-    name: 'DeepSeek-V4-PD',
-    params: 800.0,
-    architecture: 'moe',
-    hiddenSize: 7168,
-    numLayers: 61,
-    numHeads: 56,
-    vocabSize: 129000,
-    activeParams: 40.0,
-    vendor: 'DeepSeek',
-    huggingfaceUrl: 'https://huggingface.co/deepseek-ai/DeepSeek-V4'
-  },
+  // ==================== DeepSeek 系列 ====================,
   {
     id: 'deepseek-v3.2',
     name: 'DeepSeek-V3.2',
@@ -39,7 +13,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -52,7 +26,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -65,7 +39,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -78,7 +52,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -91,7 +65,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -104,7 +78,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -117,7 +91,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -130,7 +104,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -143,7 +117,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -156,7 +130,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -169,7 +143,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -182,7 +156,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -195,7 +169,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -208,7 +182,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -221,7 +195,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -234,7 +208,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -247,7 +221,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -260,7 +234,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -297,7 +271,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -310,7 +284,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -323,7 +297,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -336,7 +310,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -409,7 +383,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -422,7 +396,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -435,7 +409,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
     architecture: 'moe',
     hiddenSize: 7168,
     numLayers: 61,
-    numHeads: 56,
+    numHeads: 128,
     vocabSize: 129000,
     activeParams: 37.0,
     vendor: 'DeepSeek',
@@ -634,7 +608,7 @@ export const MODELS_DATABASE: ModelInfo[] = [
   { id: 'qwen3-4b', name: 'Qwen3-4B', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B' },
   { id: 'qwen3-4b-fp8', name: 'Qwen3-4B-FP8', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-4B-FP8' },
   { id: 'qwen3-8b', name: 'Qwen3-8B', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B' },
-  { id: 'qwen3-8b-fp8', name: 'Qwen3-8B-FP8', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B-FP8' },
+  { id: 'qwen3-8b-fp8', name: 'Qwen3-8B-FP8', params: 8.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 36, numHeads: 32, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-8B-FP8' },
   { id: 'qwen3-14b', name: 'Qwen3-14B', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B' },
   { id: 'qwen3-14b-fp8', name: 'Qwen3-14B-FP8', params: 14.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-14B-FP8' },
   { id: 'qwen3-30b-a3b', name: 'Qwen3-30B-A3B', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, activeParams: 3.0, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen3-30B-A3B' },
@@ -664,28 +638,28 @@ export const MODELS_DATABASE: ModelInfo[] = [
   { id: 'qwen2.5-vl-72b-instruct-awq', name: 'Qwen2.5-VL-72B-Instruct-AWQ', params: 72.7, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct-AWQ' },
   { id: 'qwq-32b', name: 'QwQ-32B', params: 32.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 64, numHeads: 40, vocabSize: 151936, vendor: 'Qwen', huggingfaceUrl: 'https://huggingface.co/Qwen/QwQ-32B' },
 
-  // ==================== 腾讯系列 ====================
-  { id: 'tairos-embodied-planning-v1', name: 'Tairos-Embodied-Planning-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'tairos-embodied-planning-for-guided-tours-v1', name: 'Tairos-Embodied-Planning-for-Guided-Tours-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-large-instruct', name: 'Hunyuan-Large-Instruct', params: 389.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Tencent-Hunyuan-Large' },
-  { id: 'hunyuan-a13b-instruct', name: 'Hunyuan-A13B-Instruct', params: 80.0, architecture: 'moe', hiddenSize: 6400, numLayers: 64, numHeads: 50, vocabSize: 100000, activeParams: 13.0, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-A13B-Instruct' },
-  { id: 'hy2.0-406b-a32b-144k-instruct-fp8', name: 'HY2.0-406B-A32B-144k-Instruct-FP8', params: 406.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 32.0, vendor: '腾讯' },
-  { id: 'hy2.0-406b-a32b-192k-thinking-fp8', name: 'HY2.0-406B-A32B-192k-Thinking-FP8', params: 406.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 32.0, vendor: '腾讯' },
-  { id: 'hunyuan-13b-32k-sft', name: 'Hunyuan-13b-32k-SFT-241021', params: 13.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 40, numHeads: 40, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-2b-256k-sft-v2', name: 'Hunyuan-2b-256k-SFT-V2-241229', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-2b-32k-instruct-v2', name: 'Hunyuan-2b-32k-Instruct-V2-250606', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-7b-256k-dpo-v2', name: 'Hunyuan-7b-256k-DPO-V2-250117', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-7b-256k-instruct-v2-0528', name: 'Hunyuan-7b-256k-Instruct-V2-250528', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-7b-256k-instruct-v2-0613', name: 'Hunyuan-7b-256k-Instruct-V2-250613', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯' },
-  { id: 'hunyuan-7b-256k-instruct-v2-0724', name: 'Hunyuan-7b-256k-Instruct-V2-250724', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-7B-Instruct' },
-  { id: 'hunyuan-4b-256k-instruct-v2', name: 'hunyuan-4b-256k-Instruct-V2-250721', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-4B-Instruct' },
-  { id: 'hunyuan-a3b-moe-64k', name: 'Hunyuan-A3B-MoE-64K-250930', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 100000, activeParams: 3.0, vendor: '腾讯' },
-  { id: 'hunyuan-vision-t1-a56b', name: 'Hunyuan-Vision-T1-A56B-32k-251027', params: 400.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 56.0, vendor: '腾讯' },
-  { id: 'hunyuan-vision-turbos-a56b', name: 'Hunyuan-Vision-TurboS-A56B-32k-251027', params: 400.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 56.0, vendor: '腾讯' },
-  { id: 'hunyuan-t1-20250321', name: 'hunyuan-t1-20250321', params: 400.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: '腾讯' },
-  { id: 'hunyuan-t1-32k-250710', name: 'hunyuan-t1-32k-250710', params: 400.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: '腾讯' },
-  { id: 'youtu-llm-2b', name: 'Youtu-LLM-2B', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Youtu-LLM-2B' },
-  { id: 'youtu-embedding', name: 'Youtu-Embedding', params: 0.3, architecture: 'embedding', hiddenSize: 768, numLayers: 12, numHeads: 12, vocabSize: 100000, vendor: '腾讯', huggingfaceUrl: 'https://huggingface.co/tencent/Youtu-Embedding' },
+  // ==================== Hunyuan 系列 ====================
+  { id: 'tairos-embodied-planning-v1', name: 'Tairos-Embodied-Planning-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'tairos-embodied-planning-for-guided-tours-v1', name: 'Tairos-Embodied-Planning-for-Guided-Tours-v1', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-large-instruct', name: 'Hunyuan-Large-Instruct', params: 389.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: 'Hunyuan', huggingfaceUrl: 'https://huggingface.co/tencent/Tencent-Hunyuan-Large' },
+  { id: 'hunyuan-a13b-instruct', name: 'Hunyuan-A13B-Instruct', params: 80.0, architecture: 'moe', hiddenSize: 6400, numLayers: 64, numHeads: 50, vocabSize: 100000, activeParams: 13.0, vendor: 'Hunyuan', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-A13B-Instruct' },
+  { id: 'hy2.0-406b-a32b-144k-instruct-fp8', name: 'HY2.0-406B-A32B-144k-Instruct-FP8', params: 406.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 32.0, vendor: 'Hunyuan' },
+  { id: 'hy2.0-406b-a32b-192k-thinking-fp8', name: 'HY2.0-406B-A32B-192k-Thinking-FP8', params: 406.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 32.0, vendor: 'Hunyuan' },
+  { id: 'hunyuan-13b-32k-sft', name: 'Hunyuan-13b-32k-SFT-241021', params: 13.0, architecture: 'transformer', hiddenSize: 5120, numLayers: 40, numHeads: 40, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-2b-256k-sft-v2', name: 'Hunyuan-2b-256k-SFT-V2-241229', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-2b-32k-instruct-v2', name: 'Hunyuan-2b-32k-Instruct-V2-250606', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-7b-256k-dpo-v2', name: 'Hunyuan-7b-256k-DPO-V2-250117', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-7b-256k-instruct-v2-0528', name: 'Hunyuan-7b-256k-Instruct-V2-250528', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-7b-256k-instruct-v2-0613', name: 'Hunyuan-7b-256k-Instruct-V2-250613', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan' },
+  { id: 'hunyuan-7b-256k-instruct-v2-0724', name: 'Hunyuan-7b-256k-Instruct-V2-250724', params: 7.0, architecture: 'transformer', hiddenSize: 4096, numLayers: 32, numHeads: 32, vocabSize: 100000, vendor: 'Hunyuan', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-7B-Instruct' },
+  { id: 'hunyuan-4b-256k-instruct-v2', name: 'hunyuan-4b-256k-Instruct-V2-250721', params: 4.0, architecture: 'transformer', hiddenSize: 2560, numLayers: 36, numHeads: 20, vocabSize: 100000, vendor: 'Hunyuan', huggingfaceUrl: 'https://huggingface.co/tencent/Hunyuan-4B-Instruct' },
+  { id: 'hunyuan-a3b-moe-64k', name: 'Hunyuan-A3B-MoE-64K-250930', params: 30.0, architecture: 'moe', hiddenSize: 5120, numLayers: 48, numHeads: 40, vocabSize: 100000, activeParams: 3.0, vendor: 'Hunyuan' },
+  { id: 'hunyuan-vision-t1-a56b', name: 'Hunyuan-Vision-T1-A56B-32k-251027', params: 400.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 56.0, vendor: 'Hunyuan' },
+  { id: 'hunyuan-vision-turbos-a56b', name: 'Hunyuan-Vision-TurboS-A56B-32k-251027', params: 400.0, architecture: 'multimodal', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 56.0, vendor: 'Hunyuan' },
+  { id: 'hunyuan-t1-20250321', name: 'hunyuan-t1-20250321', params: 400.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: 'Hunyuan' },
+  { id: 'hunyuan-t1-32k-250710', name: 'hunyuan-t1-32k-250710', params: 400.0, architecture: 'moe', hiddenSize: 8192, numLayers: 80, numHeads: 64, vocabSize: 100000, activeParams: 52.0, vendor: 'Hunyuan' },
+  { id: 'youtu-llm-2b', name: 'Youtu-LLM-2B', params: 2.0, architecture: 'transformer', hiddenSize: 2048, numLayers: 24, numHeads: 16, vocabSize: 100000, vendor: 'Hunyuan', huggingfaceUrl: 'https://huggingface.co/tencent/Youtu-LLM-2B' },
+  { id: 'youtu-embedding', name: 'Youtu-Embedding', params: 0.3, architecture: 'embedding', hiddenSize: 768, numLayers: 12, numHeads: 12, vocabSize: 100000, vendor: 'Hunyuan', huggingfaceUrl: 'https://huggingface.co/tencent/Youtu-Embedding' },
 
   // ==================== 其他 ====================
   { id: 'gpt-oss-20b', name: 'GPT-OSS-20B', params: 20.0, architecture: 'transformer', hiddenSize: 6144, numLayers: 48, numHeads: 48, vocabSize: 200064, vendor: '其他', huggingfaceUrl: 'https://huggingface.co/openai/gpt-oss-20b' },
@@ -697,10 +671,8 @@ export const MODELS_DATABASE: ModelInfo[] = [
 ];
 
 /**
- * GPU数据库 - 腾讯云 TI-ONE 平台支持的 GPU 资源规格
- * 数据来源: https://cloud.tencent.com/document/product/851/74108
- *           https://cloud.tencent.com/document/product/560/19700
- *           https://cloud.tencent.com/document/product/1646/81562
+ * GPU 数据库 - 主流 AI 加速卡规格参数
+ * 数据来源: 各芯片厂商官方规格表及云厂商产品文档
  */
 export const GPU_DATABASE: GPU[] = [
   // 数据中心级 GPU - Blackwell 架构
@@ -713,7 +685,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 8000,
     fp16Tflops: 2250,
-    features: ['HBM3e', 'NVLink 5.0', '邀测', '腾讯云 TI-ONE']
+    features: ['HBM3e', 'NVLink 5.0', '邀测', '云厂商']
   },
   {
     id: 'pnv6',
@@ -724,7 +696,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 8000,
     fp16Tflops: 2250,
-    features: ['HBM3e', 'NVLink 5.0', '邀测', '腾讯云 TI-ONE']
+    features: ['HBM3e', 'NVLink 5.0', '邀测', '云厂商']
   },
 
   // 数据中心级 GPU - Hopper 架构
@@ -736,8 +708,8 @@ export const GPU_DATABASE: GPU[] = [
     computeCapability: '9.0',
     price: 0,
     bandwidth: 3350,
-    fp16Tflops: 989,
-    features: ['HBM3', 'NVLink 4.0', '主售/白名单', '腾讯云 TI-ONE / HCC']
+    fp16Tflops: 495,
+    features: ['HBM3', 'NVLink 4.0', '主售/白名单', '云厂商 / HCC集群']
   },
 
   // 数据中心级 GPU - Ampere 架构
@@ -750,7 +722,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 2039,
     fp16Tflops: 312,
-    features: ['HBM2e', 'NVLink 3.0', '主售/白名单', '腾讯云 TI-ONE / HCC']
+    features: ['HBM2e', 'NVLink 3.0', '主售/白名单', '云厂商 / HCC集群']
   },
   {
     id: 'a100-80gb',
@@ -761,7 +733,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 2039,
     fp16Tflops: 312,
-    features: ['HBM2e', 'NVLink 3.0', '腾讯云 TI-ONE']
+    features: ['HBM2e', 'NVLink 3.0', '云厂商']
   },
   {
     id: 'a100-40gb',
@@ -772,7 +744,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 1555,
     fp16Tflops: 312,
-    features: ['HBM2e', 'NVLink 3.0', '腾讯云 TI-ONE / HCC']
+    features: ['HBM2e', 'NVLink 3.0', '云厂商 / HCC集群']
   },
 
   // 专业推理/训练 GPU - Ada Lovelace 架构
@@ -785,7 +757,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 864,
     fp16Tflops: 182,
-    features: ['GDDR6', '邀测', '腾讯云 TI-ONE / HCC']
+    features: ['GDDR6', '邀测', '云厂商 / HCC集群']
   },
   {
     id: 'l40',
@@ -796,7 +768,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 864,
     fp16Tflops: 182,
-    features: ['GDDR6', '腾讯云 TI-ONE']
+    features: ['GDDR6', '云厂商']
   },
 
   // 数据中心级 GPU - Volta 架构
@@ -809,20 +781,20 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 900,
     fp16Tflops: 125,
-    features: ['HBM2', 'NVLink 2.0', '腾讯云 TI-ONE / HCC / CVM']
+    features: ['HBM2', 'NVLink 2.0', '云厂商 / HCC集群 / CVM']
   },
 
   // 消费级 GPU - Blackwell 架构
   {
     id: 'rtx-5090d',
     name: 'RTX 5090D',
-    memory: 24,
+    memory: 32,
     architecture: 'Blackwell',
     computeCapability: '9.0',
     price: 0,
     bandwidth: 1792,
     fp16Tflops: 190,
-    features: ['GDDR7', '腾讯云 TI-ONE / CVM']
+    features: ['GDDR7', '云厂商 / CVM']
   },
 
   // 消费级 GPU - Ada Lovelace 架构
@@ -835,7 +807,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 1008,
     fp16Tflops: 165,
-    features: ['GDDR6X', '腾讯云 TI-ONE / CVM']
+    features: ['GDDR6X', '云厂商 / CVM']
   },
   {
     id: 'rtx-4090d',
@@ -846,7 +818,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 1008,
     fp16Tflops: 148,
-    features: ['GDDR6X', '腾讯云 TI-ONE / CVM']
+    features: ['GDDR6X', '云厂商 / CVM']
   },
   {
     id: 'a10',
@@ -857,7 +829,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 600,
     fp16Tflops: 125,
-    features: ['GDDR6', '腾讯云 TI-ONE / CVM (PNV4)']
+    features: ['GDDR6', '云厂商 / CVM']
   },
 
   // 消费级 GPU - Ampere 架构
@@ -870,7 +842,7 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 936,
     fp16Tflops: 71,
-    features: ['GDDR6X', '腾讯云 TI-ONE / CVM']
+    features: ['GDDR6X', '云厂商 / CVM']
   },
 
   // 推理级 GPU - Turing 架构
@@ -883,7 +855,74 @@ export const GPU_DATABASE: GPU[] = [
     price: 0,
     bandwidth: 320,
     fp16Tflops: 65,
-    features: ['GDDR6', 'INT8 130 TOPS', '腾讯云 TI-ONE / CVM (GN7)']
+    features: ['GDDR6', 'INT8 130 TOPS', '云厂商 / CVM']
+  },
+
+  // ──────────────────────────────────────────────────
+  // 国产 AI 加速卡
+  // ──────────────────────────────────────────────────
+
+  // 海光 DCU 系列
+  {
+    id: 'hygon-bw1000',
+    name: '海光 BW1000',
+    memory: 64,
+    architecture: '海光 DCU',
+    computeCapability: 'N/A',
+    price: 0,
+    bandwidth: 1600,
+    fp16Tflops: 256,
+    features: ['HBM2e', 'RDMA', '云厂商 / HCC集群']
+  },
+  {
+    id: 'hygon-bw151',
+    name: '海光 BW151',
+    memory: 32,
+    architecture: '海光 DCU',
+    computeCapability: 'N/A',
+    price: 0,
+    bandwidth: 900,
+    fp16Tflops: 128,
+    features: ['HBM2', '云厂商']
+  },
+
+  // 百度昆仑芯系列
+  {
+    id: 'kunlunxin-p800',
+    name: '昆仑芯 P800',
+    memory: 64,
+    architecture: '昆仑芯',
+    computeCapability: 'N/A',
+    price: 0,
+    bandwidth: 1600,
+    fp16Tflops: 256,
+    features: ['HBM2e', 'RDMA', '云厂商 / HCC集群']
+  },
+
+  // 燧原科技天垓系列
+  {
+    id: 'enflame-t150',
+    name: '天垓 150',
+    memory: 64,
+    architecture: '燧原 GCU',
+    computeCapability: 'N/A',
+    price: 0,
+    bandwidth: 1600,
+    fp16Tflops: 256,
+    features: ['HBM2e', '云厂商']
+  },
+
+  // 沐曦紫霄系列
+  {
+    id: 'metax-c200',
+    name: '紫霄 C200',
+    memory: 64,
+    architecture: '沐曦 GPU',
+    computeCapability: 'N/A',
+    price: 0,
+    bandwidth: 1600,
+    fp16Tflops: 256,
+    features: ['HBM2e', '云厂商']
   },
 ];
 
@@ -1080,7 +1119,7 @@ export function getModelsByCategoryAndArchitecture(type: 'nlp' | 'multimodal') {
  * 获取所有供应商列表
  */
 export function getVendors(): ModelVendor[] {
-  return ['DeepSeek', 'Kimi', 'GLM', 'Qwen', '腾讯', '其他'];
+  return ['DeepSeek', 'Kimi', 'GLM', 'Qwen', 'Hunyuan', '其他'];
 }
 
 /**
@@ -1130,6 +1169,6 @@ export function getVendorsForArchitecture(type: 'nlp' | 'multimodal' | 'embeddin
   const models = getModelsByArchitecture(type);
   const vendors = [...new Set(models.map(m => m.vendor).filter(Boolean))] as ModelVendor[];
   // 保持固定顺序
-  const order: ModelVendor[] = ['DeepSeek', 'Kimi', 'GLM', 'Qwen', '腾讯', '其他'];
+  const order: ModelVendor[] = ['DeepSeek', 'Kimi', 'GLM', 'Qwen', 'Hunyuan', '其他'];
   return order.filter(v => vendors.includes(v));
 } 

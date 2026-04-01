@@ -22,7 +22,8 @@ export function AnimatedNumber({ value, format, className }: AnimatedNumberProps
   const display = useTransform(spring, (current) => {
     const safe = isFinite(current) ? current : 0;
     if (format) {
-      return format(Math.round(safe * 10) / 10);
+      // 有自定义格式化函数时直接传原始值，避免取整导致极小值变为 0
+      return format(safe);
     }
     return (Math.round(safe * 10) / 10).toFixed(1);
   });

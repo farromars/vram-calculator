@@ -50,6 +50,22 @@ export default function Home() {
 
   const [showHistory, setShowHistory] = useState(false);
 
+  // 页面挂载/刷新时，根据当前 Tab 触发一次初始计算
+  useEffect(() => {
+    const state = useCalculatorStore.getState();
+    if (primaryTab === 'multimodal') {
+      state.calculateMultimodalMemory();
+    } else {
+      switch (activeTab) {
+        case 'training': state.calculateTrainingMemory(); break;
+        case 'inference': state.calculateInferenceMemory(); break;
+        case 'finetuning': state.calculateFineTuningMemory(); break;
+        case 'grpo': state.calculateGRPOMemory(); break;
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 仅在挂载时执行一次
+
   // 初始化语言为中文
   useEffect(() => {
     if (typeof window !== 'undefined') {

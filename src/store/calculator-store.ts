@@ -27,6 +27,9 @@ import {
   calculateAdvancedFineTuningMemory
 } from '@/utils/memory-formulas';
 
+// 防抖计算超时处理器（模块级，不存入 state，避免每次触发全量订阅通知）
+const _debounceTimers: Record<string, NodeJS.Timeout | undefined> = {};
+
 interface CalculationHistory {
   id: string;
   timestamp: number;
@@ -43,14 +46,6 @@ interface CalculatorStore {
   setPrimaryTab: (tab: PrimaryTab) => void;
   activeTab: CalculatorType;
   setActiveTab: (tab: CalculatorType) => void;
-
-  // 防抖计算超时处理器（内部使用）
-  _trainingTimeout?: NodeJS.Timeout;
-  _inferenceTimeout?: NodeJS.Timeout;
-  _fineTuningTimeout?: NodeJS.Timeout;
-  _grpoTimeout?: NodeJS.Timeout;
-  _multimodalTimeout?: NodeJS.Timeout;
-  _advancedFineTuningTimeout?: NodeJS.Timeout;
 
   // 训练配置
   trainingConfig: TrainingConfig;
@@ -264,6 +259,18 @@ export const useCalculatorStore = create<CalculatorStore>()(
       // Actions
       setPrimaryTab: (tab) => {
         set({ primaryTab: tab });
+        // 切换主 Tab 时触发对应计算，确保结果不为空
+        const state = get();
+        if (tab === 'multimodal') {
+          state.calculateMultimodalMemory();
+        } else if (tab === 'nlp') {
+          switch (state.activeTab) {
+            case 'training': state.calculateTrainingMemory(); break;
+            case 'inference': state.calculateInferenceMemory(); break;
+            case 'finetuning': state.calculateFineTuningMemory(); break;
+            case 'grpo': state.calculateGRPOMemory(); break;
+          }
+        }
       },
 
       setActiveTab: (tab) => {
@@ -298,9 +305,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
           trainingConfig: { ...state.trainingConfig, ...config }
         }));
         // 防抖计算 - 300ms后执行
-        clearTimeout(get()._trainingTimeout);
+        clearTimeout(_debounceTimers['training']);
         const timeout = setTimeout(() => get().calculateTrainingMemory(), 300);
-        set({ _trainingTimeout: timeout });
+        _debounceTimers['training'] = timeout;
       },
 
       setInferenceConfig: (config) => {
@@ -308,9 +315,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
           inferenceConfig: { ...state.inferenceConfig, ...config }
         }));
         // 防抖计算 - 300ms后执行
-        clearTimeout(get()._inferenceTimeout);
+        clearTimeout(_debounceTimers['inference']);
         const timeout = setTimeout(() => get().calculateInferenceMemory(), 300);
-        set({ _inferenceTimeout: timeout });
+        _debounceTimers['inference'] = timeout;
       },
 
       setFineTuningConfig: (config) => {
@@ -318,9 +325,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
           fineTuningConfig: { ...state.fineTuningConfig, ...config }
         }));
         // 防抖计算 - 300ms后执行
-        clearTimeout(get()._fineTuningTimeout);
+        clearTimeout(_debounceTimers['fineTuning']);
         const timeout = setTimeout(() => get().calculateFineTuningMemory(), 300);
-        set({ _fineTuningTimeout: timeout });
+        _debounceTimers['fineTuning'] = timeout;
       },
 
       setAdvancedFineTuningConfig: (config) => {
@@ -328,9 +335,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
           advancedFineTuningConfig: { ...state.advancedFineTuningConfig, ...config }
         }));
         // 防抖计算 - 300ms后执行
-        clearTimeout(get()._advancedFineTuningTimeout);
+        clearTimeout(_debounceTimers['advancedFineTuning']);
         const timeout = setTimeout(() => get().calculateAdvancedFineTuningMemory(), 300);
-        set({ _advancedFineTuningTimeout: timeout });
+        _debounceTimers['advancedFineTuning'] = timeout;
       },
 
       setGrpoConfig: (config) => {
@@ -338,9 +345,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
           grpoConfig: { ...state.grpoConfig, ...config }
         }));
         // 防抖计算 - 300ms后执行
-        clearTimeout(get()._grpoTimeout);
+        clearTimeout(_debounceTimers['grpo']);
         const timeout = setTimeout(() => get().calculateGRPOMemory(), 300);
-        set({ _grpoTimeout: timeout });
+        _debounceTimers['grpo'] = timeout;
       },
 
       setMultimodalConfig: (config) => {
@@ -354,9 +361,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
           get().calculateMultimodalMemory();
         } else {
           // 其他配置变化时防抖计算 - 300ms后执行
-          clearTimeout(get()._multimodalTimeout);
+          clearTimeout(_debounceTimers['multimodal']);
           const timeout = setTimeout(() => get().calculateMultimodalMemory(), 300);
-          set({ _multimodalTimeout: timeout });
+          _debounceTimers['multimodal'] = timeout;
         }
       },
 

@@ -22,7 +22,7 @@ import {
   type VRAMCalculationResult,
   type AdvancedFineTuningParams
 } from '../types';
-import { mcpLogger, MCPError, MCP_ERROR_CODES, withErrorHandling } from '../logger';
+import { mcpLogger, MCPError, MCP_ERROR_CODES, withErrorHandling, validateParams } from '../logger';
 import { addCalculationHistory } from '../resources/history';
 
 /**
@@ -120,12 +120,16 @@ export function registerCalculationTools(server: any) {
       }
 
       const config = {
+        modelId: params.modelId as string,
         precision: params.precision,
         batchSize: params.batchSize,
         numGenerations: params.numGenerations,
         sequenceLength: params.sequenceLength,
+        maxPromptLength: 512,
+        maxCompletionLength: 1536,
+        gradientAccumulationSteps: 4,
         use8BitOptimizer: true,
-        gradientCheckpointing: true
+        gradientCheckpointing: true,
       };
 
       const result = calculateGRPOMemory(config, {
@@ -199,14 +203,18 @@ export function registerCalculationTools(server: any) {
       const totalSequenceLength = textSeqLength + imageSeqLength + audioSeqLength + videoSeqLength;
 
       const config = {
+        modelId: params.modelId as string,
         batchSize: params.batchSize,
         sequenceLength: totalSequenceLength,
         textPrecision: params.precision,
-        modalityType: ['text'],
+        visionPrecision: params.precision,
+        modalityType: ['text'] as any,
         imageResolution: params.imageResolution,
         numImages: params.imageCount,
         patchSize: 14,
-        mode: params.mode
+        hasVisionEncoder: params.imageCount > 0,
+        concurrentUsers: 1,
+        mode: params.mode,
       };
 
       // 添加模态类型
@@ -223,7 +231,7 @@ export function registerCalculationTools(server: any) {
       const calculationResult = createCalculationResult(result, 'multimodal', model.name);
 
       // 添加多模态特定信息
-      calculationResult.breakdown.sequenceBreakdown = {
+      (calculationResult.breakdown as any).sequenceBreakdown = {
         text: textSeqLength,
         image: imageSeqLength,
         audio: audioSeqLength,
@@ -264,7 +272,7 @@ export function registerCalculationTools(server: any) {
     { method: "tools/call", params: { name: "calculate_advanced_finetuning_vram" } },
     withErrorHandling(async (request) => {
       mcpLogger.info("收到高级微调请求参数", { arguments: request.params?.arguments });
-      const params = validateParams(AdvancedFineTuningParamsSchema, request.params?.arguments);
+      const params = validateParams<AdvancedFineTuningParams>(request.params?.arguments, AdvancedFineTuningParamsSchema, 'advanced-finetuning');
 
       mcpLogger.info("开始高级微调显存计算", {
         modelType: params.modelType,
@@ -417,7 +425,7 @@ export function registerCalculationTools(server: any) {
 
       // 添加到历史记录
       addCalculationHistory(
-        'advanced_finetuning',
+        'finetuning',
         `${params.modelType}_${params.architectureType}`,
         `${params.modelType.toUpperCase()} ${params.architectureType} (${params.modelSize}B)`,
         params,

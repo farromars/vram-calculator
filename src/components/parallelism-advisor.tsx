@@ -13,15 +13,15 @@ import {
 import { GPU_DATABASE } from '@/lib/models-data';
 import { GPU } from '@/types';
 
-// 从 GPU_DATABASE 中过滤数据中心级 GPU（只保留 HBM/NVLink 系卡，适合多机并行）
+// 从 GPU_DATABASE 中过滤数据中心级 GPU（排除消费级 RTX 和无 NVLink 的推理专用小卡）
 const DATACENTER_ARCH = ['Blackwell', 'Hopper', 'Ampere', 'Volta'];
-const EXCLUDED_IDS = ['rtx-5090d', 'rtx-4090', 'rtx-4090d', 'rtx-3090', 'pnv5b', 'l40'];
+// 排除：消费级 RTX、A10（24GB 推理卡，无 NVLink，不适合多机并行）
+const EXCLUDED_IDS = ['rtx-5090d', 'rtx-4090', 'rtx-4090d', 'rtx-3090', 'a10'];
 
 const GPU_OPTIONS = GPU_DATABASE
   .filter(g =>
     DATACENTER_ARCH.includes(g.architecture) &&
-    !EXCLUDED_IDS.includes(g.id) &&
-    (g.features?.some(f => f.includes('NVLink') || f.includes('HBM')) ?? false)
+    !EXCLUDED_IDS.includes(g.id)
   )
   .map(g => ({ id: g.id, name: g.name, vram: g.memory, bandwidth: g.bandwidth ?? 0, fp16Tflops: g.fp16Tflops ?? 0, architecture: g.architecture }));
 

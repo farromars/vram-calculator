@@ -88,7 +88,7 @@ export interface GPU {
 }
 
 // 模型供应商类型
-export type ModelVendor = 'DeepSeek' | 'Kimi' | 'GLM' | 'Qwen' | '腾讯' | '其他';
+export type ModelVendor = 'DeepSeek' | 'Kimi' | 'GLM' | 'Qwen' | 'Hunyuan' | '其他';
 
 // 模型信息
 export interface ModelInfo {

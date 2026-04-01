@@ -1,7 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState, useEffect } from 'react';import { motion } from 'framer-motion';
 import { Cpu, Database, BarChart3, Zap } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { TickSlider } from '@/components/ui/tick-slider';
@@ -19,11 +18,25 @@ export function InferenceCalculator() {
     inferenceConfig: config, 
     setInferenceConfig: setConfig,
     inferenceResult: memoryResult,
-    inferenceLoading: isLoading
+    inferenceLoading: isLoading,
+    calculateInferenceMemory,
   } = useCalculatorStore();
   
   const { t } = useLanguage();
-  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>('DeepSeek');
+
+  useEffect(() => {
+    if (!memoryResult) calculateInferenceMemory();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 初始供应商：从当前 modelId 反查，找不到则默认 DeepSeek
+  const initialVendor = useMemo((): ModelVendor => {
+    const model = getModelById(config.modelId);
+    return (model?.vendor as ModelVendor) || 'DeepSeek';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>(initialVendor);
 
   // 获取当前选中模型信息
   const selectedModel = useMemo(() => 

@@ -162,14 +162,19 @@ export function getOptimizerMultiplier(optimizer: OptimizerType, precision: Prec
 }
 
 /**
- * 获取量化比例
+ * 获取量化比例（相对于 FP16 基准）
+ * 说明：模型权重显存 = params × bytes_per_param_fp16 × quantizationRatio
+ * - FP16 = 2 bytes/param → ratio 1.0
+ * - FP8  = 1 byte/param  → ratio 0.5（相对 FP16 压缩 2×）
+ * - INT8 = 1 byte/param  → ratio 0.5（相对 FP16 压缩 2×）
+ * - INT4 = 0.5 byte/param→ ratio 0.25（相对 FP16 压缩 4×）
  */
 export function getQuantizationRatio(quantization: QuantizationType): number {
   switch (quantization) {
     case 'None': return 1.0;
-    case 'INT8': return 0.25; // 4倍压缩
-    case 'INT4': return 0.125; // 8倍压缩
-    case 'FP8': return 0.25; // 4倍压缩
+    case 'FP8':  return 0.5;  // FP16→FP8：2× 压缩
+    case 'INT8': return 0.5;  // FP16→INT8：2× 压缩
+    case 'INT4': return 0.25; // FP16→INT4：4× 压缩
     default: return 1.0;
   }
 }
@@ -415,7 +420,10 @@ export function calculateFineTuningMemory(config: FineTuningConfig, modelInfo?: 
  * 格式化显存大小
  */
 export function formatMemorySize(sizeGB: number): string {
-  if (sizeGB < 1) {
+  if (sizeGB < 0.001) {
+    // 小于 1MB，显示 KB
+    return `${(sizeGB * 1024 * 1024).toFixed(0)} KB`;
+  } else if (sizeGB < 1) {
     return `${(sizeGB * 1024).toFixed(1)} MB`;
   } else if (sizeGB < 1024) {
     return `${sizeGB.toFixed(1)} GB`;
@@ -437,22 +445,27 @@ export function calculateGRPOMemory(config: GRPOConfig, modelInfo?: { params?: n
   const hiddenSize = modelInfo?.hiddenSize || 4096;
   const numLayers = modelInfo?.numLayers || 32;
   
-  // === 通用LLM显存公式 ===
-  // VRAM ≈ 模型权重 + 优化器状态 + 梯度 + 激活值 + 其他开销
+  // === GRPO 显存公式 ===
+  // GRPO 需要同时维持两个模型：Policy Model（训练中）+ Reference Model（冻结推理）
+  // VRAM = Policy模型权重 + Reference模型权重 + 优化器状态 + 梯度 + 激活值 + 其他开销
   
-  // 1. 模型权重 (Model Weights) - 使用PEFT方法（如QLoRA）
   const modelPrecisionBytes = getPrecisionBytes(precision);
-  const quantizationRatio = 0.125; // 假设使用INT4量化（8倍压缩）
-  const modelWeightsGB = (modelParams * 1e9 * modelPrecisionBytes * quantizationRatio) / (1024 ** 3);
+  // Policy Model：使用INT4量化（PEFT训练，节省显存）
+  const policyQuantRatio = 0.25; // INT4 相对 FP16 压缩 4×
+  const policyModelGB = (modelParams * 1e9 * modelPrecisionBytes * policyQuantRatio) / (1024 ** 3);
   
-  // 2. 优化器状态 (Optimizer States) - P_train极小（PEFT）
-  // GRPO通常使用PEFT方法，P_train << P_total
-  const trainableParams = modelParams * 0.01; // 1%的参数量（LoRA等PEFT方法）
-  const optimizerPrecisionBytes = getPrecisionBytes('FP32'); // 优化器状态用FP32
-  const optimizerMultiplier = use8BitOptimizer ? 1 : 2; // AdamW需要2倍（一阶+二阶动量）
+  // Reference Model：FP16 冻结模型（GRPO 必须保留，用于计算 KL 散度）
+  const referenceModelGB = (modelParams * 1e9 * modelPrecisionBytes) / (1024 ** 3);
+  
+  const modelWeightsGB = policyModelGB + referenceModelGB; // 两个模型共存于显存
+
+  // 2. 优化器状态 (Optimizer States) - 仅 Policy Model 的可训练参数（PEFT）
+  const trainableParams = modelParams * 0.01; // 1%（LoRA 等 PEFT 方法）
+  const optimizerPrecisionBytes = getPrecisionBytes('FP32');
+  const optimizerMultiplier = use8BitOptimizer ? 1 : 2;
   const optimizerGB = (trainableParams * 1e9 * optimizerPrecisionBytes * optimizerMultiplier) / (1024 ** 3);
   
-  // 3. 梯度 (Gradients) - 只针对可训练参数
+  // 3. 梯度 (Gradients) - 只针对 Policy Model 可训练参数
   const gradientPrecisionBytes = getPrecisionBytes(precision);
   const gradientsGB = (trainableParams * 1e9 * gradientPrecisionBytes) / (1024 ** 3);
   
@@ -482,7 +495,8 @@ export function calculateGRPOMemory(config: GRPOConfig, modelInfo?: { params?: n
     kvCache: 0, // GRPO训练时通常不使用KV缓存
     total,
     breakdown: [
-      { label: getLabel('model.weights'), value: modelWeightsGB, percentage: (modelWeightsGB / total) * 100, color: '#3B82F6' },
+      { label: 'Policy Model (INT4)', value: policyModelGB, percentage: (policyModelGB / total) * 100, color: '#3B82F6' },
+      { label: 'Reference Model (FP16)', value: referenceModelGB, percentage: (referenceModelGB / total) * 100, color: '#0EA5E9' },
       { label: getLabel('activations.k.times').replace('{k}', k.toString()), value: grpoActivationsGB, percentage: (grpoActivationsGB / total) * 100, color: '#EF4444' },
       { label: getLabel('optimizer.states'), value: optimizerGB, percentage: (optimizerGB / total) * 100, color: '#F59E0B' },
       { label: getLabel('gradients'), value: gradientsGB, percentage: (gradientsGB / total) * 100, color: '#10B981' },
@@ -743,13 +757,14 @@ export function calculateNLPFineTuningMemory(config: NLPFineTuningConfig, langua
   // 5. 模型权重总显存
   const modelWeightsGB = embeddingGB + attentionLayerGB + ffnLayerGB;
 
-  // 6. 优化器状态显存 = P × B × M × (1 + gradient_accumulation_steps/batch_size)
+  // 6. 优化器状态显存 = P × B_fp32 × optimizer_multiplier
+  // 注意：梯度累积不增加优化器状态显存（优化器状态只在 step() 时更新，大小恒定）
   const optimizerMultiplier = getOptimizerMultiplier(optimizer, precision);
-  const gradientAccumulationFactor = 1 + (gradientAccumulationSteps / batchSize);
-  const optimizerGB = (totalParams * getPrecisionBytes('FP32') * optimizerMultiplier * gradientAccumulationFactor) / (1024 ** 3);
+  const optimizerGB = (totalParams * getPrecisionBytes('FP32') * optimizerMultiplier) / (1024 ** 3);
 
-  // 7. 梯度显存 = P × B × gradient_accumulation_steps
-  const gradientsGB = (totalParams * modelPrecisionBytes * gradientAccumulationSteps) / (1024 ** 3);
+  // 7. 梯度显存 = P × B_precision
+  // 梯度累积期间只需保留当前 micro-batch 的梯度，不会 ×gradAccumSteps
+  const gradientsGB = (totalParams * modelPrecisionBytes) / (1024 ** 3);
 
   // 8. 激活值显存 = batch_size × S × H × L × N × B
   // N = 激活值倍数 (4-8，取决于是否使用梯度检查点)

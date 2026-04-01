@@ -1,7 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState, useEffect } from 'react';import { motion } from 'framer-motion';
 import { Brain, Layers, TrendingUp, Lightbulb } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { TickSlider } from '@/components/ui/tick-slider';
@@ -19,11 +18,25 @@ export function FineTuningCalculator() {
     fineTuningConfig: config,
     setFineTuningConfig: setConfig,
     fineTuningResult: memoryResult,
-    fineTuningLoading: isLoading
+    fineTuningLoading: isLoading,
+    calculateFineTuningMemory,
   } = useCalculatorStore();
 
   const { t } = useLanguage();
-  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>('DeepSeek');
+
+  useEffect(() => {
+    if (!memoryResult) calculateFineTuningMemory();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 初始供应商：从当前 baseModel 反查，找不到则默认 DeepSeek
+  const initialVendor = useMemo((): ModelVendor => {
+    const model = getModelById(config.baseModel);
+    return (model?.vendor as ModelVendor) || 'DeepSeek';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [selectedVendor, setSelectedVendor] = useState<ModelVendor>(initialVendor);
 
   // 获取基础模型信息
   const baseModel = useMemo(() => 
@@ -188,12 +201,12 @@ export function FineTuningCalculator() {
               <div className="flex items-center justify-between">
                 <label className="text-sm">{t('rank.r')}</label>
                 <AnimatedNumber 
-                  value={config.loraRank!} 
+                  value={config.loraRank ?? 4} 
                   className="text-sm font-mono text-purple-600"
                 />
               </div>
               <Slider
-                value={[config.loraRank!]}
+                value={[config.loraRank ?? 4]}
                 onValueChange={([value]) => handleConfigChange('loraRank', value)}
                 max={128}
                 min={1}
@@ -211,12 +224,12 @@ export function FineTuningCalculator() {
               <div className="flex items-center justify-between">
                 <label className="text-sm">{t('alpha.a')}</label>
                 <AnimatedNumber 
-                  value={config.loraAlpha!} 
+                  value={config.loraAlpha ?? 16} 
                   className="text-sm font-mono text-purple-600"
                 />
               </div>
               <Slider
-                value={[config.loraAlpha!]}
+                value={[config.loraAlpha ?? 16]}
                 onValueChange={([value]) => handleConfigChange('loraAlpha', value)}
                 max={128}
                 min={1}
@@ -337,7 +350,7 @@ export function FineTuningCalculator() {
             </div>
             <div className="text-sm mt-1">
               {config.method === 'Full' && t('finetuning.full.effect.best')}
-              {config.method === 'LoRA' && `${t('finetuning.lora.params.percent')}${((config.loraRank! * 2 * 4096) / (baseModel?.params || 7) / 1e9 * 100).toFixed(2)}${t('finetuning.params.to.train')}`}
+              {config.method === 'LoRA' && `${t('finetuning.lora.params.percent')}${((config.loraRank ?? 4 * 2 * 4096) / (baseModel?.params || 7) / 1e9 * 100).toFixed(2)}${t('finetuning.params.to.train')}`}
               {config.method === 'QLoRA' && t('finetuning.qlora.optimal')}
               {config.method === 'Prefix' && t('finetuning.prefix.one.percent')}
             </div>
@@ -412,14 +425,14 @@ export function FineTuningCalculator() {
               </div>
             )}
 
-            {config.method === 'LoRA' && config.loraRank! < 8 && (
+            {config.method === 'LoRA' && (config.loraRank ?? 4) < 8 && (
               <div className="flex items-start gap-2 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
                 <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
                 <span>{t('finetuning.rank.too.small')}</span>
               </div>
             )}
 
-            {config.method === 'LoRA' && config.loraRank! > 64 && (
+            {config.method === 'LoRA' && (config.loraRank ?? 4) > 64 && (
               <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
                 <div className="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 flex-shrink-0" />
                 <span>{t('rank.large.memory.increase')}</span>
@@ -440,7 +453,7 @@ export function FineTuningCalculator() {
               </div>
             )}
 
-            {config.loraAlpha! / config.loraRank! < 1 && (config.method === 'LoRA' || config.method === 'QLoRA') && (
+            {(config.loraAlpha ?? 16) / (config.loraRank ?? 4) < 1 && (config.method === 'LoRA' || config.method === 'QLoRA') && (
               <div className="flex items-start gap-2 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
                 <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0" />
                 <span>{t('alpha.rank.ratio.too.small')}</span>

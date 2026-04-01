@@ -51,7 +51,7 @@ This version is a significant secondary development based on the original open-s
 - **Full scenario support**: Works across all 6 calculation modes (inference, training, fine-tuning, GRPO, multimodal, advanced fine-tuning)
 
 ### Tencent Cloud GPU Integration
-- **GPU database replaced**: 15 GPU models from [Tencent Cloud TI-ONE](https://cloud.tencent.com/document/product/851/74108) (B200, H800, A800, A100, L40S, V100, RTX 5090D/4090/3090, T4, etc.)
+- **GPU database replaced**: 15 mainstream datacenter GPU models (B200, H800, A800, A100, L40S, V100, RTX 5090D/4090/3090, T4, etc.)
 - **Added bandwidth & FP16 TFLOPS data** for all GPUs (used by performance estimation)
 - **Removed market price and cloud service price columns** — replaced with memory bandwidth and FP16 compute power
 
@@ -85,7 +85,7 @@ This version is a significant secondary development based on the original open-s
 - **130+ Pre-trained Models**: Covering mainstream Chinese and international open-source models with intelligent classification
 - **22+ Multimodal Models**: Supporting Qwen2.5-VL, QwQ-VL, LLaVA, Whisper, etc.
 - **12+ Vector Models**: Supporting Qwen3-Embedding, Qwen3-Reranker series
-- **15 Tencent Cloud GPU Specs**: From T4 to B200, all from TI-ONE platform
+- **15 Datacenter GPU Specs**: From T4 to B200
 - **Smart Recommendations**: Recommend suitable GPUs based on VRAM requirements
 
 ## 🛠 Tech Stack
