@@ -22,12 +22,13 @@
     "start": "next start",
     "start:prod": "NODE_ENV=production next start",
     "lint": "next lint",
-    "test": "echo \"No tests configured\" && exit 0",
+    "test": "vitest run",
     "test:mcp": "node test-mcp.js",
     "mcp:validate": "node -e \"console.log('MCP SDK version:', require('@modelcontextprotocol/sdk/package.json').version)\"",
     "install:cn": "npm install --registry=https://registry.npmmirror.com/",
     "docker:build": "docker build -t ai-memory-calculator .",
-    "docker:run": "docker run -p 3000:3000 ai-memory-calculator"
+    "docker:run": "docker run -p 3000:3000 ai-memory-calculator",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.2",
@@ -55,12 +56,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/ui": "4.1.2",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "next-pwa": "^5.6.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "4.1.2"
   }
 }

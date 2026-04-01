@@ -181,6 +181,13 @@ export function getQuantizationRatio(quantization: QuantizationType): number {
 
 /**
  * 计算KV缓存大小 (GB)
+ *
+ * 标准 MHA：numKVHeads = numHeads（每个 Q head 对应独立 K/V）
+ * GQA（如 LLaMA-3 8B）：numKVHeads = 8，Q heads = 32 → KV 显存压缩 4×
+ * MQA（如 Falcon-7B）：numKVHeads = 1
+ *
+ * 公式：batch × seq × numKVHeads × headDim × 2(K+V) × layers × bytes
+ *       其中 headDim = hiddenSize / numHeads
  */
 export function calculateKVCache(
   batchSize: number,
@@ -188,12 +195,15 @@ export function calculateKVCache(
   hiddenSize: number,
   numLayers: number,
   numHeads: number,
-  precision: PrecisionType = 'FP16'
+  precision: PrecisionType = 'FP16',
+  numKVHeads?: number  // GQA/MQA 支持；缺省等同于 numHeads（标准 MHA）
 ): number {
-  // KV Cache = batch_size × seq_len × hidden_size × num_layers × 2(K+V) × precision_bytes
   const precisionBytes = getPrecisionBytes(precision);
-  const kvCacheBytes = batchSize * sequenceLength * hiddenSize * numLayers * 2 * precisionBytes;
-  return kvCacheBytes / (1024 ** 3); // 转换为GB
+  const kvHeads = numKVHeads ?? numHeads;
+  const headDim = hiddenSize / numHeads;
+  // KV Cache = batch × seq × kvHeads × headDim × 2(K+V) × layers × bytes
+  const kvCacheBytes = batchSize * sequenceLength * kvHeads * headDim * 2 * numLayers * precisionBytes;
+  return kvCacheBytes / (1024 ** 3);
 }
 
 /**
@@ -224,13 +234,18 @@ export function calculateActivations(
 
 /**
  * 计算LoRA参数数量
+ * @param baseParams 基础模型参数量（B）
+ * @param rank LoRA rank
+ * @param hiddenSize 模型 hidden size（默认 4096）
  */
-export function calculateLoRAParams(baseParams: number, rank: number): number {
-  // 简化计算：假设LoRA应用到所有线性层
-  // 实际LoRA参数 = 2 × rank × 原始权重维度
-  // 这里用经验公式：LoRA参数约为原始参数的 (2 × rank / hidden_size) 比例
-  const estimatedRatio = (2 * rank) / 4096; // 假设hidden_size=4096
-  return baseParams * estimatedRatio;
+export function calculateLoRAParams(baseParams: number, rank: number, hiddenSize: number = 4096): number {
+  // 精确公式：LoRA 对线性层注入 A（r×d_in）+ B（d_out×r），参数量 = 2×r×hiddenSize
+  // 假设 LoRA 应用到 q_proj + v_proj（两个投影）× numLayers
+  // numLayers 通过 baseParams 估算：L ≈ params_B × 1e9 / (4 × hiddenSize²)
+  const estimatedLayers = Math.round((baseParams * 1e9) / (4 * hiddenSize * hiddenSize));
+  const numLoraTargets = 2; // q_proj + v_proj（默认 target）
+  const loraParamsPerLayer = 2 * rank * hiddenSize * numLoraTargets;
+  return (estimatedLayers * loraParamsPerLayer) / 1e9; // 返回单位：B
 }
 
 /**
@@ -360,14 +375,14 @@ export function calculateFineTuningMemory(config: FineTuningConfig, modelInfo?: 
     case 'LoRA':
       // LoRA微调：基础模型 + 小LoRA参数
       modelWeightsGB = (baseModelParams * 1e9 * modelPrecisionBytes) / (1024 ** 3);
-      trainableParams = calculateLoRAParams(baseModelParams, loraRank); // P_train极小
+      trainableParams = calculateLoRAParams(baseModelParams, loraRank, hiddenSize);
       activationsGB = calculateActivations(2, 2048, hiddenSize, numLayers, precision) * 0.8; // LoRA稍微减少激活值
       break;
       
     case 'QLoRA':
       // QLoRA：量化基础模型 + LoRA参数
       modelWeightsGB = (baseModelParams * 1e9 * modelPrecisionBytes * quantizationRatio) / (1024 ** 3);
-      trainableParams = calculateLoRAParams(baseModelParams, loraRank); // P_train极小
+      trainableParams = calculateLoRAParams(baseModelParams, loraRank, hiddenSize);
       activationsGB = calculateActivations(2, 2048, hiddenSize, numLayers, precision) * 0.6; // QLoRA进一步减少
       break;
       
@@ -767,8 +782,9 @@ export function calculateNLPFineTuningMemory(config: NLPFineTuningConfig, langua
   const gradientsGB = (totalParams * modelPrecisionBytes) / (1024 ** 3);
 
   // 8. 激活值显存 = batch_size × S × H × L × N × B
-  // N = 激活值倍数 (4-8，取决于是否使用梯度检查点)
-  const activationMultiplier = 6; // 标准值，包括前向和反向传播的激活值
+  // N = 激活值倍数，Megatron-LM 论文（Korthikanti et al. 2022）给出完整前向+反向激活约 12×
+  // 使用梯度检查点时，反向激活可重计算，约降至 4×
+  const activationMultiplier = 12; // 对齐 Megatron-LM 论文值（含 QKV、FFN 激活）
   const activationsGB = (batchSize * sequenceLength * hiddenSize * numLayers * activationMultiplier * modelPrecisionBytes) / (1024 ** 3);
 
   // 9. 注意力分数显存 = batch_size × num_heads × S × S × L × B

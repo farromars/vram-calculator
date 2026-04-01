@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { randomBytes } from 'crypto';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function middleware(_request: NextRequest) {
-  const response = NextResponse.next();
+  // 为每个请求生成唯一 nonce，防止 XSS
+  const nonce = randomBytes(16).toString('base64');
+  const response = NextResponse.next({
+    request: {
+      headers: new Headers({
+        ...(Object.fromEntries(_request.headers.entries())),
+        'x-nonce': nonce,
+      }),
+    },
+  });
 
   // 安全头配置
   response.headers.set('X-Frame-Options', 'DENY');
@@ -11,12 +20,13 @@ export function middleware(_request: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  
-  // Content Security Policy
+
+  // Content Security Policy — nonce-based，移除 'unsafe-inline'
+  // Next.js RSC/SSR 使用 nonce 注入内联脚本，需要在 _document 或 layout 中读取 x-nonce header
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    "style-src 'self' 'unsafe-inline'", // CSS-in-JS（Tailwind）需要保留，不影响 XSS（style 注入危害远低于 script）
     "img-src 'self' data: https:",
     "font-src 'self'",
     "connect-src 'self' https://api.github.com",
@@ -25,9 +35,11 @@ export function middleware(_request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'"
   ].join('; ');
-  
+
   response.headers.set('Content-Security-Policy', csp);
-  
+  // 将 nonce 暴露给 layout/document 组件读取
+  response.headers.set('x-nonce', nonce);
+
   return response;
 }
 

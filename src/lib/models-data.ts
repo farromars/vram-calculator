@@ -862,7 +862,7 @@ export const GPU_DATABASE: GPU[] = [
   // 国产 AI 加速卡
   // ──────────────────────────────────────────────────
 
-  // 海光 DCU 系列
+  // 海光 DCU 系列（算力数据为估算值，仅供参考）
   {
     id: 'hygon-bw1000',
     name: '海光 BW1000',
@@ -871,8 +871,8 @@ export const GPU_DATABASE: GPU[] = [
     computeCapability: 'N/A',
     price: 0,
     bandwidth: 1600,
-    fp16Tflops: 256,
-    features: ['HBM2e', 'RDMA', '云厂商 / HCC集群']
+    fp16Tflops: 256, // 估算值
+    features: ['HBM2e', 'RDMA', '云厂商 / HCC集群', '算力为估算值']
   },
   {
     id: 'hygon-bw151',
@@ -882,11 +882,11 @@ export const GPU_DATABASE: GPU[] = [
     computeCapability: 'N/A',
     price: 0,
     bandwidth: 900,
-    fp16Tflops: 128,
-    features: ['HBM2', '云厂商']
+    fp16Tflops: 128, // 估算值
+    features: ['HBM2', '云厂商', '算力为估算值']
   },
 
-  // 百度昆仑芯系列
+  // 百度昆仑芯系列（算力数据为估算值，仅供参考）
   {
     id: 'kunlunxin-p800',
     name: '昆仑芯 P800',
@@ -895,11 +895,11 @@ export const GPU_DATABASE: GPU[] = [
     computeCapability: 'N/A',
     price: 0,
     bandwidth: 1600,
-    fp16Tflops: 256,
-    features: ['HBM2e', 'RDMA', '云厂商 / HCC集群']
+    fp16Tflops: 256, // 估算值
+    features: ['HBM2e', 'RDMA', '云厂商 / HCC集群', '算力为估算值']
   },
 
-  // 燧原科技天垓系列
+  // 燧原科技天垓系列（算力数据为估算值，仅供参考）
   {
     id: 'enflame-t150',
     name: '天垓 150',
@@ -908,11 +908,11 @@ export const GPU_DATABASE: GPU[] = [
     computeCapability: 'N/A',
     price: 0,
     bandwidth: 1600,
-    fp16Tflops: 256,
-    features: ['HBM2e', '云厂商']
+    fp16Tflops: 256, // 估算值
+    features: ['HBM2e', '云厂商', '算力为估算值']
   },
 
-  // 沐曦紫霄系列
+  // 沐曦紫霄系列（算力数据为估算值，仅供参考）
   {
     id: 'metax-c200',
     name: '紫霄 C200',
@@ -921,8 +921,8 @@ export const GPU_DATABASE: GPU[] = [
     computeCapability: 'N/A',
     price: 0,
     bandwidth: 1600,
-    fp16Tflops: 256,
-    features: ['HBM2e', '云厂商']
+    fp16Tflops: 256, // 估算值
+    features: ['HBM2e', '云厂商', '算力为估算值']
   },
 ];
 
