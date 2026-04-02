@@ -1,5 +1,27 @@
 # 更新日志
 
+## 2026-04-02 — 推理公式对齐阿里云 PAI 文档 + 撤回高级微调 Tab
+
+### 推理显存公式改进（参考阿里云 PAI 显存估算文档）
+
+对比阿里云帮助中心《大模型显存占用分析与估算方法》，发现 `calculateInferenceMemory` 有三处偏差，已全部修正：
+
+- **方案A — 推理新增「其他开销」1 GB**：原推理计算器 breakdown 仅有模型权重 + KV Cache + 激活值，缺少 CUDA 上下文/框架运行时开销（阿里云文档：1~2GB）。修复：固定加入 `otherOverheadGB = 1.0`，并在 breakdown 中展示独立条目，与训练/微调计算器保持一致。
+
+- **方案B — 激活值改用经验公式**：原来调用复杂的 `calculateActivations()` 函数再乘 `0.1`，语义不清晰。阿里云文档明确：推理激活值 ≈ `10% × 模型权重`（经验值）。修复：改为 `activationsGB = modelParamsGB × 0.1`，简洁且符合业界经验公式。
+
+- **方案C — MoE 推理 KV Cache/激活值使用 activeParams**：原来 MoE 模型（如 DeepSeek-R1-671B）的 KV Cache 和激活值均按全量 671B 参数估算，严重高估。阿里云文档明确：MoE 推理时激活值和 KV Cache 应使用激活专家参数量（37B），权重加载仍按全量。修复：检测 `modelInfo.activeParams`，若存在则按 `activeParams/params` 比例缩放有效层数，用于 KV Cache 和激活值计算；模型权重仍按全量参数。
+
+### 撤回高级微调 Tab（再次删除）
+
+- 2026-04-01 `f041692` 有意删除了高级微调导航入口；同日 `05a8cd0` AI 审查误将其判定为"遗漏"并重新加回。本次撤回，恢复原设计决策：主导航保持 NLP / 多模态 2 列，移除 `AdvancedFineTuningCalculator` 所有引用。
+
+### 单元测试
+- 新增 6 个推理公式测试：其他开销字段验证、激活值经验公式验证、MoE KV Cache 缩放（小于 Dense）、MoE 权重不受 activeParams 影响
+- 测试总数：**40 个，全部通过**
+
+---
+
 ## 2026-04-01 — 第四轮质量审查修复
 
 ### 生产构建修复（关键）

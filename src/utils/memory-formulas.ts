@@ -302,8 +302,14 @@ export function calculateTrainingMemory(config: TrainingConfig, modelInfo?: { pa
 
 /**
  * 推理显存计算
+ *
+ * 公式参考：阿里云 PAI 显存估算文档
+ * - 模型权重  = params × bytes × quantRatio
+ * - KV Cache  = 2 × b × s × kvHeads × headDim × L × bytes（MoE 用 activeParams 推算架构参数）
+ * - 激活值    ≈ 10% × 模型权重（推理经验值，参考阿里云文档）
+ * - 其他开销  = 1 GB（CUDA 上下文、框架运行时等）
  */
-export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number; numHeads?: number; numKVHeads?: number }): MemoryBreakdown {
+export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { params?: number; hiddenSize?: number; numLayers?: number; numHeads?: number; numKVHeads?: number; activeParams?: number }): MemoryBreakdown {
   const { precision, quantization, batchSize, sequenceLength, kvCacheRatio } = config;
   
   // 从模型信息获取参数，如果没有则使用默认值
@@ -312,20 +318,36 @@ export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { 
   const numLayers = modelInfo?.numLayers || 32;
   const numHeads = modelInfo?.numHeads || 32;
   const numKVHeads = modelInfo?.numKVHeads; // 未提供时 calculateKVCache 内部默认为 numHeads（MHA）
+
+  // MoE 推理时，KV Cache 和激活值应使用激活参数量推导架构参数（非全量参数）
+  // 阿里云文档：MoE 激活参数决定实际计算量，全量参数只影响权重加载
+  const activeParams = modelInfo?.activeParams; // 仅 MoE 有值，Dense 模型为 undefined
+  const isMoE = activeParams !== undefined && activeParams < modelParams;
+
+  // MoE 场景：KV Cache / 激活值按激活参数量等比缩放 hiddenSize 和 numLayers
+  // 近似：激活参数 ≈ numActiveLayers × 参数密度，用比例因子缩放层数
+  const activationScale = isMoE ? activeParams / modelParams : 1.0;
+  const effectiveNumLayers = Math.round(numLayers * activationScale);
   
   const quantizationRatio = getQuantizationRatio(quantization);
   const paramBytes = getPrecisionBytes(precision);
   
-  // 量化后的模型参数
+  // 1. 量化后的模型参数（全量参数，MoE 需要加载所有专家权重）
   const modelParamsGB = (modelParams * 1e9 * paramBytes * quantizationRatio) / (1024 ** 3);
   
-  // KV缓存（正确传入 numKVHeads，支持 GQA/MQA）
-  const kvCacheGB = calculateKVCache(batchSize, sequenceLength, hiddenSize, numLayers, numHeads, precision, numKVHeads) * kvCacheRatio;
+  // 2. KV 缓存（MoE 使用等效激活层数，支持 GQA/MQA）
+  const kvCacheGB = calculateKVCache(
+    batchSize, sequenceLength, hiddenSize, effectiveNumLayers, numHeads, precision, numKVHeads
+  ) * kvCacheRatio;
   
-  // 推理时的少量激活值
-  const activationsGB = calculateActivations(batchSize, sequenceLength, hiddenSize, numLayers, precision) * 0.1;
+  // 3. 激活值 ≈ 10% × 模型权重（推理经验公式，阿里云 PAI 文档）
+  // MoE 激活值按激活参数比例缩放（活跃专家的激活）
+  const activationsGB = modelParamsGB * 0.1 * (isMoE ? activationScale : 1.0);
   
-  const total = modelParamsGB + kvCacheGB + activationsGB;
+  // 4. 其他开销：CUDA 上下文、框架运行时等（阿里云文档：1~2GB）
+  const otherOverheadGB = 1.0;
+  
+  const total = modelParamsGB + kvCacheGB + activationsGB + otherOverheadGB;
   
   return {
     modelParams: modelParamsGB,
@@ -338,6 +360,7 @@ export function calculateInferenceMemory(config: InferenceConfig, modelInfo?: { 
       { label: getLabel('model.params'), value: modelParamsGB, percentage: (modelParamsGB / total) * 100, color: '#3B82F6' },
       { label: getLabel('kv.cache'), value: kvCacheGB, percentage: (kvCacheGB / total) * 100, color: '#8B5CF6' },
       { label: getLabel('activations'), value: activationsGB, percentage: (activationsGB / total) * 100, color: '#EF4444' },
+      { label: getLabel('other.overheads'), value: otherOverheadGB, percentage: (otherOverheadGB / total) * 100, color: '#6B7280' },
     ]
   };
 }

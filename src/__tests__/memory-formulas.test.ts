@@ -155,6 +155,35 @@ describe('calculateInferenceMemory', () => {
     const sum = result.breakdown.reduce((acc, b) => acc + b.value, 0);
     expect(approx(sum, result.total, 0.001)).toBe(true);
   });
+
+  it('breakdown 包含「其他开销」条目（≥ 1 GB）', () => {
+    const result = calculateInferenceMemory(baseConfig, llama8b);
+    const overhead = result.breakdown.find(b => b.value >= 0.9 && b.value <= 1.1);
+    expect(overhead).toBeDefined();
+  });
+
+  it('激活值 ≈ 10% × 模型权重（经验公式）', () => {
+    const result = calculateInferenceMemory(baseConfig, llama8b);
+    expect(approx(result.activations, result.modelParams * 0.1, 0.05)).toBe(true);
+  });
+
+  it('MoE（671B 总参 / 37B 激活）KV Cache 应比等效 Dense 模型低（按激活比例缩放）', () => {
+    const moeConfig = { params: 671, hiddenSize: 7168, numLayers: 61, numHeads: 128, activeParams: 37 };
+    const denseConfig = { params: 671, hiddenSize: 7168, numLayers: 61, numHeads: 128 }; // 无 activeParams
+    const moeResult = calculateInferenceMemory(baseConfig, moeConfig);
+    const denseResult = calculateInferenceMemory(baseConfig, denseConfig);
+    // MoE KV Cache 应该更小（按 37/671 ≈ 5.5% 缩放有效层数）
+    expect(moeResult.kvCache).toBeLessThan(denseResult.kvCache);
+  });
+
+  it('MoE 权重不受 activeParams 影响（全量参数均需加载）', () => {
+    const moeConfig = { params: 671, hiddenSize: 7168, numLayers: 61, numHeads: 128, activeParams: 37 };
+    const denseConfig = { params: 671, hiddenSize: 7168, numLayers: 61, numHeads: 128 };
+    const moeResult = calculateInferenceMemory(baseConfig, moeConfig);
+    const denseResult = calculateInferenceMemory(baseConfig, denseConfig);
+    // 权重相同（MoE 需要加载所有专家权重）
+    expect(approx(moeResult.modelParams, denseResult.modelParams, 0.001)).toBe(true);
+  });
 });
 
 // ── 5. 训练显存 ────────────────────────────────────────────────
