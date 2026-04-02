@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Brain, Calculator, Cpu, Zap, History, Users, MessageSquare, Image, HelpCircle, Settings } from 'lucide-react';
+import { Brain, Calculator, Cpu, Zap, History, Users, MessageSquare, Image, HelpCircle } from 'lucide-react';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ZH } from '@/lib/i18n';
@@ -34,10 +34,6 @@ const MultimodalCalculator = dynamic(
 const HistoryPanel = dynamic(() => import('@/components/history-panel'), {
   loading: () => null,
 });
-const AdvancedFineTuningCalculator = dynamic(
-  () => import('@/components/calculators/advanced-fine-tuning-calculator').then(mod => ({ default: mod.AdvancedFineTuningCalculator })),
-  { loading: () => <div className="tc-card p-8 text-center text-tc-text-placeholder">加载中...</div>, ssr: false }
-);
 
 export default function Home() {
   const {
@@ -243,7 +239,7 @@ export default function Home() {
           >
             <Tabs value={primaryTab} onValueChange={(v) => setPrimaryTab(v as typeof primaryTab)} className="w-full">
               <div className="flex justify-center mb-5">
-                <TabsList className="grid w-full max-w-lg grid-cols-3 bg-tc-bg-secondary rounded-lg p-1">
+                <TabsList className="grid w-full max-w-lg grid-cols-2 bg-tc-bg-secondary rounded-lg p-1">
                   <TabsTrigger value="nlp" className="flex items-center gap-2 text-sm">
                     <MessageSquare className="w-4 h-4" />
                     <span>{ZH.tabs.nlp}</span>
@@ -252,10 +248,6 @@ export default function Home() {
                     {/* eslint-disable-next-line jsx-a11y/alt-text */}
                     <Image className="w-4 h-4" />
                     <span>{ZH.tabs.multimodal}</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="advanced" className="flex items-center gap-2 text-sm">
-                    <Settings className="w-4 h-4" />
-                    <span>{ZH.tabs.advanced}</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -313,11 +305,6 @@ export default function Home() {
                   <TabsContent value="finetuning"><MultimodalCalculator mode="finetuning" /></TabsContent>
                   <TabsContent value="training"><MultimodalCalculator mode="training" /></TabsContent>
                 </Tabs>
-              </TabsContent>
-
-              {/* 高级微调 */}
-              <TabsContent value="advanced" className="space-y-5">
-                <AdvancedFineTuningCalculator />
               </TabsContent>
 
             </Tabs>
