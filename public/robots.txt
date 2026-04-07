@@ -1,0 +1,10 @@
+# LLM VRAM Calculator Robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Crawl-delay
+Crawl-delay: 1

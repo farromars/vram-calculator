@@ -1,0 +1,670 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+type Language = 'zh' | 'en';
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+// 专业的大模型领域翻译
+const translations = {
+  zh: {
+    // Header
+    'header.title': 'LLM 显存计算器',
+    'header.description': '专业的AI模型显存需求计算工具，支持训练、推理、微调三种模式，基于最新工程实践的精确计算公式，为您的GPU选型和部署规划提供专业指导',
+    
+    // Navigation
+    'nav.history': '历史记录',
+    'nav.presets': '预设',
+    'nav.settings': '设置',
+    'nav.shortcuts': '快捷键',
+    'nav.compare': '对比列表',
+    'nav.language': '语言',
+    
+    // Tabs
+    'tabs.nlp': 'NLP/语言模型',
+    'tabs.multimodal': '多模态模型',
+    'tabs.advanced': '高级微调',
+    'tabs.inference': '推理显存',
+    'tabs.finetuning': '微调显存',
+    'tabs.training': '训练显存',
+    'tabs.grpo': 'GRPO',
+    
+    // Features
+    'feature.precise': '精确计算公式',
+    'feature.precise.desc': '基于最新AI工程实践，支持混合精度、梯度检查点、量化等优化技术的精确显存计算',
+    'feature.models': '130+主流模型',
+    'feature.models.desc': '涵盖Qwen、DeepSeek、Llama、ChatGLM等热门模型，参数规格实时更新',
+    'feature.gpu': '智能GPU推荐',
+    'feature.gpu.desc': '基于显存需求自动匹配最适合的GPU，包含价格对比和利用率分析',
+    
+    // Footer
+    'footer.description': 'AI显存计算器 • 专业GPU显存需求分析工具 • 基于最新AI工程实践',
+    'footer.features': '支持训练、推理、微调三种场景 • 130+模型数据库 • 20+GPU规格对比',
+    'footer.blog': '博客',
+    'footer.api': '模型API',
+    'footer.chat': '模型Chat',
+    'footer.contact': '联系我们',
+    'footer.github': 'GitHub开源',
+    'footer.made': 'Made with ❤️ by',
+    
+    // GPU Recommendations
+    'gpu.recommendations': 'GPU推荐',
+    'gpu.scenario': '场景',
+    'gpu.multi.card.config': '多卡配置',
+    'gpu.multi.machine.config': '多机配置推荐',
+    'gpu.multi.machine.description': '多机配置支持模型并行和数据并行，可以配置多台8卡机器',
+    'gpu.single.card.recommendation': '单卡推荐',
+    'gpu.other.options': '个其他选项',
+    'gpu.more.options': '还有',
+    'gpu.selection.guide': '选择指南',
+    'gpu.multi.machine.infiniband': '多机配置支持InfiniBand',
+    'gpu.requirement': '需求',
+    'gpu.over.24gb.available': '(超过24GB时可用)',
+    'gpu.best.config': '最佳配置',
+    'gpu.best.recommendation': '最佳推荐',
+    'gpu.total.memory': '总显存',
+    'gpu.utilization': '利用率',
+    'gpu.total.price': '总价格',
+    'gpu.per.machine': '每台机器',
+    'gpu.machine.count': '机器数量',
+    'gpu.gpu.per.machine': '每台GPU',
+    'gpu.total.gpus': '总GPU',
+    'gpu.memory.capacity': '显存容量',
+    'gpu.market.price': '市场价格',
+    'gpu.cloud.service': '云服务',
+    'gpu.architecture': '架构',
+    'gpu.compute.power': '算力',
+    'gpu.fitness.score': '适合度',
+    'gpu.no.suitable': '暂无合适的GPU推荐',
+    'gpu.check.memory.requirement': '请检查显存需求是否合理',
+    'gpu.recommended.config': '推荐配置',
+    'gpu.memory.utilization.70.90': '显存利用率 70-90%',
+    'gpu.latest.cuda.support': '支持最新CUDA架构',
+    'gpu.cost.effective': '性价比均衡',
+    'gpu.precautions': '注意事项',
+    'gpu.reserve.buffer': '预留额外显存缓冲',
+    'gpu.consider.power.cooling': '考虑功耗和散热',
+    'gpu.evaluate.cloud.cost': '评估云服务成本',
+    'gpu.multi.machine.distributed': '多机需要支持分布式训练',
+    'gpu.multi.card.hint': '多卡配置适用于显存需求超过24GB的场景。当前需求较小，推荐使用单卡方案。',
+    'gpu.current.requirement': '当前',
+    'gpu.multi.single.machine.config': '单机{gpusPerNode}卡配置，{totalMemory}GB总显存',
+    'gpu.multi.multiple.machines.config': '{numNodes}台机器，每台{gpusPerNode}卡，共{totalGPUs}卡 {totalMemory}GB总显存',
+    'gpu.price.budget': '预算级',
+    'gpu.price.mid.range': '中端',
+    'gpu.price.high.end': '高端',
+    'gpu.price.enterprise': '企业级',
+    
+    // Inference Calculator
+    'inference.config': '推理配置',
+    'inference.memory.requirement': '推理显存',
+    'inference.single': '单次推理',
+    'inference.batch': '批量推理',
+    'inference.optimization.suggestions': '推理优化建议',
+    'inference.long.sequence.suggestion': '长序列推理建议降低KV缓存比例以节省显存',
+    'inference.large.batch.suggestion': '大批次推理可提高吞吐量，但需要更多显存',
+    'inference.large.model.suggestion': '大模型推理强烈建议使用量化以减少显存需求',
+    
+    // Training Calculator
+    'training.config': '训练配置',
+    'training.mixed.precision': '混合精度训练',
+    
+    // Fine-tuning Calculator
+    'finetuning.config': '微调配置',
+    'finetuning.method': '微调方法',
+    'finetuning.memory.requirement': '微调显存',
+    'finetuning.efficiency': '微调效率',
+    'finetuning.suggestions': '微调建议',
+    'finetuning.full.params': '全参数微调',
+    'finetuning.full.description': '全参数微调，更新所有模型参数，效果最好但显存需求最大',
+    'finetuning.lora.description': '低秩适配，只训练少量参数，显存效率高，效果接近全参数',
+    'finetuning.qlora.description': 'QLoRA，4位量化+LoRA，显存最优',
+    'finetuning.prefix.description': 'Prefix Tuning，只训练前缀参数，显存需求中等',
+    'finetuning.full.effect.best': '全参数微调，效果最佳但显存需求大',
+    'finetuning.lora.params.percent': 'LoRA微调，约',
+    'finetuning.params.to.train': '%参数需训练',
+    'finetuning.qlora.optimal': 'QLoRA微调，显存最优，适合大模型',
+    'finetuning.prefix.one.percent': 'Prefix微调，约1%参数需训练',
+    'finetuning.large.model.suggestion': '大模型全参数微调显存需求巨大，建议考虑LoRA或QLoRA',
+    'finetuning.rank.too.small': 'Rank值较小，可能限制微调效果，建议尝试更大的Rank',
+
+    // Advanced Fine-tuning
+    'advanced.finetuning.title': '高级微调',
+    'advanced.finetuning.model.type': '模型类型',
+    'advanced.finetuning.nlp': 'NLP模型',
+    'advanced.finetuning.multimodal': '多模态模型',
+    'advanced.finetuning.moe': 'MoE模型',
+    'advanced.finetuning.cnn': 'CNN模型',
+    'advanced.finetuning.nlp.desc': '自然语言处理',
+    'advanced.finetuning.multimodal.desc': '多模态模型',
+    'advanced.finetuning.moe.desc': '专家混合模型',
+    'advanced.finetuning.cnn.desc': '卷积神经网络',
+    'advanced.finetuning.basic.config': '基础配置',
+    'advanced.finetuning.advanced.config': '高级配置',
+    'advanced.finetuning.optimization.config': '优化设置',
+    'advanced.finetuning.model.size': '模型大小',
+    'advanced.finetuning.architecture': '架构类型',
+    'advanced.finetuning.precision': '训练精度',
+    'advanced.finetuning.quantization': '量化技术',
+    'advanced.finetuning.batch.size': '批次大小',
+    'advanced.finetuning.sequence.length': '序列长度',
+    'advanced.finetuning.learning.rate': '学习率',
+    'advanced.finetuning.optimizer': '优化器',
+    'advanced.finetuning.epochs': '训练轮数',
+    'advanced.finetuning.image.resolution': '图像分辨率',
+    'advanced.finetuning.patch.size': 'Patch大小',
+    'advanced.finetuning.vision.encoder': '视觉编码器',
+    'advanced.finetuning.text.encoder': '文本编码器',
+    'advanced.finetuning.num.experts': '专家数量',
+    'advanced.finetuning.active.experts': '激活专家数',
+    'advanced.finetuning.routing.strategy': '路由策略',
+    'advanced.finetuning.input.image.size': '输入图像尺寸',
+    'advanced.finetuning.kernel.size': '卷积核大小',
+    'advanced.finetuning.weight.decay': '权重衰减',
+    'advanced.finetuning.warmup.steps': '预热步数',
+    'advanced.finetuning.gradient.clipping': '梯度裁剪',
+    'advanced.finetuning.dropout.rate': 'Dropout率',
+    'advanced.finetuning.config.errors': '配置错误',
+    'advanced.finetuning.config.warnings': '配置警告',
+    'advanced.finetuning.optimization.suggestions': '智能优化建议',
+    'advanced.finetuning.system.suggestions': '系统建议',
+    'advanced.finetuning.high.priority': '高优先级',
+    'advanced.finetuning.medium.priority': '中优先级',
+    'advanced.finetuning.low.priority': '低优先级',
+    'advanced.finetuning.impact': '影响',
+    'advanced.finetuning.total.vram': '总显存需求',
+
+    // 详细参数标签
+    'advanced.finetuning.vocab.size': '词汇表大小',
+    'advanced.finetuning.hidden.size': '隐藏层大小',
+    'advanced.finetuning.intermediate.size': '中间层大小',
+    'advanced.finetuning.num.layers': '层数',
+    'advanced.finetuning.attention.heads': '注意力头数',
+    'advanced.finetuning.lora.rank': 'LoRA Rank',
+    'advanced.finetuning.lora.alpha': 'LoRA Alpha',
+    'advanced.finetuning.position.encoding': '位置编码',
+    'advanced.finetuning.max.generation.length': '最大生成长度',
+    'advanced.finetuning.temperature': '温度参数',
+    'advanced.finetuning.top.p': 'Top-p采样',
+    'advanced.finetuning.modal.fusion.strategy': '模态融合策略',
+    'advanced.finetuning.vision.feature.dim': '视觉特征维度',
+    'advanced.finetuning.cross.modal.alignment.weight': '跨模态对齐权重',
+    'advanced.finetuning.image.text.contrast.weight': '图像-文本对比权重',
+    'advanced.finetuning.vision.encoder.label': '视觉编码器',
+    'advanced.finetuning.text.encoder.label': '文本编码器',
+    'advanced.finetuning.freeze': '冻结',
+    'advanced.finetuning.lora': 'LoRA',
+    'advanced.finetuning.mixed.precision.training': '混合精度训练',
+    'advanced.finetuning.enable.amp': '启用AMP',
+    'advanced.finetuning.expert.capacity.factor': '专家容量因子',
+    'advanced.finetuning.expert.count': '专家数量',
+    'advanced.finetuning.expert.specialization': '专家特化度',
+    'advanced.finetuning.load.balance.loss.weight': '负载均衡损失权重',
+    'advanced.finetuning.auxiliary.loss.weight': '辅助损失权重',
+    'advanced.finetuning.expert.init.strategy': '专家初始化策略',
+    'advanced.finetuning.lora.application.strategy': 'LoRA应用策略',
+    'advanced.finetuning.expert.parallelism': '专家并行度',
+    'advanced.finetuning.expert.regularization': '专家正则化',
+    'advanced.finetuning.expert.dropout.rate': '专家Dropout率',
+    'advanced.finetuning.pooling.strategy': '池化策略',
+    'advanced.finetuning.frozen.layers': '冻结层数',
+    'advanced.finetuning.classification.head.dim': '分类头维度',
+    'advanced.finetuning.lr.scheduler': '学习率调度器',
+    'advanced.finetuning.data.augmentation.strategy': '数据增强策略',
+    'advanced.finetuning.batch.normalization': '批归一化',
+    'advanced.finetuning.freeze.bn.layers': '冻结BN层',
+    'advanced.finetuning.label.smoothing': '标签平滑',
+    'advanced.finetuning.effective.batch.size': '有效批次大小',
+    'advanced.finetuning.gradient.accumulation.steps': '梯度累积步数',
+    'advanced.finetuning.model.size.label': '模型大小',
+    'advanced.finetuning.model.size.and.architecture': '模型大小和架构',
+    'advanced.finetuning.model.size.and.expert.config': '模型大小和专家配置',
+    'advanced.finetuning.model.size.and.image.size': '模型大小和图像尺寸',
+    'advanced.finetuning.priority.high': '高优先级',
+    'advanced.finetuning.priority.medium': '中优先级',
+    'advanced.finetuning.priority.low': '低优先级',
+    'advanced.finetuning.conv.layers': '卷积层数',
+    'advanced.finetuning.pooling.layers': '池化层数',
+    'advanced.finetuning.stride': '步长',
+    'advanced.finetuning.padding': '填充',
+    'advanced.finetuning.input.channels': '输入通道',
+    'advanced.finetuning.output.channels': '输出通道',
+    'advanced.finetuning.activation.function': '激活函数',
+    'advanced.finetuning.vision.encoder.memory': '视觉编码器',
+    'advanced.finetuning.text.encoder.memory': '文本编码器',
+    'advanced.finetuning.fusion.layer.memory': '融合层',
+
+    // UI文本翻译
+    'advanced.finetuning.config.errors.title': '配置错误',
+    'advanced.finetuning.config.warnings.title': '配置警告',
+    'advanced.finetuning.intelligent.optimization.suggestions': '智能优化建议',
+    'advanced.finetuning.effective.batch.size.label': '有效批次大小',
+
+    // 配置面板标题
+    'advanced.finetuning.multimodal.optimization.settings': '多模态模型优化设置',
+    'advanced.finetuning.moe.basic.config': 'MoE模型基础配置',
+    'advanced.finetuning.moe.advanced.config': 'MoE模型高级配置',
+    'advanced.finetuning.moe.optimization.settings': 'MoE模型优化设置',
+    'advanced.finetuning.cnn.basic.config': 'CNN模型基础配置',
+    'advanced.finetuning.cnn.advanced.config': 'CNN模型高级配置',
+    'advanced.finetuning.cnn.optimization.settings': 'CNN模型优化设置',
+
+    // 配置分组标题
+    'advanced.finetuning.model.size.and.architecture.title': '模型大小和架构',
+    'advanced.finetuning.architecture.type': '架构类型',
+    'advanced.finetuning.precision.and.quantization': '精度和量化',
+    'advanced.finetuning.batch.and.sequence': '批次大小和序列长度',
+    'advanced.finetuning.learning.rate.and.optimizer': '学习率和优化器',
+    'advanced.finetuning.model.architecture.params': '模型架构参数',
+    'advanced.finetuning.lora.config': 'LoRA配置',
+    'advanced.finetuning.generation.params': '生成参数',
+    'advanced.finetuning.training.optimization': '训练优化',
+    'advanced.finetuning.gradient.and.regularization': '梯度和正则化',
+    'advanced.finetuning.image.config': '图像配置',
+    'advanced.finetuning.encoder.config': '编码器配置',
+    'advanced.finetuning.training.params': '训练参数',
+    'advanced.finetuning.modal.fusion.config': '模态融合配置',
+    'advanced.finetuning.loss.weight.config': '损失权重配置',
+    'advanced.finetuning.encoder.freeze.strategy': '编码器冻结策略',
+    'advanced.finetuning.gradient.and.mixed.precision': '梯度和混合精度',
+    'advanced.finetuning.expert.config': '专家配置',
+    'advanced.finetuning.active.experts.and.routing': '激活专家和路由策略',
+    'advanced.finetuning.expert.strategy.config': '专家策略配置',
+    'advanced.finetuning.expert.parallel.config': '专家并行配置',
+    'advanced.finetuning.gradient.and.dropout': '梯度和Dropout',
+    'advanced.finetuning.warmup.and.gradient.accumulation': '预热和梯度累积',
+    'advanced.finetuning.architecture.and.training.params': '架构和训练参数',
+    'advanced.finetuning.learning.rate.and.training.epochs': '学习率和训练轮数',
+    'advanced.finetuning.conv.config': '卷积配置',
+    'advanced.finetuning.classification.head.config': '分类头配置',
+    'advanced.finetuning.batch.norm.settings': '批归一化设置',
+    'advanced.finetuning.regularization.config': '正则化配置',
+    'advanced.finetuning.gradient.clipping.and.label.smoothing': '梯度裁剪和标签平滑',
+
+    // 参数标签翻译
+    'advanced.finetuning.training.epochs': '训练轮数',
+    'advanced.finetuning.num.active.experts': '激活专家数',
+
+    // 选项值翻译
+    'advanced.finetuning.option.none': '无量化',
+    'advanced.finetuning.option.random.init': '随机初始化',
+    'advanced.finetuning.option.pretrained.inherit': '预训练继承',
+    'advanced.finetuning.option.all.experts': '全专家',
+    'advanced.finetuning.option.partial.experts': '部分专家',
+    'advanced.finetuning.option.router.only': '仅路由器',
+
+    // 配置面板标题
+    'advanced.finetuning.basic.config.title': '基础配置',
+    'advanced.finetuning.advanced.config.title': '高级配置',
+    'advanced.finetuning.optimization.config.title': '优化设置',
+
+    // 训练轮数
+
+
+
+    // 多模态特定标签
+    'advanced.finetuning.modal.fusion.cross.attention': 'Cross-attention',
+    'advanced.finetuning.modal.fusion.co.attention': 'Co-attention',
+    'advanced.finetuning.modal.fusion.gated.fusion': 'Gated fusion',
+
+    // MoE特定标签
+    'advanced.finetuning.routing.top.k': 'Top-K',
+    'advanced.finetuning.routing.switch': 'Switch',
+    'advanced.finetuning.routing.expert.choice': 'Expert Choice',
+
+    // CNN特定标签
+    'advanced.finetuning.pooling.maxpool': 'MaxPool',
+    'advanced.finetuning.pooling.avgpool': 'AvgPool',
+    'advanced.finetuning.pooling.adaptive.avgpool': 'AdaptiveAvgPool',
+    'advanced.finetuning.lr.scheduler.step': 'StepLR',
+    'advanced.finetuning.lr.scheduler.cosine': 'CosineAnnealingLR',
+    'advanced.finetuning.lr.scheduler.plateau': 'ReduceLROnPlateau',
+
+    // Common labels
+    'preset.model': '预设模型',
+    'parameters': '参数量',
+    'hidden.size': '隐藏层大小',
+    'layers': '层数',
+    'attention.heads': '注意力头数',
+    'numerical.precision': '数值精度',
+    'quantization.method': '量化方式',
+    'no.quantization': '无量化',
+    'int8.compression': 'INT8 (4倍压缩)',
+    'int4.compression': 'INT4 (8倍压缩)',
+    'fp8.compression': 'FP8 (4倍压缩)',
+    'batch.size': '批次大小',
+    'sequence.length': '序列长度',
+    'kv.cache.ratio': 'KV缓存比例',
+    'compressed': '压缩',
+    'complete': '完整',
+    'total.memory.requirement': '总显存需求',
+    'quantization.compression.effect': '量化压缩效果',
+    'model.size.reduction.75': '模型大小减少约75%',
+    'model.size.reduction.87.5': '模型大小减少约87.5%',
+    'optimization.suggestions': '优化建议',
+    'use.int8.quantization': '使用INT8量化可减少75%的模型显存，对精度影响很小',
+    
+    // Training Calculator
+    'model.parameters.count': '模型参数量',
+    'optimizer': '优化器',
+    'adamw.recommended': 'AdamW (推荐)',
+    'fp32.32bit': 'FP32 (32位浮点)',
+    'fp16.16bit': 'FP16 (16位浮点)',
+    'bf16.brain.float': 'BF16 (Brain Float 16)',
+    'gradient.checkpointing': '梯度检查点',
+    'memory.requirement': '显存需求',
+    'enable.gradient.checkpointing': '开启梯度检查点可减少约70%的激活值显存',
+    'use.fp16.bf16': '使用FP16或BF16可减少约50%的参数和梯度显存',
+    'large.model.sgd': '大模型建议考虑SGD优化器以减少优化器状态显存',
+    
+    // Fine-tuning Calculator specific
+    'base.model': '基础模型',
+    'small.model.3b': '小模型 (≤3B)',
+    'medium.model.3.15b': '中等模型 (3-15B)',
+    'large.model.15.50b': '大模型 (15-50B)',
+    'xlarge.model.50b': '超大模型 (>50B)',
+    'architecture': '架构',
+    'lora.recommended': 'LoRA (推荐)',
+    'qlora.large.model.recommended': 'QLoRA (大模型推荐)',
+    'lora.parameters.config': 'LoRA 参数配置',
+    'rank.r': 'Rank (r)',
+    'alpha.a': 'Alpha (α)',
+    'minimum': '最小',
+    'maximum': '最大',
+    'rank.larger.more.params': 'Rank越大，LoRA参数越多，效果可能更好但显存更多',
+    'alpha.controls.learning.rate': 'Alpha控制LoRA的学习率缩放，通常设为Rank的2-4倍',
+    'training.precision': '训练精度',
+    'rank.large.memory.increase': 'Rank值较大，显存需求增加，如果显存不足可考虑降低Rank',
+    'large.model.use.quantization': '大模型建议使用量化以减少基础模型显存占用',
+    'qlora.needs.quantization': 'QLoRA方法需要配合量化使用才能发挥优势',
+    'alpha.rank.ratio.too.small': 'Alpha/Rank比值过小，可能导致学习率过低，建议增大Alpha',
+    
+    // History Panel
+    'calculation.history': '计算历史',
+    'history.records': '历史记录',
+    'compare.list': '对比列表',
+    'total.records': '共',
+    'records.count': '条记录',
+    'clear': '清空',
+    'no.history.records': '暂无历史记录',
+    'total.memory': '总显存',
+    'selected.configs': '已选择',
+    'configs.for.compare': '个配置进行对比',
+    'clear.compare': '清空对比',
+    'select.from.history': '从历史记录中选择配置进行对比',
+    'max.4.configs': '最多可以对比 4 个配置',
+    'load.config': '加载配置',
+    
+    // Config Presets Panel
+    'config.preset.templates': '配置预设模板',
+    'quick.start.project': '选择预设配置快速开始您的',
+    'project': '项目',
+    'search.presets': '搜索预设配置',
+    'all.categories': '所有分类',
+    'beginner': '入门级',
+    'professional': '专业级',
+    'enterprise': '企业级',
+    'research': '研究级',
+    'estimated.memory': '预估显存',
+    'recommended.gpu': '推荐GPU',
+    'apply.config': '应用配置',
+    'no.matching.presets': '未找到匹配的预设配置',
+    'try.adjust.search': '尝试调整搜索条件或分类筛选',
+    
+    // Multimodal Calculator
+    'multimodal.config': '多模态微调配置',
+    'multimodal.training.config': '多模态训练配置', 
+    'multimodal.inference.config': '多模态推理配置',
+    'multimodal.finetuning.config': '多模态微调配置',
+    'multimodal.modality.type': '模态类型',
+    'multimodal.base.model': '基础模型',
+    'multimodal.text.image': '文本 + 图像',
+    'multimodal.text.audio': '文本 + 音频',
+    'multimodal.text.video': '文本 + 视频',
+    'multimodal.audio.video': '音频 + 视频',
+    'multimodal.text.audio.video': '文本 + 音频 + 视频',
+    'multimodal.parameters': '参数量',
+    'multimodal.architecture': '架构',
+    'multimodal.hidden.layers': '隐藏层',
+    'multimodal.num.layers': '层数',
+    'multimodal.text.precision': '文本精度',
+    'multimodal.vision.precision': '视觉精度',
+    'multimodal.audio.precision': '音频精度',
+    'multimodal.batch.size': '批量大小',
+    'multimodal.sequence.length': '文本序列长度',
+    'multimodal.image.config': '图像配置',
+    'multimodal.image.resolution': '图像分辨率',
+    'multimodal.patch.size': 'Patch大小',
+    'multimodal.num.images': '每样本图像数量',
+    'multimodal.vision.encoder': '独立视觉编码器',
+    'multimodal.image.tokens': '图像Token统计',
+    'multimodal.patches.per.image': '每图像Patch数',
+    'multimodal.total.image.tokens': '总图像Token数',
+    'multimodal.audio.config': '音频配置',
+    'multimodal.sample.rate': '采样率 (Hz)',
+    'multimodal.window.length': '音频窗口长度 (秒)',
+    'multimodal.audio.encoder': '独立音频编码器',
+    'multimodal.video.config': '视频配置',
+    'multimodal.frame.rate': '视频帧率 (FPS)',
+    'multimodal.video.length': '视频长度 (秒)',
+    'multimodal.video.encoder': '独立视频编码器',
+    'multimodal.memory.requirement': '多模态训练显存需求',
+    'multimodal.memory.requirement.inference': '多模态推理显存需求',
+    'multimodal.memory.requirement.finetuning': '多模态微调显存需求',
+    
+    // Resolution options
+    'resolution.224': '224x224 (标准)',
+    'resolution.336': '336x336 (中等)',
+    'resolution.448': '448x448 (高清)',
+    'resolution.512': '512x512 (超清)',
+    
+    // Patch size options
+    'patch.14': '14x14 (细粒度)',
+    'patch.16': '16x16 (标准)',
+    'patch.32': '32x32 (粗粒度)',
+    
+    // Sample rate options
+    'samplerate.16k': '16kHz (语音)',
+    'samplerate.22k': '22.05kHz (高质量语音)',
+    'samplerate.44k': '44.1kHz (CD质量)',
+    'samplerate.48k': '48kHz (专业音频)',
+    
+    // Frame rate options
+    'framerate.10': '10 FPS (低帧率)',
+    'framerate.15': '15 FPS (中等)',
+    'framerate.25': '25 FPS (标准)',
+    'framerate.30': '30 FPS (高帧率)',
+    'framerate.60': '60 FPS (超高帧率)',
+    
+    // Precision options
+    'precision.fp32': 'FP32 (32位浮点)',
+    'precision.fp16': 'FP16 (16位浮点)',
+    'precision.bf16': 'BF16 (Brain Float)',
+    'precision.fp8': 'FP8 (8位浮点)',
+    
+    // Memory analysis
+    'memory.total.requirement': '总显存需求',
+    'memory.breakdown': '显存分解',
+    'multimodal.features': '模态特性',
+    'multimodal.features.text': '支持文本序列编码和生成',
+    'multimodal.features.image': '图像被分割为patch进行处理',
+    'multimodal.features.audio': '音频通过窗口切片进行编码',
+    'multimodal.features.video': '视频按帧序列处理，结合时序信息',
+    'multimodal.features.attention': '跨模态注意力机制增加计算开销',
+    'multimodal.features.vision.shared': '视觉编码器可选独立或共享参数',
+    'multimodal.features.audio.spectrum': '音频编码器处理频谱特征',
+    'multimodal.features.cache': '多模态特征缓存用于加速推理',
+    
+    // Mode terms
+    'mode.training': '训练',
+    'mode.inference': '推理',
+    'mode.finetuning': '微调',
+    'mode.multimodal': '多模态',
+    
+    // GRPO Calculator
+    'grpo.config': 'GRPO配置',
+    'grpo.preset.model': '预设模型',
+    'grpo.parameters': '参数量',
+    'grpo.architecture': '架构',
+    'grpo.hidden.layers': '隐藏层',
+    'grpo.num.layers': '层数',
+    'grpo.training.precision': '训练精度',
+    'grpo.batch.size': '批量大小',
+    'grpo.max.sequence.length': '最大序列长度',
+    'grpo.generations.per.prompt': '每提示生成数量',
+    'grpo.description': 'GRPO为每个提示生成多个响应进行对比学习',
+    'grpo.memory.requirement': 'GRPO显存需求',
+    'grpo.advanced.settings': '高级设置',
+    'grpo.gradient.accumulation.steps': '梯度累积步数',
+    'grpo.use.8bit.optimizer': '8位优化器',
+    'grpo.gradient.checkpointing': '梯度检查点',
+    'grpo.features': 'GRPO特性',
+    'grpo.features.policy.reference': '使用策略模型和参考模型进行对比学习',
+    'grpo.features.multiple.responses': '生成多个响应以计算群体相对优势',
+    'grpo.features.8bit.optimizer': '支持8位优化器降低内存使用',
+    'grpo.features.gradient.checkpointing': '梯度检查点可节省70%激活值内存',
+    'grpo.features.memory.saving': '比PPO节省约40-60%显存',
+    
+    // Loading
+    'loading': '加载中...',
+    'loading.history': '加载历史记录...',
+    'loading.settings': '加载设置...',
+  },
+  en: {
+    // Header
+    
+    // Navigation
+    
+    // Tabs
+    
+    // Features
+    
+    // Footer
+    
+    // GPU Recommendations
+    
+    // Inference Calculator
+    
+    // Training Calculator
+    
+    // Fine-tuning Calculator
+
+    // Advanced Fine-tuning
+
+    // 详细参数标签
+
+    // UI Text Translations
+
+    // Configuration Panel Titles
+
+    // Configuration Group Titles
+
+    // Parameter Label Translations
+
+    // 选项值翻译
+
+    // 配置面板标题
+
+    // 训练轮数
+
+
+
+    // 多模态特定标签
+
+    // MoE特定标签
+
+    // CNN特定标签
+
+    // Common labels
+    
+    // Training Calculator
+    
+    // Fine-tuning Calculator specific
+    
+    // History Panel
+    
+    // Config Presets Panel
+    
+    // Multimodal Calculator
+    
+    // Resolution options
+    
+    // Patch size options
+    
+    // Sample rate options
+    
+    // Frame rate options
+    
+    // Precision options
+    
+    // Memory analysis
+    
+    // Mode terms
+    
+    // GRPO Calculator
+    
+    // Loading
+  }
+};
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>('zh');
+
+  useEffect(() => {
+    // 从 localStorage 读取保存的语言设置
+    const savedLanguage = localStorage.getItem('language') as Language;
+    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
+      setLanguageState(savedLanguage);
+    } else {
+      // 检测浏览器语言
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith('zh')) {
+        setLanguageState('zh');
+      } else {
+        setLanguageState('en');
+      }
+    }
+  }, []);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+    // 更新 HTML lang 属性
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en-US';
+    
+    // 触发自定义事件，通知需要重新计算
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: lang }));
+  };
+
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    const value = translations[language]?.[key as keyof typeof translations[typeof language]] as string | undefined;
+    if (value && params) {
+      // 替换模板中的参数
+      return value.replace(/\{([^}]+)\}/g, (match: string, paramKey: string) => {
+        return params[paramKey] !== undefined ? String(params[paramKey]) : match;
+      });
+    }
+    return value || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+} 

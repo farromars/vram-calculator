@@ -1,0 +1,772 @@
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import {
+  TrainingConfig,
+  InferenceConfig,
+  FineTuningConfig,
+  GRPOConfig,
+  MultimodalConfig,
+  MemoryBreakdown,
+  CalculatorType,
+  PrimaryTab,
+  NLP_CALCULATOR_TYPES,
+  AdvancedFineTuningConfig,
+  AdvancedMemoryBreakdown,
+  AdvancedModelType,
+  NLPFineTuningConfig,
+  MultimodalFineTuningConfig,
+  MoEFineTuningConfig,
+  CNNFineTuningConfig,
+  ModelInfo,
+  CustomModelDraft
+} from '@/types';
+import {
+  calculateTrainingMemory,
+  calculateInferenceMemory,
+  calculateFineTuningMemory,
+  calculateGRPOMemory,
+  calculateMultimodalMemory,
+  calculateAdvancedFineTuningMemory
+} from '@/utils/memory-formulas';
+
+// 防抖计算超时处理器（模块级，不存入 state，避免每次触发全量订阅通知）
+const _debounceTimers: Record<string, NodeJS.Timeout | undefined> = {};
+
+interface CalculationHistory {
+  id: string;
+  timestamp: number;
+  type: CalculatorType;
+  config: unknown;
+  result: MemoryBreakdown;
+  modelName?: string;
+  tags?: string[];
+}
+
+interface CalculatorStore {
+  // 当前活跃的主分组和子标签页
+  primaryTab: PrimaryTab;
+  setPrimaryTab: (tab: PrimaryTab) => void;
+  activeTab: CalculatorType;
+  setActiveTab: (tab: CalculatorType) => void;
+
+  // 训练配置
+  trainingConfig: TrainingConfig;
+  setTrainingConfig: (config: Partial<TrainingConfig>) => void;
+  trainingResult: MemoryBreakdown | null;
+
+  // 推理配置
+  inferenceConfig: InferenceConfig;
+  setInferenceConfig: (config: Partial<InferenceConfig>) => void;
+  inferenceResult: MemoryBreakdown | null;
+
+  // 微调配置
+  fineTuningConfig: FineTuningConfig;
+  setFineTuningConfig: (config: Partial<FineTuningConfig>) => void;
+  fineTuningResult: MemoryBreakdown | null;
+
+  // GRPO配置
+  grpoConfig: GRPOConfig;
+  setGrpoConfig: (config: Partial<GRPOConfig>) => void;
+  grpoResult: MemoryBreakdown | null;
+
+  // 多模态配置
+  multimodalConfig: MultimodalConfig;
+  setMultimodalConfig: (config: Partial<MultimodalConfig>) => void;
+  multimodalResult: MemoryBreakdown | null;
+
+  // 加载状态
+  trainingLoading: boolean;
+  inferenceLoading: boolean;
+  fineTuningLoading: boolean;
+  grpoLoading: boolean;
+  multimodalLoading: boolean;
+  advancedFineTuningLoading: boolean;
+
+  // 高级微调配置
+  advancedFineTuningConfig: AdvancedFineTuningConfig;
+  setAdvancedFineTuningConfig: (config: Partial<AdvancedFineTuningConfig>) => void;
+  advancedFineTuningResult: AdvancedMemoryBreakdown | null;
+
+  // 计算历史
+  history: CalculationHistory[];
+  addToHistory: (type: CalculatorType, config: unknown, result: MemoryBreakdown, modelName?: string) => void;
+  removeFromHistory: (id: string) => void;
+  clearHistory: () => void;
+
+  // 比较功能
+  compareList: CalculationHistory[];
+  addToCompare: (item: CalculationHistory) => void;
+  removeFromCompare: (id: string) => void;
+  clearCompare: () => void;
+
+  // 用户偏好设置
+  preferences: {
+    autoSave: boolean;
+    showOptimizationTips: boolean;
+    defaultPrecision: 'FP32' | 'FP16' | 'BF16';
+    theme: 'light' | 'dark' | 'auto';
+  };
+  setPreferences: (prefs: Partial<CalculatorStore['preferences']>) => void;
+
+  // 计算方法
+  calculateTrainingMemory: () => Promise<void>;
+  calculateInferenceMemory: () => Promise<void>;
+  calculateFineTuningMemory: () => Promise<void>;
+  calculateGRPOMemory: () => Promise<void>;
+  calculateMultimodalMemory: () => Promise<void>;
+  calculateAdvancedFineTuningMemory: () => Promise<void>;
+  
+  // 获取当前结果
+  getCurrentResult: () => MemoryBreakdown | null;
+
+  // 自定义模型
+  savedCustomModels: ModelInfo[];
+  customModelDraft: CustomModelDraft;
+  setCustomModelDraft: (draft: Partial<CustomModelDraft>) => void;
+  resetCustomModelDraft: () => void;
+  addCustomModel: (model: ModelInfo) => void;
+  removeCustomModel: (id: string) => void;
+  getCustomModelById: (id: string) => ModelInfo | undefined;
+}
+
+export const useCalculatorStore = create<CalculatorStore>()(
+  persist(
+    (set, get) => ({
+      // 初始状态
+      primaryTab: 'nlp',
+      activeTab: 'inference',
+      
+      // 训练配置默认值
+      trainingConfig: {
+        modelId: 'qwen3-8b',
+        batchSize: 4,
+        sequenceLength: 2048,
+        precision: 'FP16',
+        optimizer: 'AdamW',
+        gradientCheckpointing: false,
+        mixedPrecision: true
+      },
+      trainingResult: null,
+
+      // 推理配置默认值
+      inferenceConfig: {
+        modelId: 'qwen3-8b',
+        precision: 'FP16',
+        quantization: 'None',
+        batchSize: 1,
+        sequenceLength: 2048,
+        kvCacheRatio: 1.0,
+        concurrentUsers: 1,
+      },
+      inferenceResult: null,
+
+      // 微调配置默认值
+      fineTuningConfig: {
+        baseModel: 'qwen3-8b',
+        method: 'LoRA',
+        loraRank: 4,
+        loraAlpha: 32,
+        quantization: 'None',
+        precision: 'FP16',
+        batchSize: 2,
+        sequenceLength: 2048
+      },
+      fineTuningResult: null,
+
+      // GRPO配置默认值
+      grpoConfig: {
+        modelId: 'qwen3-8b',
+        precision: 'FP16',
+        batchSize: 4,
+        sequenceLength: 2048,
+        numGenerations: 8,
+        maxPromptLength: 512,
+        maxCompletionLength: 1536,
+        gradientAccumulationSteps: 4,
+        use8BitOptimizer: true,
+        gradientCheckpointing: true
+      },
+      grpoResult: null,
+
+      // 多模态配置默认值
+      multimodalConfig: {
+        modelId: 'qwen3-vl-8b-instruct',
+        mode: 'inference',
+        modalityType: 'text-image',
+        textPrecision: 'FP16',
+        visionPrecision: 'FP16',
+        audioPrecision: 'FP16',
+        batchSize: 2,
+        sequenceLength: 2048,
+        concurrentUsers: 1,
+        imageResolution: 336,
+        patchSize: 16,
+        numImages: 1,
+        hasVisionEncoder: true,
+        audioSampleRate: 16000,
+        audioWindowLength: 30,
+        hasAudioEncoder: true,
+        videoFrameRate: 25,
+        videoLength: 10,
+        hasVideoEncoder: true
+      },
+      multimodalResult: null,
+
+      // 加载状态默认值
+      trainingLoading: false,
+      inferenceLoading: false,
+      fineTuningLoading: false,
+      grpoLoading: false,
+      multimodalLoading: false,
+      advancedFineTuningLoading: false,
+
+      // 高级微调配置默认值
+      advancedFineTuningConfig: {
+        modelType: 'NLP',
+        nlpConfig: {
+          modelSize: 7.0,
+          architectureType: 'LLaMA',
+          precision: 'FP16',
+          quantizationTech: 'None',
+          batchSize: 4,
+          sequenceLength: 2048,
+          gradientAccumulationSteps: 4,
+          learningRate: 2e-5,
+          optimizer: 'AdamW',
+          trainingEpochs: 3,
+          vocabSize: 50000,
+          numAttentionHeads: 32,
+          hiddenSize: 4096,
+          intermediateSize: 11008,
+          numLayers: 32,
+          positionEncodingType: 'RoPE',
+          loraRank: 16,
+          loraAlpha: 32,
+          loraTargetModules: ['q_proj', 'v_proj'],
+          maxGenerationLength: 2048,
+          temperature: 0.7,
+          topP: 0.9,
+          repetitionPenalty: 1.1,
+          weightDecay: 0.01,
+          warmupSteps: 100,
+          gradientClipping: 1.0,
+          dropoutRate: 0.1
+        }
+      },
+      advancedFineTuningResult: null,
+
+      // 历史记录
+      history: [],
+      compareList: [],
+
+      // 用户偏好
+      preferences: {
+        autoSave: true,
+        showOptimizationTips: true,
+        defaultPrecision: 'FP16',
+        theme: 'auto'
+      },
+
+      // Actions
+      setPrimaryTab: (tab) => {
+        set({ primaryTab: tab });
+        // 切换主 Tab 时触发对应计算，确保结果不为空
+        const state = get();
+        if (tab === 'multimodal') {
+          state.calculateMultimodalMemory();
+        } else if (tab === 'nlp') {
+          switch (state.activeTab) {
+            case 'training': state.calculateTrainingMemory(); break;
+            case 'inference': state.calculateInferenceMemory(); break;
+            case 'finetuning': state.calculateFineTuningMemory(); break;
+            case 'grpo': state.calculateGRPOMemory(); break;
+          }
+        }
+      },
+
+      setActiveTab: (tab) => {
+        const state = get();
+        // 只处理NLP分组的标签页切换
+        if (NLP_CALCULATOR_TYPES.includes(tab)) {
+          set({ activeTab: tab, primaryTab: 'nlp' });
+          
+          // 切换NLP标签页时自动计算
+        switch (tab) {
+          case 'training':
+            state.calculateTrainingMemory();
+            break;
+          case 'inference':
+            state.calculateInferenceMemory();
+            break;
+          case 'finetuning':
+            state.calculateFineTuningMemory();
+            break;
+            case 'grpo':
+              state.calculateGRPOMemory();
+              break;
+          }
+        } else {
+          // 不是NLP类型的标签页，只更新activeTab（用于其他逻辑）
+          set({ activeTab: tab });
+        }
+      },
+
+      setTrainingConfig: (config) => {
+        set((state) => ({
+          trainingConfig: { ...state.trainingConfig, ...config }
+        }));
+        // 防抖计算 - 300ms后执行
+        clearTimeout(_debounceTimers['training']);
+        const timeout = setTimeout(() => get().calculateTrainingMemory(), 300);
+        _debounceTimers['training'] = timeout;
+      },
+
+      setInferenceConfig: (config) => {
+        set((state) => ({
+          inferenceConfig: { ...state.inferenceConfig, ...config }
+        }));
+        // 防抖计算 - 300ms后执行
+        clearTimeout(_debounceTimers['inference']);
+        const timeout = setTimeout(() => get().calculateInferenceMemory(), 300);
+        _debounceTimers['inference'] = timeout;
+      },
+
+      setFineTuningConfig: (config) => {
+        set((state) => ({
+          fineTuningConfig: { ...state.fineTuningConfig, ...config }
+        }));
+        // 防抖计算 - 300ms后执行
+        clearTimeout(_debounceTimers['fineTuning']);
+        const timeout = setTimeout(() => get().calculateFineTuningMemory(), 300);
+        _debounceTimers['fineTuning'] = timeout;
+      },
+
+      setAdvancedFineTuningConfig: (config) => {
+        set((state) => ({
+          advancedFineTuningConfig: { ...state.advancedFineTuningConfig, ...config }
+        }));
+        // 防抖计算 - 300ms后执行
+        clearTimeout(_debounceTimers['advancedFineTuning']);
+        const timeout = setTimeout(() => get().calculateAdvancedFineTuningMemory(), 300);
+        _debounceTimers['advancedFineTuning'] = timeout;
+      },
+
+      setGrpoConfig: (config) => {
+        set((state) => ({
+          grpoConfig: { ...state.grpoConfig, ...config }
+        }));
+        // 防抖计算 - 300ms后执行
+        clearTimeout(_debounceTimers['grpo']);
+        const timeout = setTimeout(() => get().calculateGRPOMemory(), 300);
+        _debounceTimers['grpo'] = timeout;
+      },
+
+      setMultimodalConfig: (config) => {
+        set((state) => ({
+          multimodalConfig: { ...state.multimodalConfig, ...config }
+        }));
+        
+        // 如果是模式切换，立即计算；其他情况防抖计算
+        if (config.mode) {
+          // 模式切换时立即计算
+          get().calculateMultimodalMemory();
+        } else {
+          // 其他配置变化时防抖计算 - 300ms后执行
+          clearTimeout(_debounceTimers['multimodal']);
+          const timeout = setTimeout(() => get().calculateMultimodalMemory(), 300);
+          _debounceTimers['multimodal'] = timeout;
+        }
+      },
+
+      addToHistory: (type, config: unknown, result, modelName) => {
+        const newItem: CalculationHistory = {
+          id: `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          timestamp: Date.now(),
+          type,
+          config,
+          result,
+          modelName,
+          tags: []
+        };
+        
+        set((state) => ({
+          history: [newItem, ...state.history].slice(0, 50) // 最多保存50条记录
+        }));
+      },
+
+      removeFromHistory: (id) => {
+        set((state) => ({
+          history: state.history.filter(item => item.id !== id)
+        }));
+      },
+
+      clearHistory: () => {
+        set({ history: [] });
+      },
+
+      addToCompare: (item) => {
+        set((state) => {
+          const exists = state.compareList.find(i => i.id === item.id);
+          if (exists || state.compareList.length >= 4) return state; // 最多比较4个
+          return {
+            compareList: [...state.compareList, item]
+          };
+        });
+      },
+
+      removeFromCompare: (id) => {
+        set((state) => ({
+          compareList: state.compareList.filter(item => item.id !== id)
+        }));
+      },
+
+      clearCompare: () => {
+        set({ compareList: [] });
+      },
+
+      setPreferences: (prefs) => {
+        set((state) => ({
+          preferences: { ...state.preferences, ...prefs }
+        }));
+      },
+
+      // 计算方法
+      calculateTrainingMemory: async () => {
+        const { trainingConfig, preferences, savedCustomModels } = get();
+        set({ trainingLoading: true });
+        
+        try {
+          // 模拟异步计算（实际可能涉及复杂计算）
+          await new Promise(resolve => setTimeout(resolve, 100));
+          const { getModelById } = await import('@/lib/models-data');
+          const modelInfo = getModelById(trainingConfig.modelId)
+            ?? savedCustomModels.find(m => m.id === trainingConfig.modelId)
+            ?? undefined;
+          const result = calculateTrainingMemory(trainingConfig, modelInfo);
+          set({ trainingResult: result, trainingLoading: false });
+          
+          // 自动保存到历史记录
+          if (preferences.autoSave) {
+            get().addToHistory('training', trainingConfig, result, modelInfo?.name || trainingConfig.modelId);
+          }
+        } catch (error) {
+          console.error('Training memory calculation error:', error);
+          set({ trainingResult: null, trainingLoading: false });
+        }
+      },
+
+      calculateInferenceMemory: async () => {
+        const { inferenceConfig, preferences, savedCustomModels } = get();
+        set({ inferenceLoading: true });
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          // 从模型数据库或自定义模型获取模型信息
+          const { getModelById } = await import('@/lib/models-data');
+          const modelInfo = getModelById(inferenceConfig.modelId)
+            ?? savedCustomModels.find(m => m.id === inferenceConfig.modelId)
+            ?? undefined;
+          const result = calculateInferenceMemory(inferenceConfig, modelInfo);
+          set({ inferenceResult: result, inferenceLoading: false });
+          
+          // 自动保存到历史记录
+          if (preferences.autoSave) {
+            get().addToHistory('inference', inferenceConfig, result, modelInfo?.name || inferenceConfig.modelId);
+          }
+        } catch (error) {
+          console.error('Inference memory calculation error:', error);
+          set({ inferenceResult: null, inferenceLoading: false });
+        }
+      },
+
+      calculateFineTuningMemory: async () => {
+        const { fineTuningConfig, preferences, savedCustomModels } = get();
+        set({ fineTuningLoading: true });
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          // 从模型数据库或自定义模型获取模型信息
+          const { getModelById } = await import('@/lib/models-data');
+          const modelInfo = getModelById(fineTuningConfig.baseModel)
+            ?? savedCustomModels.find(m => m.id === fineTuningConfig.baseModel)
+            ?? undefined;
+          const result = calculateFineTuningMemory(fineTuningConfig, modelInfo);
+          set({ fineTuningResult: result, fineTuningLoading: false });
+          
+          // 自动保存到历史记录
+          if (preferences.autoSave) {
+            get().addToHistory('finetuning', fineTuningConfig, result, modelInfo?.name || fineTuningConfig.baseModel);
+          }
+        } catch (error) {
+          console.error('Fine-tuning memory calculation error:', error);
+          set({ fineTuningResult: null, fineTuningLoading: false });
+        }
+      },
+
+      calculateGRPOMemory: async () => {
+        const { grpoConfig, preferences, savedCustomModels } = get();
+        set({ grpoLoading: true });
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          // 从模型数据库或自定义模型获取模型信息
+          const { getModelById } = await import('@/lib/models-data');
+          const modelInfo = getModelById(grpoConfig.modelId)
+            ?? savedCustomModels.find(m => m.id === grpoConfig.modelId)
+            ?? undefined;
+          const result = calculateGRPOMemory(grpoConfig, modelInfo);
+          set({ grpoResult: result, grpoLoading: false });
+          
+          // 自动保存到历史记录
+          if (preferences.autoSave) {
+            get().addToHistory('grpo', grpoConfig, result, modelInfo?.name || grpoConfig.modelId);
+          }
+        } catch (error) {
+          console.error('GRPO memory calculation error:', error);
+          set({ grpoResult: null, grpoLoading: false });
+        }
+      },
+
+      calculateMultimodalMemory: async () => {
+        const { multimodalConfig, preferences, savedCustomModels } = get();
+        set({ multimodalLoading: true });
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          // 从模型数据库或自定义模型获取模型信息
+          const { getModelById } = await import('@/lib/models-data');
+          const modelInfo = getModelById(multimodalConfig.modelId)
+            ?? savedCustomModels.find(m => m.id === multimodalConfig.modelId)
+            ?? undefined;
+          const result = calculateMultimodalMemory(multimodalConfig, modelInfo);
+          set({ multimodalResult: result, multimodalLoading: false });
+          
+          // 自动保存到历史记录
+          if (preferences.autoSave) {
+            get().addToHistory('multimodal', multimodalConfig, result, modelInfo?.name || multimodalConfig.modelId);
+          }
+        } catch (error) {
+          console.error('Multimodal memory calculation error:', error);
+          set({ multimodalResult: null, multimodalLoading: false });
+        }
+      },
+
+      calculateAdvancedFineTuningMemory: async () => {
+        const { advancedFineTuningConfig, preferences } = get();
+        set({ advancedFineTuningLoading: true });
+
+        try {
+          // 获取当前语言设置
+          const currentLanguage = typeof window !== 'undefined' ? localStorage.getItem('language') || 'zh' : 'zh';
+
+          // 使用MCP API进行计算
+          const response = await fetch('/api/mcp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'tools/call',
+              params: {
+                name: 'calculate_advanced_finetuning_vram',
+                arguments: {
+                  ...advancedFineTuningConfig,
+                  language: currentLanguage
+                }
+              },
+              id: Date.now()
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error.message || 'MCP API calculation failed');
+          }
+
+          // 解析MCP API返回的结果
+          const responseText = data?.result?.content?.[0]?.text;
+          if (!responseText) {
+            throw new Error('MCP API 响应格式异常：缺少 content[0].text');
+          }
+          const result = JSON.parse(responseText);
+          set({ advancedFineTuningResult: result, advancedFineTuningLoading: false });
+
+          // 自动保存到历史记录
+          if (preferences.autoSave) {
+            const modelName = `${advancedFineTuningConfig.modelType} Model`;
+            get().addToHistory('finetuning_advanced', advancedFineTuningConfig, result, modelName);
+          }
+        } catch (error) {
+          console.error('Advanced fine-tuning memory calculation error:', error);
+
+          // 如果MCP API失败，回退到本地计算
+          try {
+            console.log('Falling back to local calculation...');
+            const currentLanguage = typeof window !== 'undefined' ? localStorage.getItem('language') || 'zh' : 'zh';
+            const result = calculateAdvancedFineTuningMemory(advancedFineTuningConfig, currentLanguage);
+            set({ advancedFineTuningResult: result, advancedFineTuningLoading: false });
+
+            if (preferences.autoSave) {
+              const modelName = `${advancedFineTuningConfig.modelType} Model`;
+              get().addToHistory('finetuning_advanced', advancedFineTuningConfig, result, modelName);
+            }
+          } catch (fallbackError) {
+            console.error('Local calculation also failed:', fallbackError);
+            set({ advancedFineTuningResult: null, advancedFineTuningLoading: false });
+          }
+        }
+      },
+
+      getCurrentResult: () => {
+        const { primaryTab, activeTab, trainingResult, inferenceResult, fineTuningResult, grpoResult, multimodalResult, advancedFineTuningResult } = get();
+        
+        if (primaryTab === 'multimodal') {
+          return multimodalResult;
+        }
+
+        if (primaryTab === 'advanced') {
+          return advancedFineTuningResult;
+        }
+        
+        // NLP分组根据activeTab返回对应结果
+        switch (activeTab) {
+          case 'training':
+            return trainingResult;
+          case 'inference':
+            return inferenceResult;
+          case 'finetuning':
+            return fineTuningResult;
+          case 'grpo':
+            return grpoResult;
+          default:
+            return null;
+        }
+      },
+
+      // 自定义模型
+      savedCustomModels: [],
+      customModelDraft: {
+        name: '',
+        architecture: 'transformer',
+        params: '',
+        hiddenSize: '',
+        numLayers: '',
+        numHeads: '',
+        numKVHeads: '',
+        vocabSize: '',
+        activeParams: '',
+      },
+
+      setCustomModelDraft: (draft) => {
+        set((state) => ({
+          customModelDraft: { ...state.customModelDraft, ...draft }
+        }));
+      },
+
+      resetCustomModelDraft: () => {
+        set({
+          customModelDraft: {
+            name: '',
+            architecture: 'transformer',
+            params: '',
+            hiddenSize: '',
+            numLayers: '',
+            numHeads: '',
+            numKVHeads: '',
+            vocabSize: '',
+            activeParams: '',
+          }
+        });
+      },
+
+      addCustomModel: (model) => {
+        set((state) => {
+          const exists = state.savedCustomModels.findIndex(m => m.id === model.id);
+          if (exists >= 0) {
+            // 更新已有模型
+            const updated = [...state.savedCustomModels];
+            updated[exists] = model;
+            return { savedCustomModels: updated };
+          }
+          // 最多保存 10 个
+          return {
+            savedCustomModels: [model, ...state.savedCustomModels].slice(0, 10)
+          };
+        });
+      },
+
+      removeCustomModel: (id) => {
+        set((state) => ({
+          savedCustomModels: state.savedCustomModels.filter(m => m.id !== id)
+        }));
+      },
+
+      getCustomModelById: (id) => {
+        return get().savedCustomModels.find(m => m.id === id);
+      },
+    }),
+    {
+      name: 'ai-memory-calculator-store',
+      storage: createJSONStorage(() => localStorage),
+      version: 3, // 每次新增持久化字段时递增
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as Record<string, unknown>;
+        // v0/v1 → v2：补全新增的 concurrentUsers 字段
+        if (version < 2) {
+          const inf = state.inferenceConfig as Record<string, unknown> | undefined;
+          if (inf && inf.concurrentUsers === undefined) {
+            inf.concurrentUsers = 1;
+          }
+          const mm = state.multimodalConfig as Record<string, unknown> | undefined;
+          if (mm && mm.concurrentUsers === undefined) {
+            mm.concurrentUsers = 1;
+          }
+        }
+        // v2 → v3：训练配置从 modelParams 改为 modelId
+        if (version < 3) {
+          const tr = state.trainingConfig as Record<string, unknown> | undefined;
+          if (tr) {
+            if (tr.modelId === undefined) {
+              tr.modelId = 'qwen3-8b';
+            }
+            delete tr.modelParams;
+          }
+        }
+        return state;
+      },
+      // 只持久化配置和偏好，不持久化计算结果
+      partialize: (state) => ({
+        primaryTab: state.primaryTab,
+        activeTab: state.activeTab,
+        trainingConfig: state.trainingConfig,
+        inferenceConfig: state.inferenceConfig,
+        fineTuningConfig: state.fineTuningConfig,
+        grpoConfig: state.grpoConfig,
+        multimodalConfig: state.multimodalConfig,
+        advancedFineTuningConfig: state.advancedFineTuningConfig,
+        preferences: state.preferences,
+        history: state.history.slice(0, 10), // 只保存最近10条历史记录
+        savedCustomModels: state.savedCustomModels,
+      }),
+    }
+  )
+);
+
+// 监听语言变化事件，重新计算高级微调显存
+if (typeof window !== 'undefined') {
+  window.addEventListener('languageChanged', (event: any) => {
+    const store = useCalculatorStore.getState();
+    // 如果当前有高级微调结果，延迟重新计算以确保localStorage已更新
+    if (store.advancedFineTuningResult) {
+      setTimeout(() => {
+        store.calculateAdvancedFineTuningMemory();
+      }, 500); // 增加延迟到500ms确保localStorage已更新
+    }
+  });
+}

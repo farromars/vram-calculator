@@ -1,0 +1,51 @@
+{
+  "name": "LLM 显存计算器",
+  "short_name": "显存计算器",
+  "description": "专业的AI大模型GPU显存需求分析工具，支持推理、训练、微调等多场景精确估算",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0052D9",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "训练计算器",
+      "short_name": "训练",
+      "description": "打开训练显存计算器",
+      "url": "/?tab=training",
+      "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "推理计算器",
+      "short_name": "推理",
+      "description": "打开推理显存计算器",
+      "url": "/?tab=inference",
+      "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+} 

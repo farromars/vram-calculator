@@ -1,0 +1,61 @@
+{
+  "name": "vram-calculator-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for AI VRAM calculation and GPU recommendation",
+  "main": "dist/index.js",
+  "bin": {
+    "vram-calculator-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build",
+    "test": "node test/test-mcp.js",
+    "publish:npm": "./scripts/publish.sh"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "vram",
+    "gpu",
+    "llm",
+    "ai",
+    "calculator",
+    "memory",
+    "training",
+    "inference",
+    "recommendation"
+  ],
+  "author": "farromars",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farromars/vram-calculator.git",
+    "directory": "mcp-server"
+  },
+  "homepage": "https://github.com/farromars/vram-calculator#readme",
+  "bugs": {
+    "url": "https://github.com/farromars/vram-calculator/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.2",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
