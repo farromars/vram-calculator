@@ -52,7 +52,6 @@ export function GRPOCalculator() {
 
         {/* 模型选择 */}
         <div className="space-y-3">
-          <label className="text-sm font-medium">{t('grpo.preset.model')}</label>
           <ModelSelector
             value={config.modelId}
             onChange={(id) => handleConfigChange('modelId', id)}

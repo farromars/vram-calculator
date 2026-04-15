@@ -59,7 +59,6 @@ export function TrainingCalculator() {
 
         {/* 基础模型选择 */}
         <div className="space-y-3">
-          <label className="text-sm font-medium">{t('preset.model')}</label>
           <ModelSelector
             value={config.modelId}
             onChange={(id) => handleConfigChange('modelId', id)}

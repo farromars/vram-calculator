@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Trash2, Tag, PenLine } from 'lucide-react';
+import { Save, Trash2, Tag, PenLine, Link, Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useCalculatorStore } from '@/store/calculator-store';
 import {
   validateCustomModel,
@@ -12,9 +12,78 @@ import {
 } from '@/utils/custom-model-validator';
 import { ModelInfo, CustomModelDraft } from '@/types';
 
+// URL 导入状态
+type ImportStatus = 'idle' | 'loading' | 'success' | 'error';
+
+interface ImportResult {
+  status: ImportStatus;
+  message?: string;
+  source?: 'huggingface' | 'modelscope';
+  isMultimodal?: boolean;
+  meta?: { numExperts?: number | null; numActiveExperts?: number | null; modelType?: string };
+}
+
 interface CustomModelFormProps {
   onSelect: (model: ModelInfo) => void;
+  /** 跟随父页面的主题色，默认 primary */
+  accentColor?: 'green' | 'blue' | 'purple' | 'cyan';
+  /** 当前页面的架构类型，用于多模态模型导入警告 */
+  arch?: 'nlp' | 'multimodal';
 }
+
+// URL 来源徽章颜色（亮色主题适配）
+const SOURCE_BADGE: Record<string, { cls: string; label: string }> = {
+  huggingface: { cls: 'bg-yellow-100 text-yellow-800 border-yellow-300', label: 'HuggingFace' },
+  modelscope:  { cls: 'bg-blue-100 text-blue-800 border-blue-300',       label: 'ModelScope'  },
+};
+
+// 跟随 accentColor 的颜色配置
+const ACCENT_COLOR_MAP = {
+  green:  {
+    btn:         'bg-green-50 text-green-700 border-green-400',
+    btnOpen:     'bg-green-50 text-green-700 border-green-400',
+    importBtn:   'bg-green-600 text-white border-green-700 hover:bg-green-700',
+    focusRing:   'focus:ring-green-400/50 focus:border-green-500',
+    successBg:   'bg-green-50 border-green-300',
+    successText: 'text-green-800',
+    successSub:  'text-green-700',
+    successHint: 'text-green-600',
+    successIcon: 'text-green-600',
+  },
+  blue:   {
+    btn:         'bg-blue-50 text-blue-700 border-blue-400',
+    btnOpen:     'bg-blue-50 text-blue-700 border-blue-400',
+    importBtn:   'bg-blue-600 text-white border-blue-700 hover:bg-blue-700',
+    focusRing:   'focus:ring-blue-400/50 focus:border-blue-500',
+    successBg:   'bg-blue-50 border-blue-300',
+    successText: 'text-blue-800',
+    successSub:  'text-blue-700',
+    successHint: 'text-blue-600',
+    successIcon: 'text-blue-600',
+  },
+  purple: {
+    btn:         'bg-purple-50 text-purple-700 border-purple-400',
+    btnOpen:     'bg-purple-50 text-purple-700 border-purple-400',
+    importBtn:   'bg-purple-600 text-white border-purple-700 hover:bg-purple-700',
+    focusRing:   'focus:ring-purple-400/50 focus:border-purple-500',
+    successBg:   'bg-purple-50 border-purple-300',
+    successText: 'text-purple-800',
+    successSub:  'text-purple-700',
+    successHint: 'text-purple-600',
+    successIcon: 'text-purple-600',
+  },
+  cyan:   {
+    btn:         'bg-cyan-50 text-cyan-700 border-cyan-400',
+    btnOpen:     'bg-cyan-50 text-cyan-700 border-cyan-400',
+    importBtn:   'bg-cyan-600 text-white border-cyan-700 hover:bg-cyan-700',
+    focusRing:   'focus:ring-cyan-400/50 focus:border-cyan-500',
+    successBg:   'bg-cyan-50 border-cyan-300',
+    successText: 'text-cyan-800',
+    successSub:  'text-cyan-700',
+    successHint: 'text-cyan-600',
+    successIcon: 'text-cyan-600',
+  },
+};
 
 const ARCH_OPTIONS = [
   { value: 'transformer', label: 'Transformer（标准）' },
@@ -51,7 +120,7 @@ function FieldRow({
   );
 }
 
-export function CustomModelForm({ onSelect }: CustomModelFormProps) {
+export function CustomModelForm({ onSelect, accentColor = 'green', arch = 'nlp' }: CustomModelFormProps) {
   const {
     savedCustomModels,
     customModelDraft: draft,
@@ -61,13 +130,58 @@ export function CustomModelForm({ onSelect }: CustomModelFormProps) {
     removeCustomModel,
   } = useCalculatorStore();
 
+  const ac = ACCENT_COLOR_MAP[accentColor];
+
   const [touched, setTouched] = useState<Partial<Record<keyof CustomModelDraft, boolean>>>({});
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [editingModel, setEditingModel] = useState<ModelInfo | null>(null);
-  // 'saved'：展示已保存列表；'new'：展示新建表单
   const [view, setView] = useState<'saved' | 'new'>(
     savedCustomModels.length > 0 ? 'saved' : 'new'
   );
+
+  // URL 导入状态
+  const [urlInput, setUrlInput] = useState('');
+  const [showUrlImport, setShowUrlImport] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult>({ status: 'idle' });
+
+  const handleUrlImport = useCallback(async () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    setImportResult({ status: 'loading' });
+    try {
+      const res = await fetch('/api/import-model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setImportResult({ status: 'error', message: data.error ?? '导入失败，请重试' });
+        return;
+      }
+      setCustomModelDraft(data.draft);
+      setTouched({});
+      setEditingModel(null);
+      setImportResult({
+        status: 'success',
+        source: data.source,
+        isMultimodal: data.isMultimodal,
+        message: `已从 ${data.modelId} 导入参数`,
+        meta: data.meta,
+      });
+      setView('new');
+    } catch {
+      setImportResult({ status: 'error', message: '网络错误，请检查连接后重试' });
+    }
+  }, [urlInput, setCustomModelDraft]);
+
+  const handleUrlKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleUrlImport();
+    if (e.key === 'Escape') {
+      setShowUrlImport(false);
+      setImportResult({ status: 'idle' });
+    }
+  };
 
   const validation = useMemo(() => validateCustomModel(draft), [draft]);
 
@@ -156,7 +270,129 @@ export function CustomModelForm({ onSelect }: CustomModelFormProps) {
 
   return (
     <div className="space-y-3">
-      {/* 已保存 / 新建 内部切换（当有已保存模型时显示） */}
+      {/* ── URL 导入入口 ── */}
+      <div className="space-y-2">
+        <button
+          onClick={() => {
+            setShowUrlImport(v => !v);
+            if (showUrlImport) setImportResult({ status: 'idle' });
+          }}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg border transition-all ${
+            showUrlImport
+              ? ac.btnOpen
+              : 'bg-secondary text-foreground border-border hover:border-primary hover:text-primary hover:bg-primary/5'
+          }`}
+        >
+          <Link className="w-4 h-4" />
+          从 HuggingFace / ModelScope 链接导入
+        </button>
+
+        <AnimatePresence>
+          {showUrlImport && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-2 pt-1">
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={e => {
+                      setUrlInput(e.target.value);
+                      if (importResult.status !== 'idle') setImportResult({ status: 'idle' });
+                    }}
+                    onKeyDown={handleUrlKeyDown}
+                    placeholder="粘贴模型页 URL，例如 https://huggingface.co/Qwen/Qwen3-8B"
+                    className={`flex-1 px-3 py-2 text-sm text-foreground bg-background border border-border rounded-lg focus:outline-none focus:ring-2 placeholder:text-muted-foreground ${ac.focusRing}`}
+                    autoFocus
+                  />
+                  {urlInput && (
+                    <button
+                      onClick={() => { setUrlInput(''); setImportResult({ status: 'idle' }); }}
+                      className="p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={handleUrlImport}
+                    disabled={!urlInput.trim() || importResult.status === 'loading'}
+                    className={`px-4 py-2 text-sm font-semibold rounded-lg border disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0 shadow-sm ${ac.importBtn}`}
+                  >
+                    {importResult.status === 'loading' ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      '导入'
+                    )}
+                  </button>
+                </div>
+
+                {/* 导入结果提示 */}
+                <AnimatePresence>
+                  {importResult.status === 'success' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className={`flex flex-col gap-2 p-3 border rounded-lg ${ac.successBg}`}
+                    >
+                      {/* 成功主信息 */}
+                      <div className="flex items-start gap-2.5">
+                        <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${ac.successIcon}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-sm font-medium ${ac.successText}`}>{importResult.message}</span>
+                            {importResult.source && SOURCE_BADGE[importResult.source] && (
+                              <span className={`text-xs px-1.5 py-0.5 rounded border font-medium ${SOURCE_BADGE[importResult.source].cls}`}>
+                                {SOURCE_BADGE[importResult.source].label}
+                              </span>
+                            )}
+                          </div>
+                          {importResult.meta?.modelType && (
+                            <div className={`text-xs mt-1 ${ac.successSub}`}>
+                              model_type: <span className="font-mono font-medium">{importResult.meta.modelType}</span>
+                              {importResult.meta.numExperts != null && (
+                                <> · {importResult.meta.numExperts} 专家
+                                {importResult.meta.numActiveExperts != null && <>（激活 {importResult.meta.numActiveExperts}）</>}</>
+                              )}
+                            </div>
+                          )}
+                          <div className={`text-xs mt-1 ${ac.successHint}`}>参数已填入下方表单，确认后点击「使用」或「保存为常用」</div>
+                        </div>
+                      </div>
+
+                      {/* 多模态架构不匹配警告 */}
+                      {importResult.isMultimodal && arch === 'nlp' && (
+                        <div className="flex items-start gap-2 px-2.5 py-2 bg-amber-50 border border-amber-300 rounded-lg">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="text-xs text-amber-800">
+                            <span className="font-semibold">架构提示：</span>该模型为多模态模型，当前页面使用 NLP 计算模式，导入的参数来自其文本骨干（text backbone）。显存估算结果<span className="font-semibold">不含视觉编码器</span>，实际占用会更高。如需完整估算，请在多模态计算器中使用。
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                  {importResult.status === 'error' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-300 rounded-lg"
+                    >
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                      <span className="text-sm text-red-700">{importResult.message}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       {savedCustomModels.length > 0 && (
         <div className="flex gap-0 rounded-lg overflow-hidden border border-white/20">
           <button

@@ -209,7 +209,7 @@ export function ModelSelector({
             exit={{ opacity: 0, x: 6 }}
             transition={{ duration: 0.15 }}
           >
-            <CustomModelForm onSelect={handleCustomSelect} />
+            <CustomModelForm onSelect={handleCustomSelect} accentColor={accentColor} arch={arch} />
           </motion.div>
         )}
       </AnimatePresence>
